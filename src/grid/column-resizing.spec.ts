@@ -214,8 +214,8 @@ describe("IgxGrid - Deferred Column Resizing", () => {
         const grid = fixture.componentInstance.grid;
         const headers: DebugElement[] = fixture.debugElement.queryAll(By.css(COLUMN_HEADER_CLASS));
 
-        expect(grid.columns[0].width).toEqual("100px");
-        expect(grid.columns[1].width).toEqual("100px");
+        expect(grid.columns[0].width).toEqual("150px");
+        expect(grid.columns[1].width).toEqual("150px");
 
         const headerResArea = headers[0].nativeElement.children[1];
         simulateMouseEvent("mousedown", headerResArea, 100, 0);
@@ -336,7 +336,7 @@ describe("IgxGrid - Deferred Column Resizing", () => {
         tick();
         fixture.detectChanges();
 
-        expect(grid.columns[1].width).toEqual("100px");
+        expect(grid.columns[1].width).toEqual("150px");
 
         const headerResArea = headers[1].nativeElement.children[1];
         simulateMouseEvent("mousedown", headerResArea, 200, 0);
@@ -352,7 +352,7 @@ describe("IgxGrid - Deferred Column Resizing", () => {
         tick(100);
         fixture.detectChanges();
 
-        expect(grid.columns[1].width).toEqual("150px");
+        expect(grid.columns[1].width).toEqual("200px");
 
         discardPeriodicTasks();
     }));
@@ -591,10 +591,10 @@ export class ResizableColumnsComponent {
 @Component({
     template: `
         <igx-grid [data]="data" width="500px">
-            <igx-column [pinned]="true" [resizable]="true" field="ID" width="100px"></igx-column>
-            <igx-column [pinned]="true" [resizable]="true" field="Name" width="100px" [maxWidth]="'150px'"></igx-column>
-            <igx-column [resizable]="true" field="LastName" width="100px"></igx-column>
-            <igx-column [resizable]="true" field="Region" width="100px"></igx-column>
+            <igx-column [pinned]="true" [resizable]="true" field="ID" width="150px"></igx-column>
+            <igx-column [pinned]="true" [resizable]="true" field="Name" width="150px" [maxWidth]="'200px'"></igx-column>
+            <igx-column [resizable]="true" field="LastName" width="150px"></igx-column>
+            <igx-column [resizable]="true" field="Region" width="150px"></igx-column>
         </igx-grid>
     `
 })

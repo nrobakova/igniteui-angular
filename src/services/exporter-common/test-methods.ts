@@ -41,6 +41,13 @@ export class TestMethods {
 
         const myGrid = fix.componentInstance.grid1;
 
+        // set widths so that pinning is allowed
+        myGrid.width = "300px";
+        myGrid.columnList.forEach((column) => {
+            column.width = "150px";
+        });
+        fix.detectChanges();
+
         // Pin columns
         colIndices.forEach((i) => {
             myGrid.columns[i].pin();

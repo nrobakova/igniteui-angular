@@ -419,7 +419,7 @@ export class CtrlKeyKeyboardNagivationComponent {
 
 @Component({
     template: `
-        <igx-grid [height]="'300px'" [width]="'800px'" [columnWidth]="'200px'" [data]="data" [autoGenerate]="true"
+        <igx-grid [height]="'300px'" [width]="'700px'" [columnWidth]="'200px'" [data]="data" [autoGenerate]="true"
          (onSelection)="cellSelected($event)">
         </igx-grid>
     `
