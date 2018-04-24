@@ -93,7 +93,7 @@ export class IgxGridSummaryComponent implements IGridBus, OnInit, OnDestroy, DoC
     }
 
     ngDoCheck() {
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
     }
 
     ngAfterContentInit() {

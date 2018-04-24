@@ -42,22 +42,67 @@ export class IgxColumnComponent implements AfterContentInit {
     public field: string;
 
     @Input()
-    public header = "";
+    public get header(): string {
+        return this._header;
+    }
+
+    public set header(value: string) {
+        this._header = value;
+        this.check();
+    }
 
     @Input()
-    public sortable = false;
+    public get sortable(): boolean {
+        return this._sortable;
+    }
+
+    public set sortable(value: boolean) {
+        this._sortable = value;
+        this.check();
+    }
 
     @Input()
-    public editable = false;
+    public get editable(): boolean {
+        return this._editable;
+    }
+
+    public set editable(value: boolean) {
+        this._editable = value;
+        this.check();
+    }
 
     @Input()
-    public filterable = false;
+    public get filterable(): boolean {
+        return this._filterable;
+    }
+
+    public set filterable(value: boolean) {
+        this._filterable = value;
+        this.check();
+    }
 
     @Input()
-    public resizable = false;
+    public get resizable(): boolean {
+        return this._resizable;
+    }
+
+    public set resizable(value: boolean) {
+        this._resizable = value;
+        this.check();
+    }
 
     @Input()
-    public hasSummary = false;
+    public get hasSummary(): boolean {
+        return this._hasSummary;
+    }
+
+    public set hasSummary(value: boolean) {
+        this._hasSummary = value;
+        if (this.grid) {
+            this.grid.tfootHeight = 0;
+            this.grid.reflow();
+        }
+    }
 
     @Input()
     get hidden(): boolean {
@@ -75,7 +120,14 @@ export class IgxColumnComponent implements AfterContentInit {
     public movable = false;
 
     @Input()
-    public width: string;
+    public get width(): string {
+        return this._width;
+    }
+
+    public set width(value: string) {
+        this._width = value;
+        this.check();
+    }
 
     @Input()
     public maxWidth: string;
@@ -196,6 +248,13 @@ export class IgxColumnComponent implements AfterContentInit {
     protected _headerTemplate: TemplateRef<any>;
     protected _footerTemplate: TemplateRef<any>;
     protected _inlineEditorTemplate: TemplateRef<any>;
+    protected _filterable = false;
+    protected _header = "";
+    protected _editable = false;
+    protected _width;
+    protected _resizable = false;
+    protected _sortable = false;
+    protected _hasSummary = false;
     protected _summaries = null;
     protected _hidden = false;
     protected _index: number;

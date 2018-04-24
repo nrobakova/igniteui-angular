@@ -115,6 +115,7 @@ export class IgxGridHeaderComponent implements IGridBus, OnInit, DoCheck {
 
     public ngDoCheck() {
         this.getSortDirection();
+        this.cdr.markForCheck();
     }
 
     @HostListener("click", ["$event"])
