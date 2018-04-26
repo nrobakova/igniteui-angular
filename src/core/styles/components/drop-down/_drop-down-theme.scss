@@ -1,0 +1,86 @@
+////
+/// @group themes
+/// @access public
+/// @author <a href="https://github.com/desig9stein" target="_blank">Marin Popov</a>
+////
+
+/// @param {Color} $background-color [null] - The drop-down background color.
+
+/// @requires text-contrast
+@function igx-drop-down-theme(
+    $background-color: null,
+    $text-color: null,
+    $icon-color: null
+) {
+
+    @if not($text-color) and $background-color {
+        $text-color: text-contrast($background-color);
+    }
+
+    @if not($icon-color) and $background-color {
+        $icon-color: text-contrast($background-color);
+    }
+
+    @return (
+        background-color: $background-color,
+        text-color: $text-color,
+        icon-color: $icon-color
+    );
+}
+
+/// @param {Map} $theme - The theme used to style the component.
+/// @param {Map} $palette [$default-palette] - The palette used as basis for styling the component.
+/// @requires igx-drop-down-theme
+/// @requires igx-color
+/// @requires igx-elevation
+/// @requires $elevations
+/// @requires rem
+@mixin igx-drop-down($theme, $palette: $default-palette) {
+
+    $default-theme: igx-drop-down-theme(
+        $background-color: #fff,
+        $text-color: #333,
+        $icon-color: #666
+    );
+
+    $this: extend($default-theme, $theme);
+
+    $dd-shadow: igx-elevation($elevations, 2);
+
+    %igx-drop-down {
+        display: flex;
+        flex-direction: column;
+        background: $background-color;
+        padding: 8px 24px;
+        box-shadow: $dd-shadow;
+        min-width: 128px;
+        max-width: 192px;
+    }
+
+    %igx-drop-down__header {
+        font-weight: 800;
+    }
+
+    %igx-drop-down__item {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        height: 32px;
+    }
+
+    %igx-drop-down__item--selected {
+        background: #2b6a94;
+        color: #fff;
+    }
+
+    %igx-drop-down__item--focused {
+        background: #3582b6;
+        color: #fff;
+    }
+
+    %igx-drop-down__item--disabled {
+        background: rgba(255, 255, 255, .2);
+        color: #ddd;
+    }
+}
+
