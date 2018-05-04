@@ -35,6 +35,7 @@ import { cloneArray } from "../core/utils";
 import { DataType } from "../data-operations/data-util";
 import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
 import { ISortingExpression, SortingDirection } from "../data-operations/sorting-expression.interface";
+import { IgxForOfHolderDirective } from "../directives/for-of-holder/for_of_holder.directive";
 import { IgxForOfDirective } from "../directives/for-of/for_of.directive";
 import { IForOfState } from "../directives/for-of/IForOfState";
 import { IgxCheckboxComponent } from "./../checkbox/checkbox.component";

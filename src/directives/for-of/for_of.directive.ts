@@ -57,8 +57,8 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
     @Output()
     public onChunkPreload = new EventEmitter<IForOfState>();
 
-    private hScroll;
-    private func;
+    public hScroll;
+    public func;
     private hCache: number[];
     private vh: ComponentRef<VirtualHelperComponent>;
     private hvh: ComponentRef<HVirtualHelperComponent>;
@@ -335,7 +335,7 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
         scrollOffset = scrollOffset !== parseInt(this.igxForItemSize, 10) ? scrollOffset : 0;
         this.dc.instance._viewContainer.element.nativeElement.style.top = -(scrollOffset) + "px";
 
-        this.dc.changeDetectorRef.detectChanges();
+        // this.dc.changeDetectorRef.detectChanges();
         this.onChunkLoad.emit(this.state);
     }
 
@@ -378,7 +378,7 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
     }
 
     /** Function that is called when scrolling horizontally */
-    protected onHScroll(event) {
+    public onHScroll(event) {
         /* in certain situations this may be called when no scrollbar is visible */
         if (!parseInt(this.hScroll.children[0].style.width, 10)) {
             return;
@@ -389,7 +389,7 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
         const scrollOffset = this.fixUpdateAllCols(curScrollLeft);
         this.dc.instance._viewContainer.element.nativeElement.style.left = -scrollOffset + "px";
 
-        this.dc.changeDetectorRef.detectChanges();
+        // this.dc.changeDetectorRef.detectChanges();
         this.onChunkLoad.emit();
     }
 
@@ -544,7 +544,7 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
                 cntx.$implicit = input;
                 cntx.index = this.igxForOf.indexOf(input);
             }
-            this.dc.changeDetectorRef.detectChanges();
+            // this.dc.changeDetectorRef.detectChanges();
             this.onChunkLoad.emit();
         }
     }

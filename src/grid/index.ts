@@ -6,6 +6,7 @@ import { IgxSelectionAPIService } from "../core/selection";
 import { IgxDatePickerModule } from "../date-picker/date-picker.component";
 import { IgxButtonModule } from "../directives/button/button.directive";
 import { IgxFocusModule } from "../directives/focus/focus.directive";
+import { IgxForOfHolderModule } from "../directives/for-of-holder/for_of_holder.directive";
 import { IgxForOfModule } from "../directives/for-of/for_of.directive";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxTextSelectionModule } from "../directives/text-selection/text-selection.directive";
@@ -74,6 +75,7 @@ import { IgxGridRowComponent } from "./row.component";
     IgxRippleModule,
     IgxInputGroupModule,
     IgxToggleModule,
+    IgxForOfHolderModule,
     IgxForOfModule,
     IgxFocusModule,
     IgxTextSelectionModule,

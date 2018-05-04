@@ -57,3 +57,4 @@ export * from "./directives/ripple/ripple.directive";
 export * from "./directives/toggle/toggle.directive";
 export * from "./directives/text-selection/text-selection.directive";
 export * from "./directives/focus/focus.directive";
+export * from "./directives/for-of-holder/for_of_holder.directive";
