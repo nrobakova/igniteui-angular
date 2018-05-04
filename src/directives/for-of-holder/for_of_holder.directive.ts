@@ -42,9 +42,7 @@ export class IgxForOfHolderDirective<T> implements AfterViewInit {
             hScroll =  rowsArray[0].virtDirRow.hScroll;
             this._zone.runOutsideAngular(() => {
                 hScroll.addEventListener("scroll", (evt) => {
-                    this._zone.run(() => {
                         this.globalHorizontalScroll(evt);
-                    });
                 });
             });
         }, 0);
