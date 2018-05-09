@@ -26,6 +26,7 @@ export * from "./calendar";
 export * from "./card/card.component";
 export * from "./carousel/carousel.component";
 export * from "./checkbox/checkbox.component";
+export * from "./combo/combo.component";
 export * from "./date-picker/date-picker.component";
 export * from "./dialog/dialog.component";
 export * from "./input-group/input-group.component";
