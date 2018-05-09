@@ -11,6 +11,7 @@ export class DialogSampleComponent {
         // args.dialog - dialog
 
         // perform OK action
+        // Comment
         args.dialog.close();
     }
 }
