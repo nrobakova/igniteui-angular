@@ -28,10 +28,16 @@ import { IgxNavigationService, IToggleView } from "../../core/navigation";
 export class IgxToggleDirective implements IToggleView, OnInit, OnDestroy {
 
     @Output()
-    public onOpen = new EventEmitter();
+    public onOpened = new EventEmitter();
 
     @Output()
-    public onClose = new EventEmitter();
+    public onOpening = new EventEmitter();
+
+    @Output()
+    public onClosed = new EventEmitter();
+
+    @Output()
+    public onClosing = new EventEmitter();
 
     @Input()
     public collapsed = true;
@@ -65,14 +71,23 @@ export class IgxToggleDirective implements IToggleView, OnInit, OnDestroy {
         if (!this.collapsed) { return; }
 
         const player = this.animationActivation();
-        player.onStart(() => this.collapsed = !this.collapsed);
+        player.onStart(() => {
+            // this.collapsed = !this.collapsed;
+            // if (fireEvents) {
+            //     this.onOpening.emit();
+            // }
+        });
         player.onDone(() =>  {
             player.destroy();
             if (fireEvents) {
-                this.onOpen.emit();
+                this.onOpened.emit();
             }
         });
 
+        this.collapsed = !this.collapsed;
+        if (fireEvents) {
+            this.onOpening.emit();
+        }
         player.play();
     }
 
@@ -80,6 +95,11 @@ export class IgxToggleDirective implements IToggleView, OnInit, OnDestroy {
         if (this.collapsed) { return; }
 
         const player = this.animationActivation();
+        player.onStart(() => {
+            if (fireEvents) {
+                this.onClosing.emit();
+            }
+        });
         player.onDone(() => {
             this.collapsed = !this.collapsed;
             // When using directive into component with OnPush it is necessary to
@@ -88,7 +108,7 @@ export class IgxToggleDirective implements IToggleView, OnInit, OnDestroy {
             this.cdr.markForCheck();
             player.destroy();
             if (fireEvents) {
-                this.onClose.emit();
+                this.onClosed.emit();
             }
         });
 

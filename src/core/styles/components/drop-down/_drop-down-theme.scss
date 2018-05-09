@@ -1,0 +1,208 @@
+////
+/// @group themes
+/// @access public
+/// @author <a href="https://github.com/desig9stein" target="_blank">Marin Popov</a>
+////
+///
+/// @param {Color} $drop-down-background-color [null] - The drop-down background color.
+/// @param {Color} $header-text-color [null] - The drop-down header text color.
+///
+/// @param {Color} $item-text-color [null] - The drop-down text color.
+///
+/// @param {Color} $hover-item-background [null] - The drop-down hover item background color.
+///
+/// @param {Color} $focused-item-background [null] - The drop-down focused item background color.
+/// @param {Color} $focus-item-text-color [null] - The drop-down focused item text color.
+///
+/// @param {Color} $selected-item-background [null] - The drop-down selected item background color.
+/// @param {Color} $selected-item-text-color [null] - The drop-down selected item text color.
+///
+/// @param {Color} $disabled-item-background [null] - The drop-down disabled item background color.
+/// @param {Color} $disabled-item-text-color [null] - The drop-down disabled item text color.
+
+/// @requires text-contrast
+@function igx-drop-down-theme(
+    $drop-down-background-color: null,
+    $header-text-color: null,
+
+    $item-text-color: null,
+
+    $hover-item-background:null,
+
+    $focused-item-background:null,
+    $focus-item-text-color:null,
+
+    $selected-item-background:null,
+    $selected-item-text-color:null,
+
+    $disabled-item-background:null,
+    $disabled-item-text-color:null
+) {
+
+    //// ITEM BACKGROUND
+    //@if not($background-color) and $item-background {
+    //    $background-color: $item-background;
+    //}
+    //@if not($item-background) and $background-color {
+    //    $item-background: $background-color;
+    //}
+    //@if $item-background and $background-color {
+    //    $item-background: $item-background;
+    //}
+    //// ITEM TEXT
+    //@if not($item-text-color) and $item-background {
+    //    $item-text-color: text-contrast($item-background);
+    //}
+    //@if not($item-text-color) and $background-color {
+    //    $item-text-color: text-contrast($background-color);
+    //}
+    //@if not($item-text-color) and $background-color and $item-background {
+    //    $item-text-color: text-contrast($item-background);
+    //}
+    //// DISABLED ITEM
+    //@if not($disabled-item-text-color) and $disabled-item-background {
+    //    $disabled-item-text-color: rgba(text-contrast($disabled-item-background), .4);
+    //}
+    //// FOCUSED & SELECTED ITEMS
+    //@if not($focus-item-text-color) and $focused-item-background {
+    //    $focus-item-text-color: text-contrast($focused-item-background);
+    //}
+    //@if not($selected-item-text-color) and $selected-item-background {
+    //    $selected-item-text-color: text-contrast($selected-item-background);
+    //}
+
+    @return (
+        drop-down-background-color: $drop-down-background-color,
+        header-text-color: $header-text-color,
+
+        item-text-color: $item-text-color,
+
+        hover-item-background:$hover-item-background,
+
+        focused-item-background:$focused-item-background,
+        focus-item-text-color:$focus-item-text-color,
+
+        selected-item-background:$selected-item-background,
+        selected-item-text-color:$selected-item-text-color,
+
+        disabled-item-background:$disabled-item-background,
+        disabled-item-text-color:$disabled-item-text-color,
+    );
+}
+
+/// @param {Map} $theme - The theme used to style the component.
+/// @param {Map} $palette [$default-palette] - The palette used as basis for styling the component.
+/// @requires igx-drop-down-theme
+/// @requires igx-color
+/// @requires igx-elevation
+/// @requires $elevations
+/// @requires rem
+@mixin igx-drop-down($theme, $palette: $default-palette) {
+    $default-theme: igx-drop-down-theme(
+        $drop-down-background-color: #fff,
+
+        $header-text-color: igx-color($palette, 'secondary', 500),
+
+        $item-text-color: igx-color($palette, 'grays', 800),
+
+        $hover-item-background: igx-color($palette, 'grays', 100),
+
+        $focused-item-background: igx-color($palette, 'grays', 100),
+        $focus-item-text-color: igx-color($palette, 'grays', 800),
+
+        $selected-item-background: igx-color($palette, 'secondary', 500),
+        $selected-item-text-color: #fff,
+
+        $disabled-item-background: transparent,
+        $disabled-item-text-color: igx-color($palette, 'grays', 400)
+    );
+
+    $this: extend($default-theme, $theme);
+
+    $dd-shadow: igx-elevation($elevations, 3);
+
+    %igx-drop-down {
+        flex-direction: column;
+        box-shadow: $dd-shadow;
+        min-width: rem(128px);
+        max-width: rem(448px);
+        background: map-get($this, 'drop-down-background-color');
+    }
+
+    %igx-drop-down__header,
+    %igx-drop-down__item {
+        display: flex;
+        padding: rem(8px) rem(24px);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    %igx-drop-down__item {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        color: map-get($this, 'item-text-color');
+        cursor: pointer;
+        user-select: none;
+
+
+        &:focus {
+            outline: 0;
+            outline-color: transparent;
+        }
+
+        &:hover {
+            background: map-get($this, 'hover-item-background');
+        }
+    }
+
+    [dir='rtl']{
+        %igx-drop-down__item {
+            justify-content: flex-end;
+            text-align: right;
+        }
+    }
+
+    %igx-drop-down__header {
+        font-weight: 700;
+        font-size: rem(14px);
+        color: map-get($this, 'header-text-color');
+    }
+
+    %igx-drop-down__item--focused {
+        background: map-get($this, 'focused-item-background');
+        color: map-get($this, 'focus-item-text-color');
+
+        &:hover {
+            background: map-get($this, 'focused-item-background');
+        }
+    }
+
+    %igx-drop-down__item--selected {
+        background: map-get($this, 'selected-item-background');
+        color: map-get($this, 'selected-item-text-color');
+
+        &:hover {
+            background: map-get($this, 'selected-item-background');
+        }
+    }
+
+
+    %igx-drop-down__item--disabled {
+        background: map-get($this, 'disabled-item-background');
+        color: map-get($this, 'disabled-item-text-color');
+        cursor: default;
+
+        &:hover {
+            background: map-get($this, 'disabled-item-background');
+        }
+    }
+}
+
+
+
+
+
+
+
