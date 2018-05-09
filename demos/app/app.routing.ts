@@ -8,6 +8,7 @@ import { ButtonGroupSampleComponent } from "./buttonGroup/sample.component";
 import { IgxCalendarSampleComponent } from "./calendar/sample.component";
 import { IgxCardSampleComponent } from "./card/sample.component";
 import { CarouselSampleComponent } from "./carousel/sample.component";
+import { ComboSampleComponent } from "./combo/sample.component";
 import { IgxDatePickerSampleComponent } from "./date-picker/sample.component";
 import { DialogSampleComponent } from "./dialog/sample.component";
 import { MaskSampleComponent } from "./directives/mask/sample.component";
@@ -62,6 +63,10 @@ const appRoutes: Routes = [
     {
         component: CarouselSampleComponent,
         path: "carousel"
+    },
+    {
+        component: ComboSampleComponent,
+        path: "combo"
     },
     {
         component: TabBarSampleComponent,

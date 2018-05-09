@@ -16,6 +16,7 @@ import { ButtonGroupSampleModule } from "./buttonGroup/sample.module";
 import { IgxCalendarSampleModule } from "./calendar/sample.module";
 import { IgxCardSampleModule } from "./card/sample.module";
 import { CarouselSampleModule } from "./carousel/sample.module";
+import { ComboSampleModule } from "./combo/sample.module";
 import { IgxDatePickerSampleModule } from "./date-picker/sample.module";
 import { DialogSampleModule } from "./dialog/sample.module";
 import { MaskSampleModule } from "./directives/mask/sample.module";
@@ -66,6 +67,7 @@ import { VirtualForSampleModule } from "./virtual-for-directive/sample.module";
         IgxAvatarModule,
         InputSampleModule,
         CarouselSampleModule,
+        ComboSampleModule,
         TabBarSampleModule,
         TabsSampleModule,
         ListSampleModule,
