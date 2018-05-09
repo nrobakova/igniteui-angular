@@ -1,3 +1,16 @@
 <div class="igx-combo">
-    <ng-content></ng-content>
+    <!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
+    <igx-input-group>
+            <input (focus)="toggleDropDown($event, true)"
+            igxInput name="lastName" type="text" [(ngModel)]="value" />
+            <label igxLabel for="lastName">Last Name</label>
+        </igx-input-group>
+    <igx-drop-down (onSelection)="onSelection($event)">
+        <igx-drop-down-item *ngFor="let item of data" isDisabled={{item.disabled}} isHeader={{item.header}}>
+            {{ item.field }}
+        </igx-drop-down-item>
+    </igx-drop-down>
+    <div class=""></div>
 </div>
+
+<!--  -->
