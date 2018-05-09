@@ -1,16 +1,26 @@
+<ng-template #data let-display>
+    {{display.field}}
+</ng-template>
+<ng-template #primitive let-display>
+    {{display}
+</ng-template>
+<ng-template #empty>
+    <span>The list is empty</span>
+</ng-template>
+
 <div class="igx-combo">
     <!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
     <igx-input-group>
-            <input (focus)="toggleDropDown($event, true)"
-            igxInput name="lastName" type="text" [(ngModel)]="value" />
-            <label igxLabel for="lastName">Last Name</label>
-        </igx-input-group>
+        <input (focus)="toggleDropDown($event, true)" igxInput name="lastName" type="text" [(ngModel)]="value" />
+        <label igxLabel for="lastName">Last Name</label>
+    </igx-input-group>
     <igx-drop-down (onSelection)="onSelection($event)">
-        <igx-drop-down-item *ngFor="let item of data" isDisabled={{item.disabled}} isHeader={{item.header}}>
-            {{ item.field }}
+        <igx-drop-down-item *ngFor="let item of data">
+            <ng-container ngTemplateOutlet="template; context: {$implicit: item}">
+            </ng-container>
         </igx-drop-down-item>
+
     </igx-drop-down>
     <div class=""></div>
 </div>
-
 <!--  -->

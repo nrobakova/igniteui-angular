@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import {
     ChangeDetectorRef, Component, ElementRef,
-    EventEmitter, Input, NgModule, OnDestroy, OnInit, Output, ViewChild
+    EventEmitter, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxSelectionAPIService } from "../core/selection";
@@ -20,6 +20,27 @@ export class IgxComboComponent implements OnInit, OnDestroy {
 
     @ViewChild(IgxDropDownComponent, { read: IgxDropDownComponent })
     public dropDown: IgxDropDownComponent;
+
+    @ViewChild("primitive", { read: TemplateRef })
+    protected primitiveTemplate: TemplateRef<any>;
+
+    @ViewChild("primaryKey", { read: TemplateRef })
+    protected primaryKeyTemplate: TemplateRef<any>;
+
+    @ViewChild("data", { read: TemplateRef })
+    protected dataTemplate: TemplateRef<any>;
+
+    @ViewChild("empty", { read: TemplateRef })
+    protected emptyTemplate: TemplateRef<any>;
+
+    @ViewChild("empty", { read: TemplateRef })
+    protected customTemplateRef: TemplateRef<any>;
+
+    @Input()
+    public evalDisabled: (args) => boolean;
+
+    @Input()
+    public customTemplate;
 
     @Input()
     public data;
@@ -42,7 +63,8 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         private element: ElementRef) { }
 
     public ngOnInit() {
-
+        console.log("Combo init");
+        console.log(this.data);
     }
 
     public ngOnDestroy() {
@@ -61,8 +83,25 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         if (state !== undefined) {
             if (state) {
                 this.dropDown.open();
+                console.log("Opening");
             }
         }
+    }
+
+    public get template(): TemplateRef<any> {
+        if (!this.data || !this.data.length) {
+            return this.emptyTemplate;
+        }
+        if (typeof this.data[0] === "object") {
+            if (this.customTemplate !== undefined) {
+                return this.customTemplateRef;
+            }
+            if (this.primaryKey !== undefined) {
+                return this.primaryKeyTemplate;
+            }
+            return this.dataTemplate;
+        }
+        return this.primitiveTemplate;
     }
 }
 

@@ -13,7 +13,8 @@ export class ComboSampleComponent implements OnInit {
     items: any[] = [];
 
     ngOnInit() {
-
+        console.log("Sample init");
+        console.log(this.items);
     }
 
     constructor() {
