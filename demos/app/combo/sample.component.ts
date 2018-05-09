@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { IgxComboModule } from "../../lib/main";
+import { IgxComboComponent } from "../../lib/main";
 @Component({
     // tslint:disable-next-line:component-selector
     selector: "combo-sample",
@@ -8,7 +8,7 @@ import { IgxComboModule } from "../../lib/main";
 })
 export class ComboSampleComponent implements OnInit {
     private width = "160px";
-    @ViewChild(IgxComboModule) public igxCombo: IgxComboModule;
+    @ViewChild(IgxComboComponent) public igxCombo: IgxComboComponent;
 
     items: any[] = [];
 
