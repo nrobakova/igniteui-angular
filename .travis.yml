@@ -18,6 +18,7 @@ script:
 - npm run lint
 - npm run build
 - npm run test
+- npx semantic-release
 - if [ "${TRAVIS_REPO_SLUG}" == "IgniteUI/igniteui-angular" ]; then cat ./coverage/lcov.info | coveralls; fi
 
 before_deploy:
