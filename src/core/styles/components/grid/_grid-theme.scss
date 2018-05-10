@@ -319,6 +319,7 @@
         user-select: none;
         cursor: initial;
         flex-grow: 1; /* hey IE, the text should take most of the space */
+        pointer-events: none;
     }
 
     %grid-cell-header-icons {
@@ -395,5 +396,54 @@
         &::after {
             left: 100%;
         }
+    }
+
+    %grid__drop-indicator-left {
+        position: absolute;
+        width: 4px;
+        top: 0;
+        left: -1px;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    %grid__drop-indicator-right {
+        position: absolute;
+        width: 4px;
+        top: 0;
+        right: -1px;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    %grid__scroll-on-drag-left {
+        position: absolute;
+        width: 15px;
+        top: 0;
+        left: 0px;
+        height: 100%;
+        z-index: 10000;
+    }
+
+    %grid__scroll-on-drag-right {
+        position: absolute;
+        width: 15px;
+        top: 0;
+        right: 0px;
+        height: 100%;
+        z-index: 25;
+    }
+
+    %grid__col-moving-image {
+        border: 0.2px solid #e41c77;
+        background-color: lightgray;
+    }
+
+    %grid__drop-indicator-active {
+        background-color: #e41c77;
+    }
+
+    %grid-cell-header-icons-inactive {
+        pointer-events: none;
     }
 }

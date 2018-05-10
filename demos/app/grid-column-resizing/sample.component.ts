@@ -18,16 +18,16 @@ export class GridColumnResizingSampleComponent {
 	public columns: Array<any>;
 	public ngOnInit(): void {
 		this.columns = [
-			{ field: "ID", width: 100, resizable: true, maxWidth: 200, minWidth: 70 },
-			{ field: "CompanyName", width: 300, resizable: true },
-			{ field: "ContactName", width: 200, resizable: true },
-			{ field: "ContactTitle", width: 200, resizable: true},
-			{ field: "Address", width: 300, resizable: true },
-			{ field: "City", width: 100, resizable: true },
-			{ field: "Region", width: 100, resizable: true },
-			{ field: "PostalCode", width: 100, resizable: true },
-			{ field: "Phone", width: 150, resizable: true },
-			{ field: "Fax", width: 150, resizable: true }
+			{ field: "ID", width: 150, resizable: true, maxWidth: 200, minWidth: 70 },
+			{ field: "CompanyName", width: 150, resizable: true, summary: false },
+			{ field: "ContactName", width: 150, resizable: true, summary: false },
+			{ field: "ContactTitle", width: 150, resizable: true, summary: false},
+			{ field: "Address", width: 150, resizable: true, summary: true },
+			{ field: "City", width: 150, resizable: true, summary: false },
+			{ field: "Region", width: 150, resizable: true, summary: false },
+			{ field: "PostalCode", width: 150, resizable: true, summary: false },
+			{ field: "Phone", width: 150, resizable: true, summary: false },
+			{ field: "Fax", width: 150, resizable: true, summary: false }
 		];
 		this.data = [
 			{ "ID": "ALFKI", "CompanyName": "Alfreds Futterkiste", "ContactName": "Maria Anders", "ContactTitle": "Sales Representative", "Address": "Obere Str. 57", "City": "Berlin", "Region": null, "PostalCode": "12209", "Country": "Germany", "Phone": "030-0074321", "Fax": "030-0076545" },

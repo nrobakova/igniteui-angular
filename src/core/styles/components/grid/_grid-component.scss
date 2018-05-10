@@ -96,6 +96,34 @@
         @extend %grid__resize-line !optional;
     }
 
+    @include e(th-drop-indicator-left) {
+        @extend %grid__drop-indicator-left !optional;
+    }
+
+    @include e(th-drop-indicator-right) {
+        @extend %grid__drop-indicator-right !optional;
+    }
+
+    @include e(scroll-on-drag-left) {
+        @extend %grid__scroll-on-drag-left !optional;
+    }
+
+    @include e(scroll-on-drag-right) {
+        @extend %grid__scroll-on-drag-right !optional;
+    }
+
+    @include e(col-moving-image) {
+        @extend %grid__col-moving-image !optional;
+    }
+
+    @include e(drop-indicator-active) {
+        @extend %grid__drop-indicator-active !optional;
+    }
+
+    @include e(th-icons-inactive) {
+        @extend %grid-cell-header-icons-inactive !optional;
+    }
+
     @include e(td) {
         @extend %grid-cell-display !optional;
     }

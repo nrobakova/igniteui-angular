@@ -2,19 +2,23 @@
     {{ column.header || column.field }}
 </ng-template>
 
+<span *ngIf="grid.hasMovableColumns" class="igx-grid__th-drop-indicator-left">
+</span>
+
 <span class="igx-grid__th-title">
     <ng-container *ngTemplateOutlet="column.headerTemplate ? column.headerTemplate : defaultColumn; context: { $implicit: column }">
     </ng-container>
 </span>
 
-<div class="igx-grid__th-icons">
+<div class="igx-grid__th-icons" [ngClass]="{'igx-grid__th-icons-inactive': column.grid.isColumnMoving }">
     <igx-icon class="sort-icon" *ngIf="column.sortable">{{sortingIcon}}</igx-icon>
     <igx-grid-filter [column]="column" *ngIf="column.filterable"></igx-grid-filter>
 </div>
 
-<span [style.cursor]="resizeCursor" #resizeArea
-    class="igx-grid__th-resize-handle"
-    (dblclick)="onResizeAreaDblClick()">
+<span [ngClass]="{'igx-grid__th-icons-inactive': column.grid.isColumnMoving }"
+      [style.cursor]="resizeCursor" #resizeArea
+      class="igx-grid__th-resize-handle"
+      (dblclick)="onResizeAreaDblClick()">
 
     <div *ngIf="showResizer" igxResizer
         class="igx-grid__th-resize-line"
@@ -25,4 +29,7 @@
         (resizeEnd)="onResize($event)">
     </div>
 
+</span>
+
+<span *ngIf="grid.hasMovableColumns" class="igx-grid__th-drop-indicator-right">
 </span>

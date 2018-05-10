@@ -22,12 +22,15 @@ import {
     IgxCellEditorTemplateDirective,
     IgxCellFooterTemplateDirective,
     IgxCellHeaderTemplateDirective,
+    IgxColumnMovingDirective,
     IgxCellTemplateDirective,
-    IgxColumnResizerDirective
+    IgxColumnResizerDirective,
+    IgxDroppableDirective
 } from "./grid.common";
 import { IgxGridComponent } from "./grid.component";
 import { IgxGridFilterConditionPipe, IgxGridFilteringPipe, IgxGridPagingPipe, IgxGridSortingPipe } from "./grid.pipes";
 import { IgxGridRowComponent } from "./row.component";
+import { IgxColumnMovingService } from "./column-moving.service";
 
 @NgModule({
   declarations: [
@@ -41,7 +44,9 @@ import { IgxGridRowComponent } from "./row.component";
     IgxCellHeaderTemplateDirective,
     IgxCellEditorTemplateDirective,
     IgxCellTemplateDirective,
+    IgxColumnMovingDirective,
     IgxColumnResizerDirective,
+    IgxDroppableDirective,
     IgxGridFilterComponent,
     IgxGridSortingPipe,
     IgxGridPagingPipe,
@@ -63,7 +68,9 @@ import { IgxGridRowComponent } from "./row.component";
     IgxCellHeaderTemplateDirective,
     IgxCellEditorTemplateDirective,
     IgxCellTemplateDirective,
-    IgxColumnResizerDirective
+    IgxColumnMovingDirective,
+    IgxColumnResizerDirective,
+    IgxDroppableDirective
   ],
   imports: [
     CommonModule,
@@ -79,13 +86,13 @@ import { IgxGridRowComponent } from "./row.component";
     IgxTextSelectionModule,
     IgxCheckboxModule
   ],
-  providers: [IgxGridAPIService, IgxSelectionAPIService]
+  providers: [IgxGridAPIService, IgxSelectionAPIService, IgxColumnMovingService]
 })
 export class IgxGridModule {
     public static forRoot() {
         return {
             ngModule: IgxGridModule,
-            providers: [IgxGridAPIService, IgxSelectionAPIService]
+            providers: [IgxGridAPIService, IgxSelectionAPIService, IgxColumnMovingService]
         };
     }
 }
