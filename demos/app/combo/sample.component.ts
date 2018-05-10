@@ -1,5 +1,26 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { IgxComboComponent } from "../../lib/main";
+
+const primitive = ["1", "2", "3", "4", "5", "6"];
+const complex = [{
+    field: 1,
+    value: 1
+}, {
+    field: 2,
+    value: 2
+}, {
+    field: 3,
+    value: 3
+}, {
+    field: 4,
+    value: 4
+}, {
+    field: 5,
+    value: 5
+}, {
+    field: 6,
+    value: 6
+}];
 @Component({
     // tslint:disable-next-line:component-selector
     selector: "combo-sample",
@@ -10,9 +31,12 @@ export class ComboSampleComponent implements OnInit {
     private width = "160px";
     @ViewChild(IgxComboComponent) public igxCombo: IgxComboComponent;
 
-    items: any[] = [];
+    private initData: any[] = [];
+    public items: any[] = [];
+    private currentDataType = "";
 
     ngOnInit() {
+        this.igxCombo.dropDown.height = "400px";
         console.log("Sample init");
         console.log(this.items);
     }
@@ -100,9 +124,29 @@ export class ComboSampleComponent implements OnInit {
                 item["disabled"] = true;
             }
             this.items.push(item);
+            this.initData = this.items;
+            this.currentDataType = "initial";
         }
     }
 
+    changeData(type) {
+        switch (type) {
+            case "complex":
+                this.items = complex;
+                this.currentDataType = "complex";
+                console.log(this.items, complex);
+                break;
+            case "primitive":
+                this.items = primitive;
+                this.currentDataType = "primitive";
+                console.log(this.items);
+                break;
+            default:
+                this.items = this.initData;
+                this.currentDataType = "initial";
+                console.log(this.items);
+        }
+    }
     onSelection(ev) {
     }
 }

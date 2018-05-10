@@ -1,8 +1,8 @@
-<ng-template #data let-display>
-    {{display.field}}
+<ng-template #complex let-display let-key="primaryKey">
+        {{display[key]}}
 </ng-template>
 <ng-template #primitive let-display>
-    {{display}
+        {{display}}
 </ng-template>
 <ng-template #empty>
     <span>The list is empty</span>
@@ -11,16 +11,15 @@
 <div class="igx-combo">
     <!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
     <igx-input-group>
-        <input (focus)="toggleDropDown($event, true)" igxInput name="lastName" type="text" [(ngModel)]="value" />
+        <input (keyup)="hanldeKeyDown($event)" (focus)="toggleDropDown($event, true)" igxInput name="lastName" type="text" [(ngModel)]="value" />
         <label igxLabel for="lastName">Last Name</label>
     </igx-input-group>
     <igx-drop-down (onSelection)="onSelection($event)">
-        <igx-drop-down-item *ngFor="let item of data">
-            <ng-container ngTemplateOutlet="template; context: {$implicit: item}">
-            </ng-container>
+        <igx-drop-down-item *ngFor="let item of displayedData">
+            <ng-container *ngTemplateOutlet="template; context: {$implicit: item, primaryKey: primaryKey};"></ng-container>
         </igx-drop-down-item>
-
     </igx-drop-down>
     <div class=""></div>
 </div>
+
 <!--  -->

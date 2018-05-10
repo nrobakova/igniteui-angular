@@ -1,49 +1,58 @@
 import { CommonModule } from "@angular/common";
 import {
     ChangeDetectorRef, Component, ElementRef,
-    EventEmitter, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild
+    EventEmitter, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild, HostListener
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
 import { IgxDropDownComponent, IgxDropDownModule } from "../drop-down/drop-down.component";
-import { IgxInputGroupModule } from "../input-group/input-group.component";
+import { IgxInputGroupModule, IgxInputGroupComponent } from "../input-group/input-group.component";
 
+export enum DataTypes {
+    EMPTY = "empty",
+    PRIMITIVE = "primitive",
+    COMPLEX = "complex",
+    PRIMARYKEY = "primaryKey"
+}
 @Component({
     selector: "igx-combo",
     templateUrl: "combo.component.html"
 })
 export class IgxComboComponent implements OnInit, OnDestroy {
 
+    private _dataType = "";
+    private _filteredData = [];
+    private _dropdownVisible = false;
     public value = "";
 
     @ViewChild(IgxDropDownComponent, { read: IgxDropDownComponent })
     public dropDown: IgxDropDownComponent;
 
+    @ViewChild(IgxInputGroupComponent, { read: IgxInputGroupComponent })
+    public inputGroup: IgxInputGroupComponent;
+
     @ViewChild("primitive", { read: TemplateRef })
     protected primitiveTemplate: TemplateRef<any>;
 
-    @ViewChild("primaryKey", { read: TemplateRef })
-    protected primaryKeyTemplate: TemplateRef<any>;
-
-    @ViewChild("data", { read: TemplateRef })
-    protected dataTemplate: TemplateRef<any>;
+    @ViewChild("complex", { read: TemplateRef })
+    protected complexTemplate: TemplateRef<any>;
 
     @ViewChild("empty", { read: TemplateRef })
     protected emptyTemplate: TemplateRef<any>;
-
-    @ViewChild("empty", { read: TemplateRef })
-    protected customTemplateRef: TemplateRef<any>;
 
     @Input()
     public evalDisabled: (args) => boolean;
 
     @Input()
-    public customTemplate;
+    public customTemplate: TemplateRef<any>;
 
     @Input()
     public data;
+
+    @Input()
+    public filter;
 
     @Input()
     public primaryKey;
@@ -63,18 +72,34 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         private element: ElementRef) { }
 
     public ngOnInit() {
-        console.log("Combo init");
-        console.log(this.data);
+        this._dataType = this.getDataType();
+        this._filteredData = this.data;
+        this.dropDown.onOpened.subscribe(() => {
+            this._dropdownVisible = true;
+        });
+        this.dropDown.onClosed.subscribe(() => {
+            this._dropdownVisible = false;
+        });
     }
 
     public ngOnDestroy() {
 
     }
 
+    public get displayedData() {
+        if (this.filter) {
+            return this._filteredData;
+        }
+        return this.data;
+    }
+    public hanldeKeyDown(evt) {
+        this._filteredData = this.data.filter((e) => this.getDataByType(e).indexOf(evt.target.value) > -1);
+    }
+
     public onSelection(event) {
         if (event.newSelection) {
             if (event.newSelection !== event.oldSelection) {
-                this.value = this.data[event.newSelection.index];
+                this.value = this.getData();
             }
         }
     }
@@ -83,25 +108,53 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         if (state !== undefined) {
             if (state) {
                 this.dropDown.open();
-                console.log("Opening");
             }
         }
     }
 
-    public get template(): TemplateRef<any> {
+    private getDataType() {
         if (!this.data || !this.data.length) {
-            return this.emptyTemplate;
+            return DataTypes.EMPTY;
         }
         if (typeof this.data[0] === "object") {
-            if (this.customTemplate !== undefined) {
-                return this.customTemplateRef;
-            }
-            if (this.primaryKey !== undefined) {
-                return this.primaryKeyTemplate;
-            }
-            return this.dataTemplate;
+            return DataTypes.COMPLEX;
+        }
+        return DataTypes.PRIMITIVE;
+    }
+
+    public get template(): TemplateRef<any> {
+        this._dataType = this.getDataType();
+        if (!this.displayedData || !this.displayedData.length) {
+            return this.emptyTemplate;
+        }
+        if (this.customTemplate) {
+            return this.customTemplate;
+        }
+        if (this._dataType === DataTypes.COMPLEX) {
+            return this.complexTemplate;
         }
         return this.primitiveTemplate;
+    }
+
+    public get context(): any {
+        return {
+            $implicit: this
+        };
+    }
+
+    private getDataByType(dataObj) {
+        if (this._dataType === DataTypes.PRIMITIVE || this._dataType === DataTypes.EMPTY) {
+            return dataObj;
+        }
+        if (this._dataType === DataTypes.PRIMARYKEY || this._dataType === DataTypes.COMPLEX) {
+            return dataObj[this.primaryKey];
+        }
+    }
+    private getCurrentSelected() {
+        return this.dropDown.selectedItem.index;
+    }
+    private getData(): any {
+        return this.getDataByType(this._filteredData[this.getCurrentSelected()]);
     }
 }
 
