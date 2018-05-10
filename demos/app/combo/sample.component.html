@@ -1,6 +1,3 @@
-<ng-template #myCustomTemplate let-display let-key="primaryKey">
-    <div>I live in {{display[key]}}</div>
-</ng-template>
 <div class="sample-wrapper">
     <page-header title="Combo" description="Combo lets you choose value from a list"></page-header>
     <section class="sample-content">
@@ -8,6 +5,18 @@
         <button class="igx-button" (click)="changeData('primitive')">Primitve</button>
         <button class="igx-button" (click)="changeData('complex')">Complex</button>
         <button class="igx-button" (click)="changeData()">Initial</button>
-        <igx-combo [data]="items" [filter]="true" [primaryKey]="'field'" [customTemplate]="myCustomTemplate"></igx-combo>
+        <igx-combo [placeholder]="'Location'" [data]="items" [filterable]="true" [primaryKey]="'field'" [width]="'400px'">
+            <ng-template #dropdownItemTemplate let-display let-key="primaryKey">
+                <div>
+                    <span class="small-red-circle"></span>{{display[key]}}
+                </div>
+            </ng-template>
+            <ng-template #dropdownFooter>
+                <div class="footer-class">This is a footer</div>
+            </ng-template>
+            <ng-template #dropdownHeader>
+                <div class="header-class">This is a header</div>
+            </ng-template>
+        </igx-combo>
     </section>
 </div>

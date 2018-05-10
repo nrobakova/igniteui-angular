@@ -1,14 +1,18 @@
 import { CommonModule } from "@angular/common";
 import {
-    ChangeDetectorRef, Component, ElementRef,
-    EventEmitter, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild, HostListener
+    ChangeDetectorRef, Component, ContentChild,
+    ElementRef, EventEmitter, HostBinding, HostListener, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxSelectionAPIService } from "../core/selection";
+import { cloneArray } from "../core/utils";
+import { STRING_FILTERS } from "../data-operations/filtering-condition";
+import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
 import { IgxDropDownComponent, IgxDropDownModule } from "../drop-down/drop-down.component";
-import { IgxInputGroupModule, IgxInputGroupComponent } from "../input-group/input-group.component";
+import { IgxInputGroupComponent, IgxInputGroupModule } from "../input-group/input-group.component";
+import { IgxComboFilterConditionPipe, IgxComboFilteringPipe} from "./combo.pipes";
 
 export enum DataTypes {
     EMPTY = "empty",
@@ -22,6 +26,9 @@ export enum DataTypes {
 })
 export class IgxComboComponent implements OnInit, OnDestroy {
 
+    protected _filteringLogic = FilteringLogic.And;
+    protected _pipeTrigger = 0;
+    protected _filteringExpressions = [];
     private _dataType = "";
     private _filteredData = [];
     private _dropdownVisible = false;
@@ -42,17 +49,51 @@ export class IgxComboComponent implements OnInit, OnDestroy {
     @ViewChild("empty", { read: TemplateRef })
     protected emptyTemplate: TemplateRef<any>;
 
-    @Input()
-    public evalDisabled: (args) => boolean;
+    @ContentChild("dropdownHeader", { read: TemplateRef })
+    public dropdownHeader: TemplateRef<any>;
+
+    @ContentChild("dropdownFooter", { read: TemplateRef })
+    public dropdownFooter: TemplateRef<any>;
+
+    @ContentChild("dropdownItemTemplate", { read: TemplateRef })
+    public dropdownItemTemplate: TemplateRef<any>;
 
     @Input()
-    public customTemplate: TemplateRef<any>;
+    public evalDisabled: (args) => boolean;
 
     @Input()
     public data;
 
     @Input()
-    public filter;
+    public filteringLogic = FilteringLogic.And;
+
+    @Input()
+    get filteringExpressions() {
+        return this._filteringExpressions;
+    }
+
+    set filteringExpressions(value) {
+        this._filteringExpressions = cloneArray(value);
+        this.cdr.markForCheck();
+    }
+
+    get caller() {
+        return this;
+    }
+
+    get pipeTrigger(): number {
+        return this._pipeTrigger;
+    }
+
+    @Input()
+    public filterable;
+
+    @Input()
+    public placeholder;
+
+    @HostBinding("style.width")
+    @Input()
+    public width;
 
     @Input()
     public primaryKey;
@@ -86,20 +127,34 @@ export class IgxComboComponent implements OnInit, OnDestroy {
 
     }
 
+    protected prepare_filtering_expression(state, searchVal, condition, ignoreCase) {
+        const newExpression = { searchVal, condition, ignoreCase };
+        state.push(newExpression);
+    }
+
+    public filter(term, condition, ignoreCase) {
+        const filteringState = this.filteringExpressions;
+        this.prepare_filtering_expression(filteringState, term, condition, ignoreCase);
+        this.filteringExpressions = filteringState;
+    }
+
     public get displayedData() {
-        if (this.filter) {
-            return this._filteredData;
-        }
+        // if (this.filterable) {
+        //     return this._filteredData;
+        // }
         return this.data;
     }
     public hanldeKeyDown(evt) {
-        this._filteredData = this.data.filter((e) => this.getDataByType(e).indexOf(evt.target.value) > -1);
+        if (this.filterable) {
+            this.filter(evt.target.value, STRING_FILTERS.contains, true);
+        }
     }
 
     public onSelection(event) {
         if (event.newSelection) {
             if (event.newSelection !== event.oldSelection) {
                 this.value = this.getData();
+                this.inputGroup.isFilled = true;
             }
         }
     }
@@ -108,11 +163,12 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         if (state !== undefined) {
             if (state) {
                 this.dropDown.open();
+                this.inputGroup.isFilled = true;
             }
         }
     }
 
-    private getDataType() {
+    public getDataType(): string {
         if (!this.data || !this.data.length) {
             return DataTypes.EMPTY;
         }
@@ -127,8 +183,8 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         if (!this.displayedData || !this.displayedData.length) {
             return this.emptyTemplate;
         }
-        if (this.customTemplate) {
-            return this.customTemplate;
+        if (this.dropdownItemTemplate) {
+            return this.dropdownItemTemplate;
         }
         if (this._dataType === DataTypes.COMPLEX) {
             return this.complexTemplate;
@@ -140,6 +196,14 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         return {
             $implicit: this
         };
+    }
+
+    public get filteredData(): any[] {
+        return this._filteredData;
+    }
+
+    public set filteredData(val: any[]) {
+        this._filteredData = val;
     }
 
     private getDataByType(dataObj) {
@@ -173,7 +237,7 @@ export interface IComboSelectionChangeEventArgs {
 }
 
 @NgModule({
-    declarations: [IgxComboComponent],
+    declarations: [IgxComboComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
     exports: [IgxComboComponent],
     imports: [IgxRippleModule, IgxDropDownModule, CommonModule, IgxInputGroupModule, FormsModule]
 })

@@ -1,0 +1,17 @@
+.small-red-circle {
+    background-color: #FF2344;
+    margin: 2% 5px 2% 0px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.footer-class, .header-class {
+    color: #131313;
+    background-color: #d3d3d3;
+    cursor: not-allowed;
+    text-align: center;
+    font-weight: 400;
+}

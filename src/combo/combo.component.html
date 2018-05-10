@@ -1,23 +1,33 @@
 <ng-template #complex let-display let-key="primaryKey">
-        {{display[key]}}
+    {{display[key]}}
 </ng-template>
 <ng-template #primitive let-display>
-        {{display}}
+    {{display}}
 </ng-template>
 <ng-template #empty>
     <span>The list is empty</span>
 </ng-template>
 
-<div class="igx-combo">
+<div class="igx-combo" [style.width]="width">
     <!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
     <igx-input-group>
-        <input (keyup)="hanldeKeyDown($event)" (focus)="toggleDropDown($event, true)" igxInput name="lastName" type="text" [(ngModel)]="value" />
-        <label igxLabel for="lastName">Last Name</label>
+        <input (keyup)="hanldeKeyDown($event)" (focus)="toggleDropDown($event, true)" igxInput name="comboInput" type="text" [(ngModel)]="value"
+        />
+        <label igxLabel for="comboInput">{{placeholder}}</label>
     </igx-input-group>
-    <igx-drop-down (onSelection)="onSelection($event)">
-        <igx-drop-down-item *ngFor="let item of displayedData">
-            <ng-container *ngTemplateOutlet="template; context: {$implicit: item, primaryKey: primaryKey};"></ng-container>
+    <igx-drop-down (onSelection)="onSelection($event)" [width]="width">
+        <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
+        </ng-container>
+        <igx-drop-down-item *ngIf="data.length === 0; else content" isDisabled={{true}}>
+            There are no items to be displayed.
         </igx-drop-down-item>
+        <ng-template #content>
+            <igx-drop-down-item #content *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger">
+                <ng-container *ngTemplateOutlet="template; context: {$implicit: item, primaryKey: primaryKey};"></ng-container>
+            </igx-drop-down-item>
+        </ng-template>
+        <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}">
+        </ng-container>
     </igx-drop-down>
     <div class=""></div>
 </div>
