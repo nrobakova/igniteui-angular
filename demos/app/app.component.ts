@@ -26,11 +26,6 @@ export class AppComponent implements OnInit {
 
     public componentLinks = [
         {
-            link: "/drop-down",
-            icon: "account_circle",
-            name: "DropDown"
-        },
-        {
             link: "/avatar",
             icon: "account_circle",
             name: "Avatar"
@@ -71,9 +66,14 @@ export class AppComponent implements OnInit {
             name: "DatePicker"
         },
         {
-            link: "/timePicker",
-            icon: "date_range",
-            name: "TimePicker"
+            link: "/dialog",
+            icon: "all_out",
+            name: "Dialog"
+        },
+        {
+            link: "/drop-down",
+            icon: "account_circle",
+            name: "DropDown"
         },
         {
             link: "/grid",
@@ -109,11 +109,6 @@ export class AppComponent implements OnInit {
             link: "/gridSelection",
             icon: "view_column",
             name: "Grid Selection"
-        },
-        {
-            link: "/dialog",
-            icon: "all_out",
-            name: "Dialog"
         },
         {
             link: "/inputs",
@@ -169,6 +164,11 @@ export class AppComponent implements OnInit {
             link: "/tabs",
             icon: "tab",
             name: "Tabs"
+        },
+        {
+            link: "/timePicker",
+            icon: "date_range",
+            name: "TimePicker"
         },
         {
             link: "/toast",
