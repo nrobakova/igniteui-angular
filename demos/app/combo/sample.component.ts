@@ -125,7 +125,6 @@ export class ComboSampleComponent implements OnInit {
             }
             this.items.push(item);
             this.initData = this.items;
-            this.currentDataType = "initial";
         }
     }
 

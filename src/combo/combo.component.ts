@@ -127,15 +127,15 @@ export class IgxComboComponent implements OnInit, OnDestroy {
 
     }
 
-    protected prepare_filtering_expression(state, searchVal, condition, ignoreCase) {
-        const newExpression = { searchVal, condition, ignoreCase };
-        state.push(newExpression);
+    protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
+        if (fieldName !== undefined) {
+            return [{ fieldName, searchVal, condition, ignoreCase }];
+        }
+        return [{ searchVal, condition, ignoreCase }];
     }
 
-    public filter(term, condition, ignoreCase) {
-        const filteringState = this.filteringExpressions;
-        this.prepare_filtering_expression(filteringState, term, condition, ignoreCase);
-        this.filteringExpressions = filteringState;
+    public filter(term, condition, ignoreCase, primaryKey?) {
+        this.filteringExpressions = this.prepare_filtering_expression(term, condition, ignoreCase, primaryKey);
     }
 
     public get displayedData() {
@@ -146,7 +146,8 @@ export class IgxComboComponent implements OnInit, OnDestroy {
     }
     public hanldeKeyDown(evt) {
         if (this.filterable) {
-            this.filter(evt.target.value, STRING_FILTERS.contains, true);
+            this.filter(evt.target.value, STRING_FILTERS.contains,
+                true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.primaryKey);
         }
     }
 

@@ -1,4 +1,4 @@
-<ng-template #complex let-display let-key="primaryKey">
+<ng-template #complex let-display let-data="data" let-key="primaryKey">
     {{display[key]}}
 </ng-template>
 <ng-template #primitive let-display>
@@ -23,7 +23,7 @@
         </igx-drop-down-item>
         <ng-template #content>
             <igx-drop-down-item #content *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger">
-                <ng-container *ngTemplateOutlet="template; context: {$implicit: item, primaryKey: primaryKey};"></ng-container>
+                <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, primaryKey: primaryKey};"></ng-container>
             </igx-drop-down-item>
         </ng-template>
         <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}">
