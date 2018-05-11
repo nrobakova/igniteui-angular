@@ -147,7 +147,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
      */
     public get selectedItem(): IgxDropDownItemComponent {
         const selection = this.selectionAPI.get_selection(this.id);
-        return selection && selection.length > 0 ? selection[0] as IgxDropDownItemComponent : null;
+        return selection && selection.length > 0 ? selection[selection.length - 1] as IgxDropDownItemComponent : null;
     }
 
     /**
@@ -284,8 +284,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
     onToggleOpening() {
         this.cdr.detectChanges();
         if (this.selectedItem) {
-            const currentSelection = this.selectionAPI.get_selection(this.id);
-            this.scrollToItem(currentSelection[currentSelection.length - 1]);
+            this.scrollToItem(this.selectedItem);
         }
         this.onOpening.emit();
     }
