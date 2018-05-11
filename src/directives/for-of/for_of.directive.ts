@@ -301,6 +301,14 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
     public scrollPrev() {
         this.scrollTo(this.state.startIndex - 1);
     }
+    
+    public scrollNextPg() {
+        this.scrollTo(this.state.startIndex + (this.state.chunkSize - 1));
+    }
+
+    public scrollPrevPg() {
+        this.scrollTo(this.state.startIndex - (this.state.chunkSize - 1));
+    }
 
     public getColumnScrollLeft(colIndex) {
         return this.hCache[colIndex];
