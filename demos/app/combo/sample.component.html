@@ -7,10 +7,10 @@
         <button class="igx-button" igxRipple (click)="changeData()">Initial</button>
         <igx-combo [placeholder]="'Location'" [data]="items" [filterable]="true" [primaryKey]="'field'" [width]="'400px'">
             <ng-template #dropdownItemTemplate let-display let-key="primaryKey" let-data="data">
-                <div>
+                <div class="state-card--simple">
                     <span class="small-red-circle"></span>
-                    <p class="display-value--main">State: {{display[key]}}</p>
-                    <p class="display-value--sub">Region: {{display.county}}</p>
+                    <div class="display-value--main">State: {{display[key]}}</div>
+                    <div class="display-value--sub">Region: {{display.region}}</div>
                 </div>
             </ng-template>
             <ng-template #dropdownHeader>

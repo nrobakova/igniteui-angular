@@ -42,89 +42,112 @@ export class ComboSampleComponent implements OnInit {
     }
 
     constructor() {
-        const states = [
-            "New England",
-            "Connecticut",
-            "Maine",
-            "Massachusetts",
-            "New Hampshire",
-            "Rhode Island",
-            "Vermont",
-            "Mid-Atlantic",
-            "New Jersey",
-            "New York",
-            "Pennsylvania",
-            "East North Central",
-            "Illinois",
-            "Indiana",
-            "Michigan",
-            "Ohio",
-            "Wisconsin",
-            "West North Central",
-            "Iowa",
-            "Kansas",
-            "Minnesota",
-            "Missouri",
-            "Nebraska",
-            "North Dakota",
-            "South Dakota",
-            "South Atlantic",
-            "Delaware",
-            "Florida",
-            "Georgia",
-            "Maryland",
-            "North Carolina",
-            "South Carolina",
-            "Virginia",
-            "District of Columbia",
-            "West Virginia",
-            "East South Central",
-            "Alabama",
-            "Kentucky",
-            "Mississippi",
-            "Tennessee",
-            "West South Central",
-            "Arkansas",
-            "Louisiana",
-            "Oklahoma",
-            "Texas",
-            "Mountain",
-            "Arizona",
-            "Colorado",
-            "Idaho",
-            "Montana",
-            "Nevada",
-            "New Mexico",
-            "Utah",
-            "Wyoming",
-            "Pacific",
-            "Alaska",
-            "California",
-            "Hawaii",
-            "Oregon",
-            "Washington"];
+        // const states = [
+        //     "New England",
+        //     "Connecticut",
+        //     "Maine",
+        //     "Massachusetts",
+        //     "New Hampshire",
+        //     "Rhode Island",
+        //     "Vermont",
+        //     "Mid-Atlantic",
+        //     "New Jersey",
+        //     "New York",
+        //     "Pennsylvania",
+        //     "East North Central",
+        //     "Illinois",
+        //     "Indiana",
+        //     "Michigan",
+        //     "Ohio",
+        //     "Wisconsin",
+        //     "West North Central",
+        //     "Iowa",
+        //     "Kansas",
+        //     "Minnesota",
+        //     "Missouri",
+        //     "Nebraska",
+        //     "North Dakota",
+        //     "South Dakota",
+        //     "South Atlantic",
+        //     "Delaware",
+        //     "Florida",
+        //     "Georgia",
+        //     "Maryland",
+        //     "North Carolina",
+        //     "South Carolina",
+        //     "Virginia",
+        //     "District of Columbia",
+        //     "West Virginia",
+        //     "East South Central",
+        //     "Alabama",
+        //     "Kentucky",
+        //     "Mississippi",
+        //     "Tennessee",
+        //     "West South Central",
+        //     "Arkansas",
+        //     "Louisiana",
+        //     "Oklahoma",
+        //     "Texas",
+        //     "Mountain",
+        //     "Arizona",
+        //     "Colorado",
+        //     "Idaho",
+        //     "Montana",
+        //     "Nevada",
+        //     "New Mexico",
+        //     "Utah",
+        //     "Wyoming",
+        //     "Pacific",
+        //     "Alaska",
+        //     "California",
+        //     "Hawaii",
+        //     "Oregon",
+        //     "Washington"];
 
-        const areas = [
-            "New England",
-            "Mid-Atlantic",
-            "East North Central",
-            "West North Central",
-            "South Atlantic",
-            "East South Central",
-            "West South Central",
-            "Mountain",
-            "Pacific"
-        ];
+        // const areas = [
+        //     "New England",
+        //     "Mid-Atlantic",
+        //     "East North Central",
+        //     "West North Central",
+        //     "South Atlantic",
+        //     "East South Central",
+        //     "West South Central",
+        //     "Mountain",
+        //     "Pacific"
+        // ];
 
-        for (let i = 0; i < states.length; i += 1) {
-            const item = { field: states[i] };
-            if (areas.indexOf(states[i]) !== -1) {
-                item["header"] = true;
-            } else if (i % 7 === 4 || i > 49) {
-                item["disabled"] = true;
-            }
-            this.items.push(item);
-            this.initData = this.items;
+        // for (let i = 0; i < states.length; i += 1) {
+        //     const item = { field: states[i] };
+        //     if (areas.indexOf(states[i]) !== -1) {
+        //         item["header"] = true;
+        //     } else if (i % 7 === 4 || i > 49) {
+        //         item["disabled"] = true;
+        //     }
+        //     this.items.push(item);
+        //     this.initData = this.items;
+        // }
+
+        const division = {
+            "New England": ["Connecticut", "Maine,Massachusetts", "New Hampshire", "Rhode Island", "Vermont"],
+            "Mid-Atlantic": ["New Jersey", "New York", "Pennsylvania"],
+            "East North Central": ["Illinois", "Indiana", "Michigan", "Ohio", "Wisconsin"],
+            "West North Central": ["Iowa", "Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"],
+            "South Atlantic": ["Delaware", "Florida", "Georgia", "Maryland",
+                "North Carolina", "South Carolina", "Virginia", "District of Columbia", "West Virginia"],
+            "East South Central": ["Alabama", "Kentucky", "Mississippi", "Tennessee"],
+            "West South Central": ["Arkansas", "Louisiana", "Oklahome", "Texas"],
+            "Mountain": ["Arizona", "Colorado", "Idaho", "Montana", "Nevada", "New Mexico", "Utah", "Wyoming"],
+            "Pacific": ["Alaska", "California", "Hawaii", "Oregon", "Washington"]
+        };
+        const keys = Object.keys(division);
+        for (const key of keys) {
+            division[key].map((e) => {
+                this.items.push({
+                    field: e,
+                    region: key
+                });
+                this.initData = this.items;
+            });
         }
     }
 

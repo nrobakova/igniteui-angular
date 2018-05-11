@@ -96,6 +96,9 @@ export class IgxComboComponent implements OnInit, OnDestroy {
     public width;
 
     @Input()
+    public groupKey;
+
+    @Input()
     public primaryKey;
 
     @Output()
