@@ -624,30 +624,71 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy {
         const visibleRows = Math.ceil(contHeight / this.grid.rowHeight);
         const lastCell = this._getLastSelectedCell();
         const rowIndex = lastCell ? lastCell.rowIndex + visibleRows : this.grid.rowList.first.index;
-        const target = this.gridAPI.get_cell_by_visible_index(this.gridID, rowIndex, this.visibleColumnIndex);
+        //const target = this.gridAPI.get_cell_by_index(this.gridID, rowIndex, this.visibleColumnIndex);
         const verticalScroll = this.row.grid.verticalScrollContainer.getVerticalScroll();
-        if (!verticalScroll && !target) {
+        // if (!verticalScroll && !target) {
+        if (!verticalScroll) {    
             return;
         }
 
-        if (target) {
-            const containerHeight = this.grid.calcHeight ?
-                Math.ceil(this.grid.calcHeight) :
-                null; // null when there is no vertical virtualization
-            const containerTopOffset =
-                parseInt(this.row.grid.verticalScrollContainer.dc.instance._viewContainer.element.nativeElement.style.top, 10);
-            const targetEndTopOffset = target.row.element.nativeElement.offsetTop + this.grid.rowHeight + containerTopOffset;
-            if (containerHeight && targetEndTopOffset > containerHeight) {
-                verticalScroll.scrollTop += targetEndTopOffset - containerHeight;
+        // if (target) {
+        //     const containerHeight = this.grid.calcHeight ?
+        //         Math.ceil(this.grid.calcHeight) :
+        //         null; // null when there is no vertical virtualization
+        //     const containerTopOffset =
+        //         parseInt(this.row.grid.verticalScrollContainer.dc.instance._viewContainer.element.nativeElement.style.top, 10);
+        //     const targetEndTopOffset = target.row.element.nativeElement.offsetTop + this.grid.rowHeight + containerTopOffset;
+        //     if (containerHeight && targetEndTopOffset > containerHeight) {
+        //         verticalScroll.scrollTop += targetEndTopOffset// - containerHeight;
 
-                this._focusNextCell(rowIndex, this.visibleColumnIndex);
-            } else {
-                target.nativeElement.focus();
-            }
-        } else {
-            verticalScroll.scrollTop += this.grid.rowHeight;
+        //         this._focusNextCell(rowIndex, this.visibleColumnIndex);
+        //     } else {
+        //         target.nativeElement.focus();
+        //     }
+        // } else {
+            verticalScroll.scrollTop += (visibleRows * this.grid.rowHeight)
             this._focusNextCell(this.rowIndex, this.visibleColumnIndex);
+        //}
+    }
+    
+    @HostListener("keydown.pageup", ["$event"])
+    public onKeydownPageUp(event) {
+        if (this.inEditMode) {
+            return;
         }
+
+        event.preventDefault();
+        const contHeight = this.grid.calcHeight ?
+                Math.ceil(this.grid.calcHeight) :
+                null;
+        const visibleRows = Math.ceil(contHeight / this.grid.rowHeight);
+        const lastCell = this._getLastSelectedCell();
+        const rowIndex = lastCell ? lastCell.rowIndex - visibleRows : this.grid.rowList.first.index;
+        //const target = this.gridAPI.get_cell_by_index(this.gridID, rowIndex, this.visibleColumnIndex);
+        const verticalScroll = this.row.grid.verticalScrollContainer.getVerticalScroll();
+        // if (!verticalScroll && !target) {
+        if (!verticalScroll) {    
+            return;
+        }
+
+        // if (target) {
+        //     const containerHeight = this.grid.calcHeight ?
+        //         Math.ceil(this.grid.calcHeight) :
+        //         null; // null when there is no vertical virtualization
+        //     const containerTopOffset =
+        //         parseInt(this.row.grid.verticalScrollContainer.dc.instance._viewContainer.element.nativeElement.style.top, 10);
+        //     const targetEndTopOffset = target.row.element.nativeElement.offsetTop + this.grid.rowHeight + containerTopOffset;
+        //     if (containerHeight && targetEndTopOffset > containerHeight) {
+        //         verticalScroll.scrollTop += targetEndTopOffset// - containerHeight;
+
+        //         this._focusNextCell(rowIndex, this.visibleColumnIndex);
+        //     } else {
+        //         target.nativeElement.focus();
+        //     }
+        // } else {
+            verticalScroll.scrollTop += (visibleRows * this.grid.rowHeight)
+            this._focusNextCell(this.rowIndex, this.visibleColumnIndex);
+        //}
     }
 
     @HostListener("keydown.enter")
