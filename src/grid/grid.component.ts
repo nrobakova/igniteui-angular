@@ -27,9 +27,8 @@ import {
     ViewChildren,
     ViewContainerRef
 } from "@angular/core";
-import { of } from "rxjs/observable/of";
+import { of, Subject } from "rxjs";
 import { debounceTime, delay, merge, repeat, take, takeUntil } from "rxjs/operators";
-import { Subject } from "rxjs/Subject";
 import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
 import { DataType } from "../data-operations/data-util";
@@ -306,6 +305,9 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     @ViewChildren(IgxGridRowComponent, { read: IgxGridRowComponent })
     public rowList: QueryList<IgxGridRowComponent>;
+
+    @ViewChild("emptyGrid", { read: TemplateRef })
+    public emptyGridTemplate: TemplateRef<any>;
 
     @ViewChild("scrollContainer", { read: IgxForOfDirective })
     public parentVirtDir: IgxForOfDirective<any>;
@@ -639,6 +641,7 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
         const cell = this.gridAPI.get_cell_by_field(this.id, rowSelector, column);
         if (cell) {
             cell.update(value);
+            this.cdr.detectChanges();
             this._pipeTrigger++;
         }
     }
@@ -1091,6 +1094,10 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
         return this._filteringExpressions.length > 0 ?
             this.headerCheckbox && this.headerCheckbox.checked ? "Deselect all filtered" : "Select all filtered" :
             this.headerCheckbox && this.headerCheckbox.checked ? "Deselect all" : "Select all";
+    }
+
+    public get template(): TemplateRef<any> {
+        return this.emptyGridTemplate;
     }
 
     public checkHeaderChecboxStatus(headerStatus?: boolean) {
