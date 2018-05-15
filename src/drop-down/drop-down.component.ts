@@ -19,8 +19,8 @@ import { IgxToggleDirective, IgxToggleModule } from "../directives/toggle/toggle
 import { IgxDropDownItemComponent } from "./drop-down-item.component";
 
 export interface ISelectionEventArgs {
-    oldSelection: IgxDropDownItemComponent[];
-    newSelection: IgxDropDownItemComponent[];
+    oldSelection: IgxDropDownItemComponent;
+    newSelection: IgxDropDownItemComponent;
 }
 
 enum Direction {
@@ -147,7 +147,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
      */
     public get selectedItem(): IgxDropDownItemComponent {
         const selection = this.selectionAPI.get_selection(this.id);
-        return selection && selection.length > 0 ? selection[selection.length - 1] as IgxDropDownItemComponent : null;
+        return selection && selection.length > 0 ? selection[0] as IgxDropDownItemComponent : null;
     }
 
     /**
@@ -198,7 +198,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
      * Select an item by index
      * @param index of the item to select
      */
-    setSelectedItem(index: number, deselect?: boolean) {
+    setSelectedItem(index: number) {
         if (index < 0 || index >= this.items.length) {
             return;
         }
@@ -208,7 +208,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
             return;
         }
 
-        this.changeSelectedItem(newSelection, deselect);
+        this.changeSelectedItem(newSelection);
     }
 
     /**
@@ -283,9 +283,7 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
 
     onToggleOpening() {
         this.cdr.detectChanges();
-        if (this.selectedItem) {
-            this.scrollToItem(this.selectedItem);
-        }
+        this.scrollToItem(this.selectedItem);
         this.onOpening.emit();
     }
 
@@ -316,17 +314,14 @@ export class IgxDropDownComponent implements IToggleView, OnInit {
         this.toggleDirective.element.scrollTop = (itemPosition);
     }
 
-    private changeSelectedItem(newSelection?: IgxDropDownItemComponent, deselect?: boolean) {
-        const oldSelection = this.selectionAPI.get_selection(this.id) as IgxDropDownItemComponent[];
+    private changeSelectedItem(newSelection?: IgxDropDownItemComponent) {
+        const oldSelection = this.selectedItem;
         if (!newSelection) {
             newSelection = this._focusedItem;
         }
-        const newSelectionArr: IgxDropDownItemComponent[] = deselect ?
-            this.selectionAPI.deselect_items(this.id, [newSelection]) :
-            this.selectionAPI.select_items(this.id, [newSelection]);
 
-        this.selectionAPI.set_selection(this.id, newSelectionArr);
-        const args: ISelectionEventArgs = { oldSelection, newSelection: newSelectionArr };
+        this.selectionAPI.set_selection(this.id, [newSelection]);
+        const args: ISelectionEventArgs = { oldSelection, newSelection };
         this.onSelection.emit(args);
     }
 

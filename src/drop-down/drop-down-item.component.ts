@@ -5,9 +5,7 @@ import {
     HostBinding,
     HostListener,
     Inject,
-    Input
-} from "@angular/core";
-import { IgxSelectionAPIService } from "../core/selection";
+    Input } from "@angular/core";
 import { IgxDropDownComponent, ISelectionEventArgs } from "./drop-down.component";
 
 /**
@@ -31,7 +29,7 @@ export class IgxDropDownItemComponent {
      * Gets if the item is the currently selected one in the dropdown
      */
     get isSelected() {
-        return this.selectionAPI.is_item_selected(this.dropDown.id, this);
+        return this.dropDown.selectedItem === this;
     }
 
     @HostBinding("attr.aria-selected")
@@ -76,6 +74,7 @@ export class IgxDropDownItemComponent {
     @HostBinding("attr.tabindex")
     get setTabIndex() {
         const shouldSetTabIndex = this.dropDown.allowItemsFocus && !(this.isDisabled || this.isHeader);
+        console.log(shouldSetTabIndex);
         if (shouldSetTabIndex) {
             return 0;
         } else {
@@ -106,8 +105,7 @@ export class IgxDropDownItemComponent {
 
     constructor(
         @Inject(forwardRef(() => IgxDropDownComponent)) public dropDown: IgxDropDownComponent,
-        private elementRef: ElementRef,
-        private selectionAPI: IgxSelectionAPIService
+        private elementRef: ElementRef
     ) { }
 
     @HostListener("click", ["$event"])
@@ -118,7 +116,7 @@ export class IgxDropDownItemComponent {
             return;
         }
 
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
+        this.dropDown.setSelectedItem(this.index);
         this.dropDown.toggleDirective.close(true);
     }
 
@@ -129,13 +127,13 @@ export class IgxDropDownItemComponent {
 
     @HostListener("keydown.Space", ["$event"])
     onSpaceKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
+        this.dropDown.setSelectedItem(this.index);
         this.dropDown.toggleDirective.close(true);
     }
 
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
+        this.dropDown.setSelectedItem(this.index);
         this.dropDown.toggleDirective.close(true);
     }
 

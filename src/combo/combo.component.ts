@@ -12,9 +12,8 @@ import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
 import { IgxDropDownComponent, IgxDropDownModule } from "../drop-down/drop-down.component";
 import { IgxInputGroupComponent, IgxInputGroupModule } from "../input-group/input-group.component";
-import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
+import { IgxComboFilterConditionPipe, IgxComboFilteringPipe} from "./combo.pipes";
 
-let NEXT_ID = 0;
 export enum DataTypes {
     EMPTY = "empty",
     PRIMITIVE = "primitive",
@@ -116,15 +115,9 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         public cdr: ChangeDetectorRef,
         private element: ElementRef) { }
 
-    @HostBinding("attr.id")
-    @Input()
-    public id = `igx-combo-${NEXT_ID++}`;
-
     public ngOnInit() {
-        this.selectionApi.set_selection(this.id, []);
         this._dataType = this.getDataType();
         this._filteredData = this.data;
-        this.selectionApi.set_selection(this.id, []);
         this.dropDown.onOpened.subscribe(() => {
             this._dropdownVisible = true;
         });
@@ -164,24 +157,10 @@ export class IgxComboComponent implements OnInit, OnDestroy {
     public onSelection(event) {
         if (event.newSelection) {
             if (event.newSelection !== event.oldSelection) {
-                this.value = this.selectionApi.get_selection(this.dropDown.id)
-                    .map((e) => this.primaryKey ? this.data[e.index][this.primaryKey] : this.data[e.index]).join(", ");
+                this.value = this.getData();
+                this.inputGroup.isFilled = true;
             }
         }
-    }
-
-    public getItemSelectionState(item) {
-        if (!item) {
-            return false;
-        }
-        const currentSelection = this.selectionApi.get_selection(this.id);
-        if (!currentSelection || currentSelection.length === 0) {
-            return false;
-        }
-        if (currentSelection.indexOf(this.getDataByType(item)) > -1) {
-            return true;
-        }
-        return false;
     }
 
     public toggleDropDown(event, state?) {
@@ -239,8 +218,11 @@ export class IgxComboComponent implements OnInit, OnDestroy {
             return dataObj[this.primaryKey];
         }
     }
-    private getItemIndex(item) {
-        return item.index;
+    private getCurrentSelected() {
+        return this.dropDown.selectedItem.index;
+    }
+    private getData(): any {
+        return this.getDataByType(this._filteredData[this.getCurrentSelected()]);
     }
 }
 
