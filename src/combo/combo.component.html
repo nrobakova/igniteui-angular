@@ -22,7 +22,7 @@
             There are no items to be displayed.
         </igx-drop-down-item>
         <ng-template #content>
-            <igx-drop-down-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [isDisabled]="getItemSelectionState(item)" isHeader={{item[groupKey]}}>
+            <igx-drop-down-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" isHeader={{item[groupKey]}}>
                 <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, primaryKey: primaryKey};"></ng-container>
             </igx-drop-down-item>
         </ng-template>
