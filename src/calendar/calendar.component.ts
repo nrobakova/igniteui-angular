@@ -2,6 +2,7 @@ import { transition, trigger, useAnimation } from "@angular/animations";
 import {
     Component,
     ContentChild,
+    ElementRef,
     EventEmitter,
     forwardRef,
     HostBinding,
@@ -370,6 +371,10 @@ export class IgxCalendarComponent implements OnInit, ControlValueAccessor {
         return this.selectedDates ? this.selectedDates : new Date();
     }
 
+    get element() {
+        return this.elementRef.nativeElement;
+    }
+
     /**
      * @hidden
      */
@@ -405,7 +410,7 @@ export class IgxCalendarComponent implements OnInit, ControlValueAccessor {
     /**
      * @hidden
      */
-    constructor() {
+    constructor(private elementRef: ElementRef) {
         this.calendarModel = new Calendar();
     }
 
@@ -554,6 +559,14 @@ export class IgxCalendarComponent implements OnInit, ControlValueAccessor {
     }
 
     public animationDone() {
+        this.focusCurrentlySelectedDay();
+    }
+
+    public focusCurrentlySelectedDay() {
+        if (!this.dates) {
+            return;
+        }
+
         const date = this.dates.find((d) => d.selected);
 
         if (date) {

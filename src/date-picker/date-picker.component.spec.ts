@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, DebugElement, ViewChild } from "@angular/core";
 import { async, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -178,6 +178,46 @@ describe("IgxDatePicker", () => {
 
         expect(inputTarget.value).toEqual(todayToEnLocale);
     });
+
+    fit("Kyeboard navigation when click space calendar should become opened.", async(() => {
+        const fix = TestBed.createComponent(IgxDatePickerTestComponent);
+        fix.detectChanges();
+
+        const input = fix.debugElement.query(By.css(".igx-date-picker__input-date")).nativeElement;
+
+        fix.whenStable().then(() => {
+            input.dispatchEvent(new KeyboardEvent("keydown", { key: "space", bubbles: true }));
+            return fix.whenStable();
+        }).then(() => {
+            fix.detectChanges();
+            const calendar = fix.debugElement.query(By.css("igx-calendar"));
+            expect(calendar).toBeTruthy();
+        });
+    }));
+
+    fit("Keyboard navigation when press esc should close the calendar", async(() => {
+        const fix = TestBed.createComponent(IgxDatePickerComponent);
+        fix.detectChanges();
+
+        fix.whenStable().then(() => {
+            const input = fix.debugElement.query(By.css(".igx-date-picker__input-date")).nativeElement;
+            input.dispatchEvent(new KeyboardEvent("keydown", { key: "space", bubbles: true }));
+            return fix.whenStable();
+        }).then(() => {
+            fix.detectChanges();
+            const calendar = fix.debugElement.query(By.css("igx-calendar"));
+            expect(calendar).toBeTruthy();
+            console.log(calendar);
+            return calendar.nativeElement;
+        }).then((calendar) => {
+            calendar.dispatchEvent(new KeyboardEvent("keydown", { key: "esc", bubbles: true }));
+            return fix.whenStable();
+        }).then(() => {
+            const calendar = fix.debugElement.query(By.css("igx-calendar")).nativeElement;
+            console.log(calendar);
+            expect(calendar).toBeNull();
+        });
+    }));
 });
 
 @Component({

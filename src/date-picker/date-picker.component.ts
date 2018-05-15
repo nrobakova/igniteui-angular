@@ -6,6 +6,7 @@ import {
     ContentChild,
     EventEmitter,
     HostBinding,
+    HostListener,
     Input,
     NgModule,
     OnDestroy,
@@ -150,7 +151,7 @@ export class IgxDatePickerComponent implements ControlValueAccessor, OnInit, OnD
         /**
          * If we have passed value from user, update @calendar.value and @calendar.viewDate.
          */
-        this.alert.onOpen.subscribe((ev) => this._focusTheDialog());
+        this.alert.onOpen.subscribe((ev) => this._focusTheCalendar());
         this.alert.onClose.subscribe((ev) => this.handleDialogCloseAction());
     }
 
@@ -182,7 +183,11 @@ export class IgxDatePickerComponent implements ControlValueAccessor, OnInit, OnD
      *
      * @hidden
      */
-    public onOpenEvent(event): void {
+    public onOpenEvent(event?): void {
+        if (this.calendarRef) {
+            return;
+        }
+
         const factory = this.resolver.resolveComponentFactory(IgxCalendarComponent);
 
         this.calendarRef = this.container.createComponent(factory);
@@ -198,11 +203,16 @@ export class IgxDatePickerComponent implements ControlValueAccessor, OnInit, OnD
     }
 
     /**
-     * Closes the dialog, after was clearing all calendar items from dom.
+     * Closes the dialog, after was cleared all calendar items from dom.
      */
     public handleDialogCloseAction() {
         this.onClose.emit(this);
-        setTimeout(() => this.calendarRef.destroy(), 350);
+        setTimeout(() => {
+            if (this.calendarRef) {
+                this.calendarRef.destroy();
+                this.calendarRef = undefined;
+            }
+        }, 350);
     }
 
     /**
@@ -217,6 +227,24 @@ export class IgxDatePickerComponent implements ControlValueAccessor, OnInit, OnD
         this._onChangeCallback(event);
         this.alert.close();
         this.onSelection.emit(event);
+    }
+
+    @HostListener("keydown.space", ["$event"])
+    public onKeydownSpace(event) {
+        console.log("Space");
+        this.onOpenEvent();
+
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    @HostListener("keydown.esc", ["$event"])
+    public onKeydownEsc(event) {
+        this.handleDialogCloseAction();
+        this.alert.close();
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     private updateCalendarInstance() {
@@ -241,9 +269,12 @@ export class IgxDatePickerComponent implements ControlValueAccessor, OnInit, OnD
         this.calendar.onSelection.subscribe((ev) => this.handleSelection(ev));
     }
 
-    // Focus the dialog element, after its appearence into DOM.
-    private _focusTheDialog() {
-        requestAnimationFrame(() => this.alert.element.focus());
+    /**
+     * Focus currently selected date from the calendar when the dialog is opened.
+     */
+    private _focusTheCalendar() {
+        const calendar = this.calendar as IgxCalendarComponent;
+        requestAnimationFrame(() => calendar.focusCurrentlySelectedDay());
     }
 
     private _setLocaleToDate(value: Date, locale: string = Constants.DEFAULT_LOCALE_DATE): string {
