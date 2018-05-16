@@ -1,4 +1,4 @@
-<ng-template #complex let-display let-data="data" let-key="primaryKey">
+<ng-template #complex let-display let-data="data" let-key="valueKey">
     {{display[key]}}
 </ng-template>
 <ng-template #primitive let-display>
@@ -9,7 +9,36 @@
 </ng-template>
 
 <div class="igx-combo" [style.width]="width">
-    <!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
+    <igx-input-group>
+        <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" readonly/>
+    </igx-input-group>
+    <div (click)="toggle()" igxRipple width="10%">{{toggleDirective.collapsed ? "V" : "^"}}</div>
+    <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosed)="onToggleClosed()">
+        <ng-container *ngIf="!toggleDirective.collapsed">
+            <igx-input-group>
+                <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)"/>
+            </igx-input-group>
+            <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
+            </ng-container>
+            <igx-combo-item *ngIf="data.length === 0; else content" isDisabled={{true}}>
+                There are no items to be displayed.
+            </igx-combo-item>
+            <ng-template #content>
+                <igx-combo-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" isHeader={{item[groupKey]}}
+                    [itemData]="item">
+                    <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>
+                </igx-combo-item>
+            </ng-template>
+            <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}">
+            </ng-container>
+        </ng-container>
+    </div>
+</div>
+<!--  -->
+
+<!-- <button igxButton="raised" igxRipple (click)="toggleDropDown()">Toggle</button> -->
+<!-- <div class="igx-combo" [style.width]="width">
+
     <igx-input-group>
         <input (keyup)="hanldeKeyDown($event)" (focus)="toggleDropDown($event, true)" igxInput name="comboInput" type="text" [(ngModel)]="value"
         />
@@ -30,6 +59,4 @@
         </ng-container>
     </igx-drop-down>
     <div class=""></div>
-</div>
-
-<!--  -->
+</div> -->
