@@ -47,11 +47,4 @@ export class IgxComboItemComponent extends IgxDropDownItemTemplate {
         this.parentElement.changeFocusedItem(this, this.parentElement.lastFocused);
         this.parentElement.setSelectedItem(this.itemID);
     }
-
-    @HostListener("keydown.Space", ["$event"])
-    onSpaceKeyDown(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        this.markItemSelected();
-    }
 }

@@ -12,11 +12,12 @@
     <igx-input-group>
         <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" readonly/>
     </igx-input-group>
-    <div (click)="toggle()" igxRipple width="10%">{{toggleDirective.collapsed ? "V" : "^"}}</div>
+    <button (click)="toggle()" igxRipple width="10%">{{toggleDirective.collapsed ? "V" : "^"}}</button>
     <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosed)="onToggleClosed()">
         <ng-container *ngIf="!toggleDirective.collapsed">
             <igx-input-group>
-                <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)"/>
+                <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)" placeholder="Enter a search term"
+                />
             </igx-input-group>
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>

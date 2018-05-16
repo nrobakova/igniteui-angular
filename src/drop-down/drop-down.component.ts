@@ -155,8 +155,8 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     /**
      * Get all non-header items
      */
-    public get items(): IgxDropDownItemComponent[] {
-        const items: IgxDropDownItemComponent[] = [];
+    public get items(): any[] {
+        const items: any[] = [];
         if (this.children !== undefined) {
             for (const child of this.children.toArray()) {
                 if (!child.isHeader) {
@@ -171,8 +171,8 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     /**
      * Get all header items
      */
-    public get headers(): IgxDropDownItemComponent[] {
-        const headers: IgxDropDownItemComponent[] = [];
+    public get headers(): any[] {
+        const headers: any[] = [];
         if (this.children !== undefined) {
             for (const child of this.children.toArray()) {
                 if (child.isHeader) {

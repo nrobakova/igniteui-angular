@@ -55,8 +55,8 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     get caller() {
         return this;
     }
-    public value = "";
-    public searchValue = "";
+    private _value = "";
+    private _searchValue = "";
 
     constructor(
         protected elementRef: ElementRef,
@@ -70,11 +70,11 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     @ViewChild(IgxInputGroupComponent, { read: IgxInputGroupComponent })
     public inputGroup: IgxInputGroupComponent;
 
+    @ViewChild("searchInput")
+    public searchInput: ElementRef;
+
     @ViewChild("primitive", { read: TemplateRef })
     protected primitiveTemplate: TemplateRef<any>;
-
-    @ViewChild("searchInput", { read: TemplateRef })
-    protected searchInput: TemplateRef<any>;
 
     @ViewChild("complex", { read: TemplateRef })
     protected complexTemplate: TemplateRef<any>;
@@ -132,6 +132,21 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
         return this._focusedItem;
     }
 
+    get value(): string {
+        return this._value;
+    }
+
+    set value(val) {
+        this._value = val;
+    }
+
+    get searchValue() {
+        return this._searchValue;
+    }
+
+    set searchValue(val: string) {
+        this._searchValue = val;
+    }
     @Input()
     public filterable;
 
@@ -139,18 +154,6 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
     /* */
 
-    public get headers(): any[] {
-        const headers: IgxComboItemComponent[] = [];
-        if (this.children !== undefined) {
-            for (const child of this.children.toArray()) {
-                if (child.isHeader) {
-                    headers.push(child);
-                }
-            }
-        }
-
-        return headers;
-    }
     public get filteredData(): any[] {
         return this._filteredData;
     }
@@ -211,40 +214,15 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
 
     onToggleOpening() {
         this.cdr.detectChanges();
-        if (this._lastSelected) {
-            this.scrollToItem(this._lastSelected);
-        }
+        this.searchValue = "";
+        this.searchInput.nativeElement.focus();
         this.onOpening.emit();
     }
 
     onToggleOpened() {
         this._initiallySelectedItem = this._lastSelected;
         this._focusedItem = this._lastSelected;
-        if (this._focusedItem) {
-            this._focusedItem.isFocused = true;
-        } else if (this.allowItemsFocus) {
-            const firstItemIndex = this.getNearestSiblingFocusableItemIndex(-1, MoveDirection.Down);
-            if (firstItemIndex !== -1) {
-                this.changeFocusedItem(this.items[firstItemIndex]);
-            }
-        }
         this.onOpened.emit();
-    }
-
-    /**
-     * Get all non-header items
-     */
-    public get items(): any[] {
-        const items: IgxComboItemComponent[] = [];
-        if (this.children !== undefined) {
-            for (const child of this.children.toArray()) {
-                if (!child.isHeader) {
-                    items.push(child);
-                }
-            }
-        }
-
-        return items;
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
@@ -258,14 +236,9 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
         this.filteringExpressions = this.prepare_filtering_expression(term, condition, ignoreCase, valueKey);
     }
 
-    /**
-     * Get all header items
-     */
-
     public ngOnInit() {
         this._filteredData = this.data;
         this.id += currentItem++;
-        this.allowItemsFocus = false;
     }
 
     ngOnDestroy() {
