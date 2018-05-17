@@ -5,6 +5,7 @@ import {
     Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
 import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
 import { STRING_FILTERS } from "../data-operations/filtering-condition";
@@ -199,17 +200,47 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
         this._lastSelected = newItem;
     }
 
-    protected changeSelectedItem(newItem: any, select?: boolean) {
-        const oldSelection = this.selectedItem;
+    public changeSelectedItem(newItem: any, select?: boolean) {
         const newSelection = select ?
             this.selectionAPI.select_item(this.id, newItem) :
             this.selectionAPI.deselect_item(this.id, newItem);
+        this.triggerSelectionChange(newSelection);
+    }
+
+    public selectAllItems() {
+        const newSelection = this.selectionAPI.get_all_ids(this.filteredData, this.valueKey);
+        this.triggerSelectionChange(newSelection);
+    }
+
+    public deselectAllItems() {
+        this.triggerSelectionChange([]);
+    }
+
+    public triggerSelectionChange(newSelection) {
+        const oldSelection = this.selectedItem;
         if (oldSelection !== newSelection) {
             this.selectionAPI.set_selection(this.id, newSelection);
-            this.value = this.selectionAPI.get_selection(this.id).join(", ");
+            this.value = newSelection.join(", ");
             const args: IComboSelectionChangeEventArgs = { oldSelection, newSelection };
             this.onSelection.emit(args);
         }
+    }
+
+    public handleSelectAll(evt) {
+        if (evt.checked) {
+            this.selectAllItems();
+        } else {
+            this.deselectAllItems();
+        }
+    }
+
+    public addItemToCollection() {
+        if (!this.searchValue) {
+            return false;
+        }
+        this.data.push({
+            [this.valueKey] : this.searchValue
+        });
     }
 
     onToggleOpening() {
@@ -237,7 +268,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     }
 
     public ngOnInit() {
-        this._filteredData = this.data;
+        this.filteredData = this.data;
         this.id += currentItem++;
     }
 
@@ -269,6 +300,6 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
 @NgModule({
     declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
     exports: [IgxComboComponent, IgxComboItemComponent],
-    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxToggleModule]
+    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxToggleModule, IgxCheckboxModule]
 })
 export class IgxComboModule { }

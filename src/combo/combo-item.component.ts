@@ -7,13 +7,14 @@ import {
     Inject,
     Input
 } from "@angular/core";
+import { IgxCheckboxComponent } from "../checkbox/checkbox.component";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
 import { IgxComboComponent } from "./combo.component";
 
 @Component({
     selector: "igx-combo-item",
-    template: "<ng-content></ng-content>"
+    templateUrl: "combo-item.component.html"
 })
 export class IgxComboItemComponent extends IgxDropDownItemTemplate {
     /**

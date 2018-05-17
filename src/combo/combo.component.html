@@ -13,17 +13,24 @@
         <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" readonly/>
     </igx-input-group>
     <button (click)="toggle()" igxRipple width="10%">{{toggleDirective.collapsed ? "V" : "^"}}</button>
+    <ng-container *ngIf="!toggleDirective.collapsed">
+        <igx-input-group>
+            <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)" placeholder="Enter a search term"
+            />
+        </igx-input-group>
+        <div>
+            Select All:
+            <igx-checkbox (change)="handleSelectAll($event)"></igx-checkbox>
+        </div>
+    </ng-container>
     <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosed)="onToggleClosed()">
         <ng-container *ngIf="!toggleDirective.collapsed">
-            <igx-input-group>
-                <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)" placeholder="Enter a search term"
-                />
-            </igx-input-group>
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
-            <igx-combo-item *ngIf="data.length === 0; else content" isDisabled={{true}}>
+            <div *ngIf="filteredData.length === 0; else content">
                 There are no items to be displayed.
-            </igx-combo-item>
+                <div (click)="addItemToCollection()">Add Item</div>
+            </div>
             <ng-template #content>
                 <igx-combo-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" isHeader={{item[groupKey]}}
                     [itemData]="item">
