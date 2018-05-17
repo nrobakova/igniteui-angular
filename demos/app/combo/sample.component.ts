@@ -36,9 +36,7 @@ export class ComboSampleComponent implements OnInit {
     private currentDataType = "";
 
     ngOnInit() {
-        this.igxCombo.height = "400px";
-        console.log("Sample init");
-        console.log(this.items);
+
     }
 
     constructor() {

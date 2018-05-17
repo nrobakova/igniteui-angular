@@ -20,17 +20,24 @@
             </igx-input-group>
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
+        </ng-container>
+        <ng-container *ngIf="!toggleDirective.collapsed">
             <igx-combo-item *ngIf="data.length === 0; else content" isDisabled={{true}}>
                 There are no items to be displayed.
             </igx-combo-item>
             <ng-template #content>
-                <igx-combo-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" isHeader={{item[groupKey]}}
-                    [itemData]="item">
-                    <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>
-                </igx-combo-item>
+                <div style="position: relative;">
+                    <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger"
+                        [igxForScrollOrientation]="'vertical'" [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
+                        <igx-combo-item [itemData]="item" isHeader={{item[groupKey]}}>
+                            <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>
+                        </igx-combo-item>
+                    </ng-template>
+                </div>
             </ng-template>
-            <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}">
-            </ng-container>
+        </ng-container>
+        <ng-container *ngIf="!toggleDirective.collapsed">
+            <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}"></ng-container>
         </ng-container>
     </div>
 </div>
