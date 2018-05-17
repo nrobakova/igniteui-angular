@@ -281,7 +281,7 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
     }
 
     public scrollTo(index) {
-        if (index < 0 || index > (this.isRemote ? this.totalItemCount : this.igxForOf.length)) {
+        if (index < 0 || index > ((this.isRemote ? this.totalItemCount : this.igxForOf.length) - this.state.chunkSize)) {
             return;
         }
         // this.state.startIndex = index;
@@ -302,12 +302,12 @@ export class IgxForOfDirective<T> implements OnInit, OnChanges, DoCheck, OnDestr
         this.scrollTo(this.state.startIndex - 1);
     }
 
-    public scrollNextPg() {
-        this.scrollTo(this.state.startIndex + (this.state.chunkSize - 1));
+    public scrollNextPage() {
+        this.vh.instance.elementRef.nativeElement.scrollTop += parseInt(this.igxForContainerSize, 10);
     }
 
-    public scrollPrevPg() {
-        this.scrollTo(this.state.startIndex - (this.state.chunkSize - 1));
+    public scrollPrevPage() {
+        this.vh.instance.elementRef.nativeElement.scrollTop -= parseInt(this.igxForContainerSize, 10);
     }
 
     public getColumnScrollLeft(colIndex) {

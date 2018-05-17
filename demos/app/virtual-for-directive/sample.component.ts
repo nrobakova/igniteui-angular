@@ -190,10 +190,10 @@ scrPrevRow(){
     this.virtDirVertical.scrollPrev();
 }
 scrPageDown(){
-    this.virtDirVertical.scrollNextPg();
+    this.virtDirVertical.scrollNextPage();
 }
 scrPageUp(){
-    this.virtDirVertical.scrollPrevPg();
+    this.virtDirVertical.scrollPrevPage();
 }
 scrScrollTo(index){
     this.virtDirVertical.scrollTo(index);

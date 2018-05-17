@@ -2,13 +2,13 @@
     <article class="sample-column">
             <span>Vertical Virtualization</span>
             <br/>
-            <div style='height:500px; position: relative; overflow: hidden'>
+            <div style='height:600px; position: relative; overflow: hidden'>
               <ng-template igxFor let-item [igxForOf]="data" #virtDirVertical
                 [igxForScrollOrientation]="'vertical'"
-                [igxForContainerSize]='"500px"'
-                [igxForItemSize]='"50px"'
+                [igxForContainerSize]='"600px"'
+                [igxForItemSize]='"100px"'
                 let-rowIndex="index">
-                <div style='height:50px;'>{{rowIndex}} : {{item.text}}</div>
+                <div style='height:100px;'>{{rowIndex}} : {{item.text}}</div>
                 </ng-template>
             </div>
             <button (click)="scrPrevRow()">Scroll Prev Row</button>
@@ -29,7 +29,7 @@
                             [igxForContainerSize]='"500px"'
                             let-rowIndex="index">
                                 <td  [style.width.px]='item.width' style='height:100px;'>{{rowIndex}} : {{item.text}}</td>
-                        </ng-template>`
+                        </ng-template>
                     </div>
                 </tr>
                 </tbody>
