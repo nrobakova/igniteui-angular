@@ -73,6 +73,9 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     @ViewChild(IgxInputGroupComponent, { read: IgxInputGroupComponent })
     public inputGroup: IgxInputGroupComponent;
 
+    @ViewChild("selectAllCheckbox", { read: IgxCheckboxComponent })
+    public selectAllCheckbox: IgxCheckboxComponent;
+
     @ViewChild("searchInput")
     public searchInput: ElementRef;
 
@@ -93,6 +96,12 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
 
     @ContentChild("dropdownItemTemplate", { read: TemplateRef })
     public dropdownItemTemplate: TemplateRef<any>;
+
+    @ContentChild("addItemTemplate", { read: TemplateRef })
+    public addItemTemplate: TemplateRef<any>;
+
+    @ContentChild("headerItemTemplate", { read: TemplateRef })
+    public headerItemTemplate: TemplateRef<any>;
 
     @HostBinding("style.width")
     @Input()
@@ -179,9 +188,15 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     }
 
     public handleKeyDown(evt) {
+        if (evt.key === "Enter") {
+            if (this.filteredData.length === 1) {
+                this.selectAllItems();
+            }
+        }
         if (this.filterable) {
             this.filter(evt.target.value, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.valueKey);
+            this.isHeaderChecked();
         }
     }
 
@@ -218,13 +233,47 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
         this.triggerSelectionChange(newSelection);
     }
 
+    public isHeaderChecked() {
+        const selectedItems = this.selectedItem;
+        if (this.filteredData.length > 0 && selectedItems.length > 0) {
+            const compareData = this.valueKey ?
+                this.filteredData.map((e) => e[this.valueKey]) :
+                this.filteredData;
+            if (selectedItems.length >= this.filteredData.length) {
+                for (const item of compareData) {
+                    if (selectedItems.indexOf(item) > -1) {
+                        this.selectAllCheckbox.indeterminate = true;
+                        return;
+                    }
+                }
+                this.selectAllCheckbox.indeterminate = false;
+                return;
+            } else if (selectedItems.length < this.filteredData.length) {
+                for (const item of selectedItems) {
+                    if (compareData.indexOf(item) > -1) {
+                        this.selectAllCheckbox.indeterminate = true;
+                        return;
+                    }
+                }
+                this.selectAllCheckbox.indeterminate = false;
+                return;
+            }
+        }
+        this.selectAllCheckbox.indeterminate = false;
+        this.selectAllCheckbox.checked = false;
+    }
+
     public selectAllItems() {
-        const newSelection = this.selectionAPI.get_all_ids(this.filteredData, this.valueKey);
+        const allVisible = this.selectionAPI.get_all_ids(this.filteredData, this.valueKey);
+        const newSelection = this.selectionAPI.select_items(this.id, allVisible);
         this.triggerSelectionChange(newSelection);
     }
 
     public deselectAllItems() {
-        this.triggerSelectionChange([]);
+        const newSelection = this.filteredData.length === this.data.length ?
+            [] :
+            this.selectionAPI.deselect_items(this.id, this.selectionAPI.get_all_ids(this.filteredData, this.valueKey));
+        this.triggerSelectionChange(newSelection);
     }
 
     public triggerSelectionChange(newSelection) {
@@ -234,6 +283,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
             this.value = newSelection.join(", ");
             const args: IComboSelectionChangeEventArgs = { oldSelection, newSelection };
             this.onSelection.emit(args);
+            this.isHeaderChecked();
         }
     }
 
@@ -250,7 +300,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
             return false;
         }
         const addedItem = {
-            [this.valueKey] : this.searchValue
+            [this.valueKey]: this.searchValue
         };
         this.data.push(addedItem);
         this.filteredData.push(addedItem);
@@ -283,6 +333,31 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     public ngOnInit() {
         this.filteredData = this.data;
         this.id += currentItem++;
+        if (this.groupKey !== undefined) {
+            const dataWithHeaders = this.data.sort((a, b) => {
+                if (a[this.groupKey] > b[this.groupKey]) {
+                    return 1;
+                }
+                if (a[this.groupKey] < b[this.groupKey]) {
+                    return -1;
+                }
+                return 0;
+            });
+            const crawl = [...dataWithHeaders];
+            let inserts = 0;
+            let currentHeader = null;
+            for (let i = 0; i < crawl.length; i++) {
+                if (currentHeader !== crawl[i][this.groupKey]) {
+                    currentHeader = crawl[i][this.groupKey];
+                    dataWithHeaders.splice(i + inserts, 0, {
+                        [this.valueKey]: currentHeader,
+                        isHeader: true
+                    });
+                    inserts++;
+                }
+            }
+            this.data = dataWithHeaders;
+        }
     }
 
     ngOnDestroy() {
