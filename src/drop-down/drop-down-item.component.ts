@@ -7,56 +7,33 @@ import {
     Inject,
     Input
 } from "@angular/core";
-import { IgxSelectionAPIService } from "../core/selection";
 import { IgxDropDownComponent, ISelectionEventArgs } from "./drop-down.component";
 
-/**
- * The `<igx-drop-down-item> is a container intended for row items in
- * a `<igx-drop-down>` container.
- */
-@Component({
-    selector: "igx-drop-down-item",
-    templateUrl: "drop-down-item.component.html"
-})
-
-export class IgxDropDownItemComponent {
-    private _isFocused = false;
-
-    @HostBinding("class.igx-drop-down__item")
-    get itemStyle(): boolean {
-        return !this.isHeader;
+export class IgxDropDownItemTemplate {
+    protected _isFocused = false;
+    /**
+     * Gets item element height
+     */
+    public get elementHeight(): number {
+        return this.elementRef.nativeElement.clientHeight;
     }
 
     /**
-     * Gets if the item is the currently selected one in the dropdown
+     * Get item html element
+     */
+    public get element() {
+        return this.elementRef;
+    }
+
+    /**
+     * Get item selection status
      */
     get isSelected() {
-        return this.selectionAPI.is_item_selected(this.dropDown.id, this);
+        return this.parentElement.selectedItem === this;
     }
 
-    @HostBinding("attr.aria-selected")
-    @HostBinding("class.igx-drop-down__item--selected")
-    get selectedStyle(): boolean {
-        return this.isSelected;
-    }
-
-    /**
-     * Sets/gets if the given item is focused
-     */
-    @HostBinding("class.igx-drop-down__item--focused")
-    get isFocused() {
-        return this._isFocused;
-    }
-    set isFocused(value: boolean) {
-        if (this.isDisabled || this.isHeader) {
-            this._isFocused = false;
-            return;
-        }
-
-        if (value && !this.dropDown.toggleDirective.collapsed) {
-            this.elementRef.nativeElement.focus();
-        }
-        this._isFocused = value;
+    public get index(): number {
+        return this.parentElement.items.indexOf(this);
     }
 
     /**
@@ -73,9 +50,34 @@ export class IgxDropDownItemComponent {
     @HostBinding("class.igx-drop-down__item--disabled")
     public isDisabled = false;
 
+    /**
+     * Sets/gets if the given item is focused
+     */
+    @HostBinding("class.igx-drop-down__item--focused")
+    get isFocused() {
+        return this._isFocused;
+    }
+    set isFocused(value: boolean) {
+        if (this.isDisabled || this.isHeader) {
+            this._isFocused = false;
+            return;
+        }
+
+        if (value && !this.parentElement.toggleDirective.collapsed) {
+            this.elementRef.nativeElement.focus();
+        }
+        this._isFocused = value;
+    }
+
+    @HostBinding("attr.aria-selected")
+    @HostBinding("class.igx-drop-down__item--selected")
+    get selectedStyle(): boolean {
+        return this.isSelected;
+    }
+
     @HostBinding("attr.tabindex")
     get setTabIndex() {
-        const shouldSetTabIndex = this.dropDown.allowItemsFocus && !(this.isDisabled || this.isHeader);
+        const shouldSetTabIndex = this.parentElement.allowItemsFocus && !(this.isDisabled || this.isHeader);
         if (shouldSetTabIndex) {
             return 0;
         } else {
@@ -83,87 +85,91 @@ export class IgxDropDownItemComponent {
         }
     }
 
-    /**
-     * Gets item index
-     */
-    public get index(): number {
-        return this.dropDown.items.indexOf(this);
-    }
-
-    /**
-     * Gets item element height
-     */
-    public get elementHeight(): number {
-        return this.elementRef.nativeElement.clientHeight;
-    }
-
-    /**
-     * Get item html element
-     */
-    public get element() {
-        return this.elementRef;
-    }
-
-    constructor(
-        @Inject(forwardRef(() => IgxDropDownComponent)) public dropDown: IgxDropDownComponent,
-        private elementRef: ElementRef,
-        private selectionAPI: IgxSelectionAPIService
-    ) { }
-
     @HostListener("click", ["$event"])
     clicked(event) {
         if (this.isDisabled || this.isHeader) {
-            const focusedItem = this.dropDown.items.find((item) => item.isFocused);
+            const focusedItem = this.parentElement.items.find((item) => item.isFocused);
             focusedItem.elementRef.nativeElement.focus({ preventScroll: true });
             return;
         }
 
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
-        this.dropDown.toggleDirective.close(true);
+        this.markItemSelected();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.Escape", ["$event"])
     onEscapeKeyDown(event) {
-        this.dropDown.toggleDirective.close(true);
+        this.parentElement.toggleDirective.close(true);
     }
 
     @HostListener("keydown.Space", ["$event"])
     onSpaceKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
-        this.dropDown.toggleDirective.close(true);
+        this.markItemSelected();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index, this.isSelected);
-        this.dropDown.toggleDirective.close(true);
+        this.markItemSelected();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.ArrowDown", ["$event"])
     onArrowDownKeyDown(event) {
-        this.dropDown.focusNext();
+        this.parentElement.focusNext();
         event.stopPropagation();
         event.preventDefault();
     }
 
     @HostListener("keydown.ArrowUp", ["$event"])
     onArrowUpKeyDown(event) {
-        this.dropDown.focusPrev();
+        this.parentElement.focusPrev();
         event.stopPropagation();
         event.preventDefault();
     }
 
     @HostListener("keydown.End", ["$event"])
     onEndKeyDown(event) {
-        this.dropDown.focusLast();
+        this.parentElement.focusLast();
         event.stopPropagation();
         event.preventDefault();
     }
 
     @HostListener("keydown.Home", ["$event"])
     onHomeKeyDown(event) {
-        this.dropDown.focusFirst();
+        this.parentElement.focusFirst();
         event.stopPropagation();
         event.preventDefault();
+    }
+
+    @HostBinding("class.igx-drop-down__item")
+    get itemStyle(): boolean {
+        return !this.isHeader;
+    }
+
+    markItemSelected() {
+        this.parentElement.setSelectedItem(this.index);
+        this.parentElement.toggleDirective.close(true);
+    }
+
+    constructor(
+        public parentElement: any,
+        protected elementRef: ElementRef) {
+        }
+}
+/**
+ * The `<igx-drop-down-item> is a container intended for row items in
+ * a `<igx-drop-down>` container.
+ */
+@Component({
+    selector: "igx-drop-down-item",
+    templateUrl: "drop-down-item.component.html"
+})
+export class IgxDropDownItemComponent extends IgxDropDownItemTemplate {
+    constructor(
+        @Inject(forwardRef(() => IgxDropDownComponent)) public parentElement: IgxDropDownComponent,
+        protected elementRef: ElementRef
+    ) {
+        super(parentElement, elementRef);
     }
 }

@@ -1,45 +1,80 @@
 import { CommonModule } from "@angular/common";
 import {
-    ChangeDetectorRef, Component, ContentChild,
-    ElementRef, EventEmitter, HostBinding, HostListener, Input, NgModule, OnDestroy, OnInit, Output, TemplateRef, ViewChild
+    ChangeDetectorRef, Component, ContentChild, ContentChildren,
+    ElementRef, EventEmitter, forwardRef, HostBinding, HostListener,
+    Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
 import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
 import { STRING_FILTERS } from "../data-operations/filtering-condition";
 import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
+import { IgxForOfDirective, IgxForOfModule } from "../directives/for-of/for_of.directive";
+import { IForOfState } from "../directives/for-of/IForOfState";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
-import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
-import { IgxDropDownComponent, IgxDropDownModule } from "../drop-down/drop-down.component";
+import { IgxToggleModule } from "../directives/toggle/toggle.directive";
+import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
+import { IgxDropDownTemplate, MoveDirection } from "../drop-down/drop-down.component";
 import { IgxInputGroupComponent, IgxInputGroupModule } from "../input-group/input-group.component";
+import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
 
-let NEXT_ID = 0;
 export enum DataTypes {
     EMPTY = "empty",
     PRIMITIVE = "primitive",
     COMPLEX = "complex",
-    PRIMARYKEY = "primaryKey"
+    PRIMARYKEY = "valueKey"
 }
+
+export interface IComboDropDownOpenEventArgs {
+    event?: Event;
+}
+
+export interface IComboDropDownClosedEventArgs {
+    event?: Event;
+}
+
+export interface IComboSelectionChangeEventArgs {
+    oldSelection: any[];
+    newSelection: any[];
+    event?: Event;
+}
+let currentItem = 0;
 @Component({
     selector: "igx-combo",
     templateUrl: "combo.component.html"
 })
-export class IgxComboComponent implements OnInit, OnDestroy {
-
+export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, OnDestroy {
     protected _filteringLogic = FilteringLogic.And;
     protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
     private _dataType = "";
     private _filteredData = [];
-    private _dropdownVisible = false;
-    public value = "";
+    protected _id = "ComboItem_";
+    private _lastSelected = null;
+    public dropdownVisible = false;
 
-    @ViewChild(IgxDropDownComponent, { read: IgxDropDownComponent })
-    public dropDown: IgxDropDownComponent;
+    get caller() {
+        return this;
+    }
+    private _value = "";
+    private _searchValue = "";
+
+    constructor(
+        protected elementRef: ElementRef,
+        protected cdr: ChangeDetectorRef,
+        protected selectionAPI: IgxSelectionAPIService) {
+        super(elementRef, cdr, selectionAPI);
+    }
+    @ViewChildren(forwardRef(() => IgxComboItemComponent))
+    protected children: QueryList<any>;
 
     @ViewChild(IgxInputGroupComponent, { read: IgxInputGroupComponent })
     public inputGroup: IgxInputGroupComponent;
+
+    @ViewChild("searchInput")
+    public searchInput: ElementRef;
 
     @ViewChild("primitive", { read: TemplateRef })
     protected primitiveTemplate: TemplateRef<any>;
@@ -59,8 +94,27 @@ export class IgxComboComponent implements OnInit, OnDestroy {
     @ContentChild("dropdownItemTemplate", { read: TemplateRef })
     public dropdownItemTemplate: TemplateRef<any>;
 
+    @HostBinding("style.width")
     @Input()
-    public evalDisabled: (args) => boolean;
+    public width;
+
+    @Input()
+    public height;
+
+    @Input()
+    public listHeight = 300;
+
+    @Input()
+    public listItemHeight = 30;
+
+    @Input()
+    public groupKey;
+
+    @Input()
+    public placeholder;
+
+    @Input()
+    public valueKey;
 
     @Input()
     public data;
@@ -78,118 +132,56 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
     }
 
-    get caller() {
-        return this;
-    }
-
     get pipeTrigger(): number {
         return this._pipeTrigger;
     }
 
+    get lastSelected(): IgxComboItemComponent {
+        return this._lastSelected;
+    }
+
+    get lastFocused(): IgxComboItemComponent {
+        return this._focusedItem;
+    }
+
+    get value(): string {
+        return this._value;
+    }
+
+    set value(val) {
+        this._value = val;
+    }
+
+    get searchValue() {
+        return this._searchValue;
+    }
+
+    set searchValue(val: string) {
+        this._searchValue = val;
+    }
     @Input()
     public filterable;
 
-    @Input()
-    public placeholder;
-
-    @HostBinding("style.width")
-    @Input()
-    public width;
-
-    @Input()
-    public groupKey;
-
-    @Input()
-    public primaryKey;
-
     @Output()
-    public onDropDownOpen = new EventEmitter<IComboDropDownOpenEventArgs>();
+    public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
+    /* */
 
-    @Output()
-    public onDropDownClosed = new EventEmitter<IComboDropDownClosedEventArgs>();
-
-    @Output()
-    public onSelectionChange = new EventEmitter<IComboSelectionChangeEventArgs>();
-
-    constructor(
-        public selectionApi: IgxSelectionAPIService,
-        public cdr: ChangeDetectorRef,
-        private element: ElementRef) { }
-
-    @HostBinding("attr.id")
-    @Input()
-    public id = `igx-combo-${NEXT_ID++}`;
-
-    public ngOnInit() {
-        this.selectionApi.set_selection(this.id, []);
-        this._dataType = this.getDataType();
-        this._filteredData = this.data;
-        this.selectionApi.set_selection(this.id, []);
-        this.dropDown.onOpened.subscribe(() => {
-            this._dropdownVisible = true;
-        });
-        this.dropDown.onClosed.subscribe(() => {
-            this._dropdownVisible = false;
-        });
+    public get filteredData(): any[] {
+        return this._filteredData;
     }
 
-    public ngOnDestroy() {
-
+    public set filteredData(val: any[]) {
+        this._filteredData = val;
     }
 
-    protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
-        if (fieldName !== undefined) {
-            return [{ fieldName, searchVal, condition, ignoreCase }];
-        }
-        return [{ searchVal, condition, ignoreCase }];
+    public get selectedItem(): any[] {
+        return this.selectionAPI.get_selection(this.id) || [];
     }
 
-    public filter(term, condition, ignoreCase, primaryKey?) {
-        this.filteringExpressions = this.prepare_filtering_expression(term, condition, ignoreCase, primaryKey);
-    }
-
-    public get displayedData() {
-        // if (this.filterable) {
-        //     return this._filteredData;
-        // }
-        return this.data;
-    }
-    public hanldeKeyDown(evt) {
+    public handleKeyDown(evt) {
         if (this.filterable) {
             this.filter(evt.target.value, STRING_FILTERS.contains,
-                true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.primaryKey);
-        }
-    }
-
-    public onSelection(event) {
-        if (event.newSelection) {
-            if (event.newSelection !== event.oldSelection) {
-                this.value = this.selectionApi.get_selection(this.dropDown.id)
-                    .map((e) => this.primaryKey ? this.data[e.index][this.primaryKey] : this.data[e.index]).join(", ");
-            }
-        }
-    }
-
-    public getItemSelectionState(item) {
-        if (!item) {
-            return false;
-        }
-        const currentSelection = this.selectionApi.get_selection(this.id);
-        if (!currentSelection || currentSelection.length === 0) {
-            return false;
-        }
-        if (currentSelection.indexOf(this.getDataByType(item)) > -1) {
-            return true;
-        }
-        return false;
-    }
-
-    public toggleDropDown(event, state?) {
-        if (state !== undefined) {
-            if (state) {
-                this.dropDown.open();
-                this.inputGroup.isFilled = true;
-            }
+                true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.valueKey);
         }
     }
 
@@ -203,9 +195,103 @@ export class IgxComboComponent implements OnInit, OnDestroy {
         return DataTypes.PRIMITIVE;
     }
 
+    setSelectedItem(itemID: any) {
+        if (itemID === undefined || itemID === null) {
+            return;
+        }
+        const newItem = this.items.find((item) => item.itemID === itemID);
+        if (newItem.isDisabled || newItem.isHeader) {
+            return;
+        }
+        if (!newItem.isSelected) {
+            this.changeSelectedItem(itemID, true);
+        } else {
+            this.changeSelectedItem(itemID, false);
+        }
+        this._lastSelected = newItem;
+    }
+
+    public changeSelectedItem(newItem: any, select?: boolean) {
+        const newSelection = select ?
+            this.selectionAPI.select_item(this.id, newItem) :
+            this.selectionAPI.deselect_item(this.id, newItem);
+        this.triggerSelectionChange(newSelection);
+    }
+
+    public selectAllItems() {
+        const newSelection = this.selectionAPI.get_all_ids(this.filteredData, this.valueKey);
+        this.triggerSelectionChange(newSelection);
+    }
+
+    public deselectAllItems() {
+        this.triggerSelectionChange([]);
+    }
+
+    public triggerSelectionChange(newSelection) {
+        const oldSelection = this.selectedItem;
+        if (oldSelection !== newSelection) {
+            this.selectionAPI.set_selection(this.id, newSelection);
+            this.value = newSelection.join(", ");
+            const args: IComboSelectionChangeEventArgs = { oldSelection, newSelection };
+            this.onSelection.emit(args);
+        }
+    }
+
+    public handleSelectAll(evt) {
+        if (evt.checked) {
+            this.selectAllItems();
+        } else {
+            this.deselectAllItems();
+        }
+    }
+
+    public addItemToCollection() {
+        if (!this.searchValue) {
+            return false;
+        }
+        const addedItem = {
+            [this.valueKey] : this.searchValue
+        };
+        this.data.push(addedItem);
+        this.filteredData.push(addedItem);
+    }
+
+    onToggleOpening() {
+        this.cdr.detectChanges();
+        this.searchValue = "";
+        this.searchInput.nativeElement.focus();
+        this.onOpening.emit();
+    }
+
+    onToggleOpened() {
+        this._initiallySelectedItem = this._lastSelected;
+        this._focusedItem = this._lastSelected;
+        this.onOpened.emit();
+    }
+
+    protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
+        if (fieldName !== undefined) {
+            return [{ fieldName, searchVal, condition, ignoreCase }];
+        }
+        return [{ searchVal, condition, ignoreCase }];
+    }
+
+    public filter(term, condition, ignoreCase, valueKey?) {
+        this.filteringExpressions = this.prepare_filtering_expression(term, condition, ignoreCase, valueKey);
+    }
+
+    public ngOnInit() {
+        this.filteredData = this.data;
+        this.id += currentItem++;
+    }
+
+    ngOnDestroy() {
+
+    }
+
     public get template(): TemplateRef<any> {
         this._dataType = this.getDataType();
-        if (!this.displayedData || !this.displayedData.length) {
+        if (!this.filteredData || !this.filteredData.length) {
             return this.emptyTemplate;
         }
         if (this.dropdownItemTemplate) {
@@ -222,45 +308,11 @@ export class IgxComboComponent implements OnInit, OnDestroy {
             $implicit: this
         };
     }
-
-    public get filteredData(): any[] {
-        return this._filteredData;
-    }
-
-    public set filteredData(val: any[]) {
-        this._filteredData = val;
-    }
-
-    private getDataByType(dataObj) {
-        if (this._dataType === DataTypes.PRIMITIVE || this._dataType === DataTypes.EMPTY) {
-            return dataObj;
-        }
-        if (this._dataType === DataTypes.PRIMARYKEY || this._dataType === DataTypes.COMPLEX) {
-            return dataObj[this.primaryKey];
-        }
-    }
-    private getItemIndex(item) {
-        return item.index;
-    }
-}
-
-export interface IComboDropDownOpenEventArgs {
-    event?: Event;
-}
-
-export interface IComboDropDownClosedEventArgs {
-    event?: Event;
-}
-
-export interface IComboSelectionChangeEventArgs {
-    oldSelection: any[];
-    newSelection: any[];
-    event?: Event;
 }
 
 @NgModule({
-    declarations: [IgxComboComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
-    exports: [IgxComboComponent],
-    imports: [IgxRippleModule, IgxDropDownModule, CommonModule, IgxInputGroupModule, FormsModule]
+    declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
+    exports: [IgxComboComponent, IgxComboItemComponent],
+    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule, IgxCheckboxModule]
 })
 export class IgxComboModule { }

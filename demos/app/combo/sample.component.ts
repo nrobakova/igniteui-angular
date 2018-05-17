@@ -36,9 +36,7 @@ export class ComboSampleComponent implements OnInit {
     private currentDataType = "";
 
     ngOnInit() {
-        this.igxCombo.dropDown.height = "400px";
-        console.log("Sample init");
-        console.log(this.items);
+
     }
 
     constructor() {
@@ -128,7 +126,7 @@ export class ComboSampleComponent implements OnInit {
         // }
 
         const division = {
-            "New England": ["Connecticut", "Maine,Massachusetts", "New Hampshire", "Rhode Island", "Vermont"],
+            "New England": ["Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Vermont"],
             "Mid-Atlantic": ["New Jersey", "New York", "Pennsylvania"],
             "East North Central": ["Illinois", "Indiana", "Michigan", "Ohio", "Wisconsin"],
             "West North Central": ["Iowa", "Kansas", "Minnesota", "Missouri", "Nebraska", "North Dakota", "South Dakota"],
