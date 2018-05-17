@@ -681,6 +681,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
                     return this.editValue = val;
                 }
             }
+            return this.editValue;
         }
     }
 
