@@ -10,6 +10,8 @@ import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
 import { STRING_FILTERS } from "../data-operations/filtering-condition";
 import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
+import { IgxForOfDirective, IgxForOfModule } from "../directives/for-of/for_of.directive";
+import { IForOfState } from "../directives/for-of/IForOfState";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxToggleModule } from "../directives/toggle/toggle.directive";
 import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
@@ -95,6 +97,15 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     @HostBinding("style.width")
     @Input()
     public width;
+
+    @Input()
+    public height;
+
+    @Input()
+    public listHeight = 300;
+
+    @Input()
+    public listItemHeight = 30;
 
     @Input()
     public groupKey;
@@ -238,9 +249,11 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
         if (!this.searchValue) {
             return false;
         }
-        this.data.push({
+        const addedItem = {
             [this.valueKey] : this.searchValue
-        });
+        };
+        this.data.push(addedItem);
+        this.filteredData.push(addedItem);
     }
 
     onToggleOpening() {
@@ -300,6 +313,6 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
 @NgModule({
     declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
     exports: [IgxComboComponent, IgxComboItemComponent],
-    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxToggleModule, IgxCheckboxModule]
+    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule, IgxCheckboxModule]
 })
 export class IgxComboModule { }

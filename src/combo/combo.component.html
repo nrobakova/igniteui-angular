@@ -7,6 +7,12 @@
 <ng-template #empty>
     <span>The list is empty</span>
 </ng-template>
+<ng-template #addItem>
+
+    There are no items to be displayed.
+    <div style="border: 1px dashed #3f3f3f;" (click)="addItemToCollection()">Add Item</div>
+
+</ng-template>
 
 <div class="igx-combo" [style.width]="width">
     <igx-input-group>
@@ -27,18 +33,26 @@
         <ng-container *ngIf="!toggleDirective.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
-            <div *ngIf="filteredData.length === 0; else content">
-                There are no items to be displayed.
-                <div (click)="addItemToCollection()">Add Item</div>
+        </ng-container>
+        <ng-container *ngIf="!toggleDirective.collapsed">
+
+            <div style="position: relative;">
+                <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
+                    [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
+                    <igx-combo-item [itemData]="item" isHeader={{item[groupKey]}}>
+                        <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>
+                    </igx-combo-item>
+                </ng-template>
             </div>
-            <ng-template #content>
-                <igx-combo-item *ngFor="let item of data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" isHeader={{item[groupKey]}}
-                    [itemData]="item">
-                    <ng-container *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>
-                </igx-combo-item>
-            </ng-template>
-            <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}">
-            </ng-container>
+            <div *ngIf="filteredData.length === 0" style="text-align: center;">
+                <ng-container *ngTemplateOutlet="addItem; context: {$impicit: this}">
+
+
+                </ng-container>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="!toggleDirective.collapsed">
+            <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}"></ng-container>
         </ng-container>
     </div>
 </div>
