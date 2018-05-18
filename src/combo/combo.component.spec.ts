@@ -1,19 +1,49 @@
 import { Component, ContentChildren, DebugElement, ViewChild } from "@angular/core";
-import { async, ComponentFixture, TestBed} from "@angular/core/testing";
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { IgxComboComponent, IgxComboModule } from "./combo.component";
+
+const selectedItemClass = ".igx-combo__item--selected";
+const citiesData = [
+    "New York",
+    "Sofia",
+    "Istanbul",
+    "Paris",
+    "Hamburg",
+    "Berlin",
+    "London",
+    "Oslo",
+    "Los Angeles",
+    "Rome",
+    "Madrid",
+    "Ottawa",
+    "Prague"];
+const employeeData = [
+    { ID: 1, Name: "Casey Houston", JobTitle: "Vice President", HireDate: "2017-06-19T11:43:07.714Z" },
+    { ID: 2, Name: "Gilberto Todd", JobTitle: "Director", HireDate: "2015-12-18T11:23:17.714Z" },
+    { ID: 3, Name: "Tanya Bennett", JobTitle: "Director", HireDate: "2005-11-18T11:23:17.714Z" },
+    { ID: 4, Name: "Jack Simon", JobTitle: "Software Developer", HireDate: "2008-12-18T11:23:17.714Z" },
+    { ID: 5, Name: "Celia Martinez", JobTitle: "Senior Software Developer", HireDate: "2007-12-19T11:23:17.714Z" },
+    { ID: 6, Name: "Erma Walsh", JobTitle: "CEO", HireDate: "2016-12-18T11:23:17.714Z" },
+    { ID: 7, Name: "Debra Morton", JobTitle: "Associate Software Developer", HireDate: "2005-11-19T11:23:17.714Z" },
+    { ID: 8, Name: "Erika Wells", JobTitle: "Software Development Team Lead", HireDate: "2005-10-14T11:23:17.714Z" },
+    { ID: 9, Name: "Leslie Hansen", JobTitle: "Associate Software Developer", HireDate: "2013-10-10T11:23:17.714Z" },
+    { ID: 10, Name: "Eduardo Ramirez", JobTitle: "Manager", HireDate: "2011-11-28T11:23:17.714Z" }
+];
 
 describe("Combo", () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [/*BasicComboComponent*/],
+            declarations: [IgxComboTestComponent],
             imports: [IgxComboModule]
         }).compileComponents();
     }));
 
     // General
     it("Combo's input textbox should be read-only", () => {
-    // TO DO
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const inputElement = fixture.debugElement.query(By.css("input[name=\"comboButton\"]"));
     });
 
     // Rendering
@@ -160,3 +190,20 @@ describe("Combo", () => {
         // TO DO
     });
 });
+
+@Component({
+    template: `
+    <igx-combo #combo
+    [data]="citiesData"
+    [width]="'800px'"
+    [height]="'600px'"
+>
+</igx-combo>
+`
+})
+class IgxComboTestComponent {
+
+    @ViewChild("combo", { read: IgxComboComponent})
+    public dropdown: IgxComboComponent;
+
+}
