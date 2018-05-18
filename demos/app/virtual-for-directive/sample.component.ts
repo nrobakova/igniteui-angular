@@ -162,7 +162,7 @@ export class VirtualForSampleComponent {
             text: "Ward Riley",
             width: 100
         }];
-	for(let i = 10; i < 100000; i++) {
+	for(let i = 10; i < 1000; i++) {
         var obj = Object.assign({}, data[i % 10]);
         obj["key"] = i;
         data.push(obj);

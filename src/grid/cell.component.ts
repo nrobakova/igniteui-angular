@@ -643,26 +643,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         }
     }
 
-    @HostListener("keydown.pagedown", ["$event"])
-    public onKeydownPageDown(event) {
-        if (this.inEditMode) {
-            return;
-        }
-
-        event.preventDefault();
-        this.grid.verticalScrollContainer.scrollNextPage();
-        
-    }
     
-    @HostListener("keydown.pageup", ["$event"])
-    public onKeydownPageUp(event) {
-        if (this.inEditMode) {
-            return;
-        }
-
-        event.preventDefault();
-        this.grid.verticalScrollContainer.scrollPrevPage();
-    }
 
     @HostListener("keydown.enter")
     @HostListener("keydown.f2")
