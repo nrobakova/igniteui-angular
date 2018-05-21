@@ -1,6 +1,9 @@
 import { Component, ContentChildren, DebugElement, ViewChild } from "@angular/core";
-import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { async, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { BrowserAnimationsModule, NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { IgxToggleActionDirective, IgxToggleDirective, IgxToggleModule } from "../directives/toggle/toggle.directive";
+import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboComponent, IgxComboModule } from "./combo.component";
 
 const selectedItemClass = ".igx-combo__item--selected";
@@ -31,25 +34,59 @@ const employeeData = [
     { ID: 10, Name: "Eduardo Ramirez", JobTitle: "Manager", HireDate: "2011-11-28T11:23:17.714Z" }
 ];
 
-xdescribe("Combo", () => {
+fdescribe("Combo", () => {
     beforeEach(async(() => {
+        TestBed.resetTestingModule();
         TestBed.configureTestingModule({
-            declarations: [IgxComboTestComponent],
-            imports: [IgxComboModule]
+            declarations: [
+                IgxComboTestComponent,
+                IgxComboSampleComponent
+            ],
+            imports: [
+                IgxComboModule,
+                BrowserAnimationsModule,
+                NoopAnimationsModule,
+                IgxToggleModule
+            ]
         }).compileComponents();
     }));
 
     // General
-    it("Combo's input textbox should be read-only", () => {
+
+    fit("Should initialize the combo component properly", () => {
         const fixture = TestBed.createComponent(IgxComboTestComponent);
         fixture.detectChanges();
-        const inputElement = fixture.debugElement.query(By.css("input[name=\"comboButton\"]"));
+        const combo = fixture.componentInstance.dropdown;
+        expect(fixture.componentInstance).toBeDefined();
+        expect(combo).toBeDefined();
+        expect(combo.collapsed).toBeDefined();
+        expect(combo.collapsed).toBeTruthy();
+        combo.toggle();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(combo.collapsed).toEqual(false);
+        });
+    });
+
+    xit("Should properly accept width", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        expect(combo.width).toEqual(400);
+    });
+
+    xit("Should properly accept width", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        expect(combo.width).toEqual(400);
     });
 
     // Rendering
     it("All appropriate classes should be applied on combo initialization", () => {
         // TO DO
     });
+
     it("Combo grouping rendering", () => {
         // TO DO
     });
@@ -203,7 +240,37 @@ xdescribe("Combo", () => {
 })
 class IgxComboTestComponent {
 
-    @ViewChild("combo", { read: IgxComboComponent})
+    @ViewChild("combo", { read: IgxComboComponent })
     public dropdown: IgxComboComponent;
+
+}
+@Component({
+    template: `
+        <p>Change data to:</p>
+        <button class="igx-button" igxRipple (click)="changeData('primitive')">Primitve</button>
+        <button class="igx-button" igxRipple (click)="changeData('complex')">Complex</button>
+        <button class="igx-button" igxRipple (click)="changeData()">Initial</button>
+        <igx-combo [placeholder]="'Location'" [data]="items"
+        [filterable]="true" [valueKey]="'field'" [groupKey]="'region'" [width]="'400px'">
+            <ng-template #dropdownItemTemplate let-display let-key="valueKey">
+                <div class="state-card--simple">
+                    <span class="small-red-circle"></span>
+                    <div class="display-value--main">State: {{display[key]}}</div>
+                    <div class="display-value--sub">Region: {{display.region}}</div>
+                </div>
+            </ng-template>
+            <ng-template #dropdownHeader>
+                <div class="header-class">This is a header</div>
+            </ng-template>
+            <ng-template #dropdownFooter>
+                <div class="footer-class">This is a footer</div>
+            </ng-template>
+        </igx-combo>
+`
+})
+class IgxComboSampleComponent {
+
+    @ViewChild("combo", { read: IgxComboComponent })
+    public combo: IgxComboComponent;
 
 }
