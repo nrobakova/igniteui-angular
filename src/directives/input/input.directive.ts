@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { FormGroup, FormsModule, NgControl, NgModel } from "@angular/forms";
 import { Subscription } from "rxjs";
-import { IgxInputGroupComponent } from "../../main";
+import { IgxInputGroupComponent } from "../../input-group/input-group.component";
 
 const nativeValidationAttributes = ["required", "pattern", "minlength", "maxlength", "min", "max", "step"];
 

@@ -16,7 +16,7 @@ import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxToggleModule } from "../directives/toggle/toggle.directive";
 import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
 import { IgxDropDownTemplate, MoveDirection } from "../drop-down/drop-down.component";
-import { IgxInputGroupComponent, IgxInputGroupModule } from "../input-group/input-group.component";
+import { IgxInputGroupModule } from "../input-group/input-group.component";
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
 
@@ -69,9 +69,6 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     }
     @ViewChildren(forwardRef(() => IgxComboItemComponent))
     protected children: QueryList<any>;
-
-    @ViewChild(IgxInputGroupComponent, { read: IgxInputGroupComponent })
-    public inputGroup: IgxInputGroupComponent;
 
     @ViewChild("selectAllCheckbox", { read: IgxCheckboxComponent })
     public selectAllCheckbox: IgxCheckboxComponent;

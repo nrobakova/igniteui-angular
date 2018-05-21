@@ -26,7 +26,6 @@ export * from "./calendar";
 export * from "./card/card.component";
 export * from "./carousel/carousel.component";
 export * from "./checkbox/checkbox.component";
-export * from "./combo/combo.component";
 export * from "./date-picker/date-picker.component";
 export * from "./dialog/dialog.component";
 export * from "./input-group/input-group.component";
@@ -46,6 +45,7 @@ export * from "./tabbar/tabbar.component";
 export * from "./time-picker/time-picker.component";
 export * from "./toast/toast.component";
 export * from "./drop-down/drop-down.component";
+export * from "./combo/combo.component";
 
 // directives
 export * from "./directives/button/button.directive";
