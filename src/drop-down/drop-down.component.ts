@@ -55,7 +55,7 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     protected children: QueryList<IgxDropDownItemComponent>;
 
     @ViewChild(IgxToggleDirective)
-    private toggleDirective: IgxToggleDirective;
+    protected toggleDirective: IgxToggleDirective;
 
     /**
      * Emitted when item selection is changing, before the selection completes

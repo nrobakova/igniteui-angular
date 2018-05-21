@@ -63,7 +63,7 @@ export class IgxDropDownItemTemplate {
             return;
         }
 
-        if (value && !this.dropDown.collapsed) {
+        if (value && !this.parentElement.collapsed) {
             this.elementRef.nativeElement.focus();
         }
         this._isFocused = value;
@@ -77,7 +77,7 @@ export class IgxDropDownItemTemplate {
 
     @HostBinding("attr.tabindex")
     get setTabIndex() {
-        const shouldSetTabIndex = this.dropDown.allowItemsFocus && !(this.isDisabled || this.isHeader);
+        const shouldSetTabIndex = this.parentElement.allowItemsFocus && !(this.isDisabled || this.isHeader);
         if (shouldSetTabIndex) {
             return 0;
         } else {
@@ -93,25 +93,25 @@ export class IgxDropDownItemTemplate {
             return;
         }
 
-        this.dropDown.setSelectedItem(this.index);
-        this.dropDown.close();
+        this.parentElement.setSelectedItem(this.index);
+        this.parentElement.close();
     }
 
     @HostListener("keydown.Escape", ["$event"])
     onEscapeKeyDown(event) {
-        this.dropDown.close();
+        this.parentElement.close();
     }
 
     @HostListener("keydown.Space", ["$event"])
     onSpaceKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index);
-        this.dropDown.close();
+        this.parentElement.setSelectedItem(this.index);
+        this.parentElement.close();
     }
 
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
-        this.dropDown.setSelectedItem(this.index);
-        this.dropDown.close();
+        this.parentElement.setSelectedItem(this.index);
+        this.parentElement.close();
     }
 
     @HostListener("keydown.ArrowDown", ["$event"])
