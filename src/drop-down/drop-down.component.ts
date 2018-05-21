@@ -45,7 +45,7 @@ export enum MoveDirection {
  * </igx-drop-down>
  * ```
  */
-export class IgxDropDownTemplate implements IToggleView, OnInit {
+export class IgxDropDownBase implements IToggleView, OnInit {
     protected _initiallySelectedItem: IgxDropDownItemComponent = null;
     protected _focusedItem: any = null;
     protected _width;
@@ -385,7 +385,7 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     selector: "igx-drop-down",
     templateUrl: "./drop-down.component.html"
 })
-export class IgxDropDownComponent extends IgxDropDownTemplate {
+export class IgxDropDownComponent extends IgxDropDownBase {
 
     constructor(
         protected elementRef: ElementRef,

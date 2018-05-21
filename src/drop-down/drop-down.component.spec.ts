@@ -21,7 +21,7 @@ function wrapPromise(callback, resolve, time) {
         }, time);
     });
 }
-describe("IgxDropDown ", () => {
+fdescribe("IgxDropDown ", () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             declarations: [

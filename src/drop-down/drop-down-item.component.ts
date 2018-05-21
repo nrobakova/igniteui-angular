@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { IgxDropDownComponent, ISelectionEventArgs } from "./drop-down.component";
 
-export class IgxDropDownItemTemplate {
+export class IgxDropDownItemBase {
     protected _isFocused = false;
     /**
      * Gets item element height
@@ -93,8 +93,7 @@ export class IgxDropDownItemTemplate {
             return;
         }
 
-        this.parentElement.setSelectedItem(this.index);
-        this.parentElement.close();
+        this.markItemSelected();
     }
 
     @HostListener("keydown.Escape", ["$event"])
@@ -104,14 +103,12 @@ export class IgxDropDownItemTemplate {
 
     @HostListener("keydown.Space", ["$event"])
     onSpaceKeyDown(event) {
-        this.parentElement.setSelectedItem(this.index);
-        this.parentElement.close();
+        this.markItemSelected();
     }
 
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
-        this.parentElement.setSelectedItem(this.index);
-        this.parentElement.close();
+        this.markItemSelected();
     }
 
     @HostListener("keydown.ArrowDown", ["$event"])
@@ -165,7 +162,7 @@ export class IgxDropDownItemTemplate {
     selector: "igx-drop-down-item",
     templateUrl: "drop-down-item.component.html"
 })
-export class IgxDropDownItemComponent extends IgxDropDownItemTemplate {
+export class IgxDropDownItemComponent extends IgxDropDownItemBase {
     constructor(
         @Inject(forwardRef(() => IgxDropDownComponent)) public parentElement: IgxDropDownComponent,
         protected elementRef: ElementRef
