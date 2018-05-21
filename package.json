@@ -57,6 +57,7 @@
         "rxjs": "^6.1.0"
     },
     "devDependencies": {
+        "@angular-devkit/schematics": "^0.6.3",
         "@angular/compiler-cli": "^6.0.0",
         "@angular/platform-server": "^6.0.0",
         "@types/hammerjs": "^2.0.35",
@@ -106,5 +107,8 @@
         "webpack-angular-externals": "^1.0.2",
         "webpack-rxjs-externals": "^1.1.0",
         "zone.js": "^0.8.26"
+    },
+    "ng-update": {
+        "migrations": "./migrations/migration-collection.json"
     }
 }
