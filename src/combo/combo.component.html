@@ -13,6 +13,9 @@
     <div style="border: 1px dashed #3f3f3f;" (click)="addItemToCollection()">Add Item</div>
 
 </ng-template>
+<ng-template #headerItemBase let-item let-key="valueKey" let-groupKey="groupKey">
+   {{ item[key] }}
+</ng-template>
 
 <div class="igx-combo" [style.width]="width">
     <div style="display: flex; flex-direction: row; align-items: flex-end; align-content: space-between;">
@@ -48,8 +51,11 @@
                 <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
                     [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>
+                        <ng-container *ngIf="!item.isHeader">
+                            <igx-checkbox [checked]="isItemSelected(item)" disableRipple="true" disabled="true"></igx-checkbox>
+                        </ng-container>
                         <ng-container *ngIf="item.isHeader">
-                            <ng-container *ngTemplateOutlet="headerItemTemplate ? headerItemTemplate : complex; context: {$implicit: item, data: data, valueKey: valueKey}"></ng-container>
+                            <ng-container *ngTemplateOutlet="headerItemTemplate ? headerItemTemplate : headerItemBase; context: {$implicit: item, data: data, valueKey: valueKey, groupKey: groupKey}"></ng-container>
                         </ng-container>
                         <ng-container *ngIf="!item.isHeader">
                             <ng-container #listItem *ngTemplateOutlet="template; context: {$implicit: item, data: data, valueKey: valueKey};"></ng-container>

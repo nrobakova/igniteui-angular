@@ -1,21 +1,21 @@
 import { CommonModule } from "@angular/common";
 import {
     ChangeDetectorRef, Component, ContentChild, ContentChildren,
-    ElementRef, EventEmitter, forwardRef, HostBinding, HostListener,
+    ElementRef, EventEmitter, forwardRef, HostBinding,
     Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
+import { IToggleView } from "../core/navigation";
 import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
-import { STRING_FILTERS } from "../data-operations/filtering-condition";
+import { BOOLEAN_FILTERS, STRING_FILTERS } from "../data-operations/filtering-condition";
 import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
 import { IgxForOfDirective, IgxForOfModule } from "../directives/for-of/for_of.directive";
 import { IForOfState } from "../directives/for-of/IForOfState";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxToggleModule } from "../directives/toggle/toggle.directive";
-import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
-import { IgxDropDownTemplate, MoveDirection } from "../drop-down/drop-down.component";
+import { IgxDropDownBase, MoveDirection } from "../drop-down/drop-down.component";
 import { IgxInputGroupModule } from "../input-group/input-group.component";
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
@@ -45,14 +45,15 @@ let currentItem = 0;
     selector: "igx-combo",
     templateUrl: "combo.component.html"
 })
-export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, OnDestroy {
-    protected _filteringLogic = FilteringLogic.And;
+export class IgxComboComponent extends IgxDropDownBase implements OnInit, OnDestroy {
+    protected _filteringLogic = FilteringLogic.Or;
     protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
     private _dataType = "";
     private _filteredData = [];
     protected _id = "ComboItem_";
     private _lastSelected = null;
+    private _searchInput: ElementRef;
     public dropdownVisible = false;
 
     get caller() {
@@ -73,8 +74,14 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     @ViewChild("selectAllCheckbox", { read: IgxCheckboxComponent })
     public selectAllCheckbox: IgxCheckboxComponent;
 
+    get searchInput() {
+        return this._searchInput;
+    }
+
     @ViewChild("searchInput")
-    public searchInput: ElementRef;
+    set searchInput(content: ElementRef) {
+        this._searchInput = content;
+    }
 
     @ViewChild("primitive", { read: TemplateRef })
     protected primitiveTemplate: TemplateRef<any>;
@@ -126,7 +133,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     public data;
 
     @Input()
-    public filteringLogic = FilteringLogic.And;
+    public filteringLogic = FilteringLogic.Or;
 
     @Input()
     get filteringExpressions() {
@@ -177,7 +184,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     }
 
     public set filteredData(val: any[]) {
-        this._filteredData = val;
+        this._filteredData = this.groupKey ? val.filter((e) => e.isHeader !== true) : val;
     }
 
     public get selectedItem(): any[] {
@@ -191,7 +198,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
             }
         }
         if (this.filterable) {
-            this.filter(evt.target.value, STRING_FILTERS.contains,
+            this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.valueKey);
             this.isHeaderChecked();
         }
@@ -228,6 +235,11 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
             this.selectionAPI.select_item(this.id, newItem) :
             this.selectionAPI.deselect_item(this.id, newItem);
         this.triggerSelectionChange(newSelection);
+    }
+
+    public isItemSelected(item) {
+        const checkValue = this.valueKey ? item[this.valueKey] : item;
+        return this.selectionAPI.is_item_selected(this.id, checkValue);
     }
 
     public isHeaderChecked() {
@@ -306,39 +318,50 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
     onToggleOpening() {
         this.cdr.detectChanges();
         this.searchValue = "";
-        this.searchInput.nativeElement.focus();
         this.onOpening.emit();
     }
 
     onToggleOpened() {
         this._initiallySelectedItem = this._lastSelected;
         this._focusedItem = this._lastSelected;
+        this.searchInput.nativeElement.focus();
         this.onOpened.emit();
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
-        if (fieldName !== undefined) {
-            return [{ fieldName, searchVal, condition, ignoreCase }];
+        const newArray = [...this.filteringExpressions];
+        const expression = newArray.find((expr) => expr.fieldName === fieldName);
+        const newExpression = { fieldName, searchVal, condition, ignoreCase };
+        if (!expression) {
+            newArray.push(newExpression);
+        } else {
+            Object.assign(expression, newExpression);
         }
-        return [{ searchVal, condition, ignoreCase }];
+        if (this.groupKey) {
+            const expression2 = newArray.find((expr) => expr.fieldName === "isHeader");
+            const headerExpression = { fieldName: "isHeader", searchVale: "", condition: BOOLEAN_FILTERS.true, ignoreCase: true };
+            if (!expression2) {
+                newArray.push(headerExpression);
+            } else {
+                Object.assign(expression2, headerExpression);
+            }
+        }
+        this.filteringExpressions = newArray;
     }
 
     public filter(term, condition, ignoreCase, valueKey?) {
-        this.filteringExpressions = this.prepare_filtering_expression(term, condition, ignoreCase, valueKey);
+        this.prepare_filtering_expression(term, condition, ignoreCase, valueKey);
     }
 
     public ngOnInit() {
+        super.ngOnInit();
         this.filteredData = this.data;
         this.id += currentItem++;
         if (this.groupKey !== undefined) {
             const dataWithHeaders = this.data.sort((a, b) => {
-                if (a[this.groupKey] > b[this.groupKey]) {
-                    return 1;
-                }
-                if (a[this.groupKey] < b[this.groupKey]) {
-                    return -1;
-                }
-                return 0;
+                return a[this.groupKey] > b[this.groupKey] ?
+                    1 :
+                    a[this.groupKey] < b[this.groupKey] ? - 1 : 0;
             });
             const crawl = [...dataWithHeaders];
             let inserts = 0;
@@ -348,6 +371,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
                     currentHeader = crawl[i][this.groupKey];
                     dataWithHeaders.splice(i + inserts, 0, {
                         [this.valueKey]: currentHeader,
+                        [this.groupKey]: currentHeader,
                         isHeader: true
                     });
                     inserts++;
@@ -385,6 +409,7 @@ export class IgxComboComponent extends IgxDropDownTemplate implements OnInit, On
 @NgModule({
     declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe],
     exports: [IgxComboComponent, IgxComboItemComponent],
-    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule, IgxCheckboxModule]
+    imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule, IgxCheckboxModule],
+    providers: [IgxSelectionAPIService]
 })
 export class IgxComboModule { }

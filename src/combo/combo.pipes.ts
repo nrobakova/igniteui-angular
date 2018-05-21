@@ -10,10 +10,10 @@ import { IgxComboComponent } from "../main";
 })
 export class IgxComboFilteringPipe implements PipeTransform {
 
-    constructor() {}
+    constructor() { }
 
     public transform(collection: any[], expressions: IFilteringExpression | IFilteringExpression[],
-                     logic: FilteringLogic, caller: IgxComboComponent, pipeTrigger: number) {
+        logic: FilteringLogic, caller: IgxComboComponent, pipeTrigger: number) {
         const state = { expressions: [], logic };
         state.expressions = caller.filteringExpressions;
 

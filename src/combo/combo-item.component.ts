@@ -9,14 +9,14 @@ import {
 } from "@angular/core";
 import { IgxCheckboxComponent } from "../checkbox/checkbox.component";
 import { IgxSelectionAPIService } from "../core/selection";
-import { IgxDropDownItemTemplate } from "../drop-down/drop-down-item.component";
+import { IgxDropDownItemBase } from "../drop-down/drop-down-item.component";
 import { IgxComboComponent } from "./combo.component";
 
 @Component({
     selector: "igx-combo-item",
     templateUrl: "combo-item.component.html"
 })
-export class IgxComboItemComponent extends IgxDropDownItemTemplate {
+export class IgxComboItemComponent extends IgxDropDownItemBase {
     /**
      * Gets if the item is the currently selected one in the dropdown
      */
