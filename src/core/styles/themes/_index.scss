@@ -140,9 +140,11 @@
     @if not(index($exclude, 'igx-dialog')) {
         @include igx-dialog($theme: igx-dialog-theme());
     }
+
     @if not(index($exclude, 'igx-drop-down')) {
-        @include igx-drop-down($theme: (), $palette: $palette);
+        @include igx-drop-down($theme: igx-drop-down-theme());
     }
+
     @if not(index($exclude, 'igx-grid')) {
         @include igx-grid($theme: igx-grid-theme());
     }

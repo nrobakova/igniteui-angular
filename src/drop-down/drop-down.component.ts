@@ -51,14 +51,11 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     protected _width;
     protected _height;
     protected _id = "DropDown_0";
-    /**
-     * The toggle directive of IgxDropDown
-     */
     @ContentChildren(forwardRef(() => IgxDropDownItemComponent))
     protected children: QueryList<IgxDropDownItemComponent>;
 
     @ViewChild(IgxToggleDirective)
-    public toggleDirective: IgxToggleDirective;
+    private toggleDirective: IgxToggleDirective;
 
     /**
      * Emitted when item selection is changing, before the selection completes
@@ -145,6 +142,13 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     }
 
     /**
+     * Gets if the dropdown is collapsed
+     */
+    public get collapsed(): boolean {
+        return this.toggleDirective.collapsed;
+    }
+
+    /**
      * Get currently selected item
      */
     public get selectedItem(): any {
@@ -221,21 +225,21 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     /**
      * Opens the dropdown
      */
-    open(fireEvents?: boolean) {
+    open() {
         this.toggleDirective.open(true);
     }
 
     /**
      * Closes the dropdown
      */
-    close(fireEvents?: boolean) {
+    close() {
         this.toggleDirective.close(true);
     }
 
     /**
      * Toggles the dropdown
      */
-    toggle(fireEvents?: boolean) {
+    toggle() {
         if (this.toggleDirective.collapsed) {
             this.open();
         } else {
@@ -289,6 +293,7 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
     }
 
     onToggleOpening() {
+        this.toggleDirective.collapsed = false;
         this.cdr.detectChanges();
         this.scrollToItem(this.selectedItem);
         this.onOpening.emit();
@@ -306,6 +311,10 @@ export class IgxDropDownTemplate implements IToggleView, OnInit {
             }
         }
         this.onOpened.emit();
+    }
+
+    onToggleClosing() {
+        this.onClosing.emit();
     }
 
     onToggleClosed() {
