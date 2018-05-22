@@ -659,11 +659,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         if (this.column.editable) {
             this.inEditMode = !this.inEditMode;
             if (!this.inEditMode) {
-                if (this.validateValue()) {
-                    this.update(this.editValue);
-                } else {
-                    this.update(this.value);
-                }
+                this.submitValue();
             }
             if (!(this.column.dataType === DataType.Date)) {
                 this.nativeElement.focus();
@@ -671,17 +667,18 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         }
     }
 
-    validateValue() {
-        if (this.editValue) {
+    submitValue() {
+        if (this.editValue !== undefined) {
             if (this.column.dataType === DataType.Number) {
                 const val = parseFloat(this.editValue);
-                if (isNaN(this.editValue)) {
-                    return null;
-                } else {
-                    return this.editValue = val;
+                if (!isNaN(this.editValue) || isFinite(this.editValue)) {
+                    this.update(val);
                 }
+            } else {
+                this.update(this.editValue);
             }
-            return this.editValue;
+        } else {
+            this.update(this.value);
         }
     }
 

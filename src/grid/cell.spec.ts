@@ -100,7 +100,8 @@ describe("IgxGrid - Cell component", () => {
                 CtrlKeyKeyboardNagivationComponent,
                 VirtualGridComponent,
                 GridWithEditableColumnComponent,
-                NoColumnWidthGridComponent
+                NoColumnWidthGridComponent,
+                CellEditingTestComponent
             ],
             imports: [IgxGridModule.forRoot()]
         }).compileComponents();
@@ -285,6 +286,7 @@ describe("IgxGrid - Cell component", () => {
         const cell = grid.getCellByColumn(0, "age");
         const cellDomNumber = fixture.debugElement.queryAll(By.css(CELL_CSS_CLASS))[1];
         let editTemplate;
+
         fixture.whenStable().then(() => {
             fixture.detectChanges();
             cellDomNumber.triggerEventHandler("dblclick", {});
@@ -303,8 +305,6 @@ describe("IgxGrid - Cell component", () => {
             expect(cell.inEditMode).toBe(false);
             expect(parseFloat(cell.value)).toBe(0.3698);
             expect(editTemplate.nativeElement.type).toBe("number");
-        }).then(() => {
-                expect(cell.inEditMode).toBe(false);
         });
     }));
     it("edit template should be accourding column data type --boolean", async(() => {
@@ -334,8 +334,6 @@ describe("IgxGrid - Cell component", () => {
             fixture.detectChanges();
             expect(cell.inEditMode).toBe(false);
             expect(cell.value).toBe(false);
-        }).then(() => {
-                expect(cell.inEditMode).toBe(false);
         });
     }));
 
@@ -1133,7 +1131,6 @@ export class GridWithEditableColumnComponent {
             <igx-column field="isActive" [editable]="true" [dataType]="'boolean'"></igx-column>
             <igx-column field="birthday" [editable]="true" [dataType]="'date'"></igx-column>
         </igx-grid>
-        <input type="text" value="text" id="input-test" />
     `
 })
 export class CellEditingTestComponent {
