@@ -165,6 +165,11 @@ fdescribe("Combo", () => {
     it("Dropdown list open/close - dropdown button", () => {
         // TO DO
     });
+
+    it("Dropdown list open/close - textbox", () => {
+        // TO DO
+    });
+
     it("Dropdown list open/close - key navigation", () => {
         // TO DO
     });
@@ -178,10 +183,26 @@ fdescribe("Combo", () => {
         // TO DO
     });
 
+    it("PageDown/PageUp key should scroll the list a single view down/up", () => {
+        // TO DO
+    });
+
+    it("Vertical scrollbar should not be visible when the items fit inside the container", () => {
+        // TO DO
+    });
+    it("Vertical scrollbar should be visible when the items does not fit inside the container", () => {
+        // TO DO
+    });
+
     // Selection
     it("Selected items should be appended to the input separated by comma", () => {
         // TO DO
     });
+
+    it("Selected items should be appended to the input in the order they are selected", () => {
+        // TO DO
+    });
+
     it("Selected items should be highlighted in the dropdown list", () => {
         // TO DO
     });
@@ -189,6 +210,9 @@ fdescribe("Combo", () => {
         // TO DO
     });
     it("Clear button should dismiss all selected items", () => {
+        // TO DO
+    });
+    it("Clear button should not throw exception when no items are selected", () => {
         // TO DO
     });
     it("Item selection - checkbox", () => {
@@ -210,8 +234,16 @@ fdescribe("Combo", () => {
         // TO DO
     });
 
+    it("Selecting items using the 'selectItems' method should add the items to the previously selected items", () => {
+        // TO DO
+    });
+
+    it("Selecting items using the 'selectItems' method should override the previously selected items", () => {
+        // TO DO
+    });
+
     // Filtering
-    it("Typing in the textbox input filters the dropdown items", () => {
+    it("The textbox input is placed correctly", () => {
         // TO DO
     });
     it("Typing in the textbox input filters the dropdown items", () => {
@@ -224,6 +256,9 @@ fdescribe("Combo", () => {
         // TO DO
     });
     it("Enter key should select and append the closest suggestion item from the filtered items list", () => {
+        // TO DO
+    });
+    it("Escape key should clear the textbox input and close the dropdown list", () => {
         // TO DO
     });
 
