@@ -34,6 +34,15 @@ const employeeData = [
     { ID: 10, Name: "Eduardo Ramirez", JobTitle: "Manager", HireDate: "2011-11-28T11:23:17.714Z" }
 ];
 
+function wrapPromise(callback, resolve, time) {
+    return new Promise((res, rej) => {
+        return setTimeout(() => {
+            callback();
+            return res(resolve);
+        }, time);
+    });
+}
+
 fdescribe("Combo", () => {
     beforeEach(async(() => {
         TestBed.resetTestingModule();
@@ -44,7 +53,6 @@ fdescribe("Combo", () => {
             ],
             imports: [
                 IgxComboModule,
-                BrowserAnimationsModule,
                 NoopAnimationsModule,
                 IgxToggleModule
             ]
@@ -53,26 +61,59 @@ fdescribe("Combo", () => {
 
     // General
 
-    fit("Should initialize the combo component properly", () => {
-        const fixture = TestBed.createComponent(IgxComboTestComponent);
-        fixture.detectChanges();
-        const combo = fixture.componentInstance.dropdown;
-        expect(fixture.componentInstance).toBeDefined();
-        expect(combo).toBeDefined();
-        expect(combo.collapsed).toBeDefined();
-        expect(combo.collapsed).toBeTruthy();
-        combo.toggle();
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            expect(combo.collapsed).toEqual(false);
-        });
-    });
-
-    xit("Should properly accept width", () => {
+    fit("Should initialize the combo component properly", async(() => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
-        expect(combo.width).toEqual(400);
+        const comboButton = fixture.debugElement.query(By.css("button"));
+        expect(fixture.componentInstance).toBeDefined();
+        expect(combo).toBeDefined();
+        expect(combo.collapsed).toBeDefined();
+        expect(combo.data).toBeDefined();
+        expect(combo.collapsed).toBeTruthy();
+        expect(combo.searchInput).toBeUndefined();
+        expect(comboButton).toBeDefined();
+        expect(combo.placeholder).toBeDefined();
+        combo.toggle();
+        fixture.whenStable().then(() => {
+            return wrapPromise(() => {
+                fixture.detectChanges();
+                expect(combo.collapsed).toEqual(false);
+                expect(combo.searchInput).toBeDefined();
+                // expect(combo.searchInput).toEqual(comboButton);
+            }, fixture.whenStable(), 1000);
+        });
+    }));
+
+    fit("Should properly accept input properties", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        expect(combo.width).toEqual("400px");
+        expect(combo.placeholder).toEqual("Location");
+        expect(combo.filterable).toEqual(true);
+        combo.width = "500px";
+        fixture.detectChanges();
+        expect(combo.width).toEqual("500px");
+        combo.placeholder = "Destination";
+        fixture.detectChanges();
+        expect(combo.placeholder).toEqual("Destination");
+        combo.filterable = false;
+        fixture.detectChanges();
+        expect(combo.filterable).toEqual(false);
+    });
+
+    fit("Should properly initialize templates", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        expect(combo).toBeDefined();
+        expect(combo.dropdownFooter).toBeDefined();
+        expect(combo.dropdownHeader).toBeDefined();
+        expect(combo.dropdownItemTemplate).toBeDefined();
+        // Next two templates are not passed in the sample
+        expect(combo.addItemTemplate).toBeUndefined();
+        expect(combo.headerItemTemplate).toBeUndefined();
     });
 
     xit("Should properly accept width", () => {
@@ -250,7 +291,7 @@ class IgxComboTestComponent {
         <button class="igx-button" igxRipple (click)="changeData('primitive')">Primitve</button>
         <button class="igx-button" igxRipple (click)="changeData('complex')">Complex</button>
         <button class="igx-button" igxRipple (click)="changeData()">Initial</button>
-        <igx-combo [placeholder]="'Location'" [data]="items"
+        <igx-combo #combo [placeholder]="'Location'" [data]="items"
         [filterable]="true" [valueKey]="'field'" [groupKey]="'region'" [width]="'400px'">
             <ng-template #dropdownItemTemplate let-display let-key="valueKey">
                 <div class="state-card--simple">
@@ -273,4 +314,60 @@ class IgxComboSampleComponent {
     @ViewChild("combo", { read: IgxComboComponent })
     public combo: IgxComboComponent;
 
+    public items = [];
+    public initData = [];
+
+    constructor() {
+
+        const division = {
+            "New England 01": ["Connecticut", "Maine", "Massachusetts"],
+            "New England 02": ["New Hampshire", "Rhode Island", "Vermont"],
+            "Mid-Atlantic": ["New Jersey", "New York", "Pennsylvania"],
+            "East North Central 02": ["Michigan", "Ohio", "Wisconsin"],
+            "East North Central 01": ["Illinois", "Indiana"],
+            "West North Central 01": ["Missouri", "Nebraska", "North Dakota", "South Dakota"],
+            "West North Central 02": ["Iowa", "Kansas", "Minnesota"],
+            "South Atlantic 01": ["Delaware", "Florida", "Georgia", "Maryland"],
+            "South Atlantic 02": ["North Carolina", "South Carolina", "Virginia", "District of Columbia", "West Virginia"],
+            "South Atlantic 03": ["District of Columbia", "West Virginia"],
+            "East South Central 01": ["Alabama", "Kentucky"],
+            "East South Central 02": ["Mississippi", "Tennessee"],
+            "West South Central": ["Arkansas", "Louisiana", "Oklahome", "Texas"],
+            "Mountain": ["Arizona", "Colorado", "Idaho", "Montana", "Nevada", "New Mexico", "Utah", "Wyoming"],
+            "Pacific 01": ["Alaska", "California"],
+            "Pacific 02": ["Hawaii", "Oregon", "Washington"]
+        };
+        const keys = Object.keys(division);
+        for (const key of keys) {
+            division[key].map((e) => {
+                this.items.push({
+                    field: e,
+                    region: key.substring(0, key.length - 3)
+                });
+            });
+        }
+
+        this.initData = this.items;
+    }
+
+    changeData(type) {
+        // switch (type) {
+        //     case "complex":
+        //         this.items = complex;
+        //         this.currentDataType = "complex";
+        //         console.log(this.items, complex);
+        //         break;
+        //     case "primitive":
+        //         this.items = primitive;
+        //         this.currentDataType = "primitive";
+        //         console.log(this.items);
+        //         break;
+        //     default:
+        //         this.items = this.initData;
+        //         this.currentDataType = "initial";
+        //         console.log(this.items);
+        // }
+    }
+    onSelection(ev) {
+    }
 }

@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import {
-    ChangeDetectorRef, Component, ContentChild, ContentChildren,
-    ElementRef, EventEmitter, forwardRef, HostBinding,
-    Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
+    AfterViewInit, ChangeDetectorRef, Component, ContentChild,
+    ContentChildren, ElementRef, EventEmitter, forwardRef,
+    HostBinding, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
@@ -45,7 +45,7 @@ let currentItem = 0;
     selector: "igx-combo",
     templateUrl: "combo.component.html"
 })
-export class IgxComboComponent extends IgxDropDownBase implements OnInit, OnDestroy {
+export class IgxComboComponent extends IgxDropDownBase implements AfterViewInit, OnDestroy {
     protected _filteringLogic = FilteringLogic.Or;
     protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
@@ -184,7 +184,7 @@ export class IgxComboComponent extends IgxDropDownBase implements OnInit, OnDest
     }
 
     public set filteredData(val: any[]) {
-        this._filteredData = this.groupKey ? val.filter((e) => e.isHeader !== true) : val;
+        this._filteredData = this.groupKey ? (val || []).filter((e) => e.isHeader !== true) : val;
     }
 
     public get selectedItem(): any[] {
@@ -316,12 +316,12 @@ export class IgxComboComponent extends IgxDropDownBase implements OnInit, OnDest
     }
 
     onToggleOpening() {
-        this.cdr.detectChanges();
         this.searchValue = "";
         this.onOpening.emit();
     }
 
     onToggleOpened() {
+        this.cdr.detectChanges();
         this._initiallySelectedItem = this._lastSelected;
         this._focusedItem = this._lastSelected;
         this.searchInput.nativeElement.focus();
@@ -353,8 +353,7 @@ export class IgxComboComponent extends IgxDropDownBase implements OnInit, OnDest
         this.prepare_filtering_expression(term, condition, ignoreCase, valueKey);
     }
 
-    public ngOnInit() {
-        super.ngOnInit();
+    public ngAfterViewInit() {
         this.filteredData = this.data;
         this.id += currentItem++;
         if (this.groupKey !== undefined) {
