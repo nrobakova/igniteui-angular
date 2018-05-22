@@ -413,7 +413,6 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     constructor(
         private gridAPI: IgxGridAPIService,
-        private columnMoving: IgxColumnMovingService,
         private selectionAPI: IgxSelectionAPIService,
         private elementRef: ElementRef,
         private zone: NgZone,
@@ -607,7 +606,6 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
             if (dropTarget.pinned) {
                 column.pinned = true;
                 this._pinnedColumns.splice(toIndex, 0, column);
-
             } else {
                 column.pinned = false;
                 this._unpinnedColumns.splice(toIndex + 1, 0, column);
@@ -629,7 +627,8 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
             }
         }
 
-        this.markForCheck();
+        this.columnList.reset(this._pinnedColumns.concat(this._unpinnedColumns));
+        this.columnList.notifyOnChanges();
     }
 
 
@@ -990,7 +989,7 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
      * Gets calculated width of the start pinned area
      * @param takeHidden If we should take into account the hidden columns in the pinned area
      */
-    protected getPinnedWidth(takeHidden = false) {
+    public getPinnedWidth(takeHidden = false) {
         const fc = takeHidden ? this._pinnedColumns : this.pinnedColumns;
         let sum = 0;
         for (const col of fc) {

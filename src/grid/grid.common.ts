@@ -217,14 +217,15 @@ export class IgxDroppableDirective implements OnDestroy {
     @HostListener("dragenter", ["$event"])
     public onDragEnter(event) {
         if (this.column && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = this._effect;
+            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = this._effect;
 
-            this._dropIndicator = this.cms.columMovingInfo.clientX < event.clientX ? this.elementRef.nativeElement.children[4] :
-                this.elementRef.nativeElement.children[0];
+                this._dropIndicator = this.cms.columMovingInfo.clientX < event.clientX ? this.elementRef.nativeElement.children[4] :
+                    this.elementRef.nativeElement.children[0];
 
-            this.renderer.addClass(this._dropIndicator, this._dropIndicatorClass);
-
+                this.renderer.addClass(this._dropIndicator, this._dropIndicatorClass);
+            }
         }
 
         if (this.column && this.cms.columMovingInfo.column === this.column) {
@@ -244,8 +245,10 @@ export class IgxDroppableDirective implements OnDestroy {
     @HostListener("dragover", ["$event"])
     public onDragOver(event) {
         if (this.column && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = this._effect;
+            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = this._effect;
+            }
         }
     }
 
