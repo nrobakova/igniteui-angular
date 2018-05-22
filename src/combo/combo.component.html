@@ -40,7 +40,7 @@
             <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
         </div>
     </ng-container>
-    <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosed)="onToggleClosed()">
+    <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosing)="onToggleClosing()" (onClosed)="onToggleClosed()">
         <ng-container *ngIf="!collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>

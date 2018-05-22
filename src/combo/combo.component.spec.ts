@@ -61,7 +61,7 @@ fdescribe("Combo", () => {
 
     // General
 
-    fit("Should initialize the combo component properly", async(() => {
+    xit("Should initialize the combo component properly", async(() => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
@@ -85,6 +85,20 @@ fdescribe("Combo", () => {
         });
     }));
 
+    // Unit tests
+    fit("Should properly initialize templates", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        expect(combo).toBeDefined();
+        expect(combo.dropdownFooter).toBeDefined();
+        expect(combo.dropdownHeader).toBeDefined();
+        expect(combo.dropdownItemTemplate).toBeDefined();
+        // Next two templates are not passed in the sample
+        expect(combo.addItemTemplate).toBeUndefined();
+        expect(combo.headerItemTemplate).toBeUndefined();
+    });
+
     fit("Should properly accept input properties", () => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
@@ -103,17 +117,47 @@ fdescribe("Combo", () => {
         expect(combo.filterable).toEqual(false);
     });
 
-    fit("Should properly initialize templates", () => {
+    fit("Should call toggle properly", async(() => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
-        expect(combo).toBeDefined();
-        expect(combo.dropdownFooter).toBeDefined();
-        expect(combo.dropdownHeader).toBeDefined();
-        expect(combo.dropdownItemTemplate).toBeDefined();
-        // Next two templates are not passed in the sample
-        expect(combo.addItemTemplate).toBeUndefined();
-        expect(combo.headerItemTemplate).toBeUndefined();
+        spyOn(combo, "open").and.callThrough();
+        spyOn(combo, "close").and.callThrough();
+        spyOn(combo, "onToggleOpening").and.callThrough();
+        spyOn(combo, "onToggleOpened").and.callThrough();
+        spyOn(combo, "onToggleClosing").and.callThrough();
+        spyOn(combo, "onToggleClosed").and.callThrough();
+        spyOn<any>(combo, "cdr").and.callThrough();
+        expect(combo.collapsed).toEqual(true);
+        combo.toggle();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(combo.open).toHaveBeenCalledTimes(1);
+            expect(combo.onToggleOpening).toHaveBeenCalledTimes(1);
+            expect(combo.onToggleOpened).toHaveBeenCalledTimes(1);
+            expect(combo.collapsed).toEqual(false);
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            // spyOnProperty(combo, "collapsed", "get").and.returnValue(false);
+            combo.toggle();
+            return fixture.whenStable();
+        }).then(() => {
+            wrapPromise(() => {
+                fixture.detectChanges();
+                expect(combo.close).toHaveBeenCalledTimes(1);
+                expect(combo.onToggleClosed).toHaveBeenCalledTimes(1);
+                expect(combo.onToggleClosing).toHaveBeenCalledTimes(1);
+                expect(combo.collapsed).toEqual(true);
+            }, fixture.whenStable(), 1000);
+        });
+    }));
+
+    xit("Should properly accept width", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
     });
 
     xit("Should properly accept width", () => {
