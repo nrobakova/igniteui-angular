@@ -249,13 +249,23 @@ export class IgxComboComponent extends IgxDropDownBase implements AfterViewInit,
                 this.filteredData.map((e) => e[this.valueKey]) :
                 this.filteredData;
             if (selectedItems.length >= this.filteredData.length) {
+                let areAllSelected = true;
+                let indeterminateFlag = false;
                 for (const item of compareData) {
-                    if (selectedItems.indexOf(item) > -1) {
-                        this.selectAllCheckbox.indeterminate = true;
-                        return;
+                    if (areAllSelected && !indeterminateFlag) {
+                        indeterminateFlag = selectedItems.indexOf(item) > -1;
+                    }
+                    if (areAllSelected && indeterminateFlag) {
+                        if (selectedItems.indexOf(item) < 0) {
+                            areAllSelected = false;
+                            this.selectAllCheckbox.indeterminate = indeterminateFlag;
+                            this.selectAllCheckbox.checked = false;
+                            return;
+                        }
                     }
                 }
                 this.selectAllCheckbox.indeterminate = false;
+                this.selectAllCheckbox.checked = true;
                 return;
             } else if (selectedItems.length < this.filteredData.length) {
                 for (const item of selectedItems) {
@@ -264,6 +274,7 @@ export class IgxComboComponent extends IgxDropDownBase implements AfterViewInit,
                         return;
                     }
                 }
+                this.selectAllCheckbox.checked = false;
                 this.selectAllCheckbox.indeterminate = false;
                 return;
             }

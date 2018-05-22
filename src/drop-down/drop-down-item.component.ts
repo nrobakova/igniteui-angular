@@ -146,7 +146,7 @@ export class IgxDropDownItemBase {
 
     markItemSelected() {
         this.parentElement.setSelectedItem(this.index);
-        this.parentElement.toggleDirective.close(true);
+        this.parentElement.close();
     }
 
     constructor(
