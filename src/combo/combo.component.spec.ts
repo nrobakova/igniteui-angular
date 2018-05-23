@@ -204,7 +204,7 @@ fdescribe("Combo", () => {
             targetItem = combo.dropdown.items[5] as IgxComboItemComponent;
             expect(targetItem).toBeDefined();
             expect(targetItem.index).toEqual(5);
-            targetItem.markItemSelected();
+            combo.dropdown.selectItem(targetItem);
 
             fix.detectChanges();
             expect(combo.dropdown.selectedItem).toEqual([targetItem.itemID]);
@@ -218,7 +218,7 @@ fdescribe("Combo", () => {
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(1);
             expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [], newSelection: [targetItem.itemID]});
 
-            targetItem.markItemSelected();
+            combo.dropdown.selectItem(targetItem);
             expect(combo.dropdown.selectedItem).toEqual([]);
             expect(combo.dropdown.setSelectedItem).toHaveBeenCalledTimes(2);
             expect(combo.dropdown.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
@@ -256,7 +256,7 @@ fdescribe("Combo", () => {
             fix.detectChanges();
             expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
             expect(combo.deselectAllItems).toHaveBeenCalledTimes(0);
-            expect(combo.triggerSelectionChange).toHaveBeenCalledWith(selectionService.get_all_ids(combo.filteredData, combo.valueKey));
+            expect(combo.triggerSelectionChange).toHaveBeenCalledWith(selectionService.get_all_ids(combo.filteredData));
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(1);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(1);
             expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
