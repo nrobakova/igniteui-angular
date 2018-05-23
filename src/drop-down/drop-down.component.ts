@@ -3,14 +3,19 @@ import {
     ChangeDetectorRef,
     Component,
     ContentChildren,
+    Directive,
     ElementRef,
     EventEmitter,
     forwardRef,
+    HostListener,
+    Inject,
+    Injectable,
     Input,
     NgModule,
     OnInit,
     Output,
     QueryList,
+    Self,
     ViewChild
 } from "@angular/core";
 import { IgxComboItemComponent } from "../combo/combo-item.component";
@@ -330,6 +335,11 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         this.toggleDirective.element.scrollTop = (itemPosition);
     }
 
+    public selectItem() {
+        this.setSelectedItem(this._focusedItem.index);
+        this.toggleDirective.close(true);
+    }
+
     protected calculateScrollPosition(item: IgxDropDownItemComponent | IgxComboItemComponent): number {
         if (!item) {
             return 0;
@@ -381,6 +391,66 @@ export class IgxDropDownBase implements IToggleView, OnInit {
     }
 }
 
+@Directive({
+    selector: "[igxDropDownItemNavigation]"
+})
+export class IgxDropDownItemNavigationDirective {
+
+    private _target;
+
+    constructor(private element: ElementRef, @Self() public dropdown?: IgxDropDownComponent) { }
+
+    get target() {
+        return this._target;
+    }
+
+    @Input("igxDropDownItemNavigation")
+    set target(target: IgxDropDownBase) {
+        this._target = target ? target : this.dropdown;
+    }
+
+    @HostListener("keydown.Escape", ["$event"])
+    onEscapeKeyDown(event) {
+        this.target.close();
+    }
+
+    @HostListener("keydown.Space", ["$event"])
+    onSpaceKeyDown(event) {
+        this.target.selectItem();
+        event.preventDefault();
+    }
+
+    @HostListener("keydown.Enter", ["$event"])
+    onEnterKeyDown(event) {
+        this.target.selectItem();
+        event.preventDefault();
+    }
+
+    @HostListener("keydown.ArrowDown", ["$event"])
+    onArrowDownKeyDown(event) {
+        this.target.focusNext();
+        event.preventDefault();
+    }
+
+    @HostListener("keydown.ArrowUp", ["$event"])
+    onArrowUpKeyDown(event) {
+        this.target.focusPrev();
+        event.preventDefault();
+    }
+
+    @HostListener("keydown.End", ["$event"])
+    onEndKeyDown(event) {
+        this.target.focusLast();
+        event.preventDefault();
+    }
+
+    @HostListener("keydown.Home", ["$event"])
+    onHomeKeyDown(event) {
+        this.target.focusFirst();
+        event.preventDefault();
+    }
+}
+
 @Component({
     selector: "igx-drop-down",
     templateUrl: "./drop-down.component.html"
@@ -395,8 +465,8 @@ export class IgxDropDownComponent extends IgxDropDownBase {
     }
 }
 @NgModule({
-    declarations: [IgxDropDownComponent, IgxDropDownItemComponent],
-    exports: [IgxDropDownComponent, IgxDropDownItemComponent],
+    declarations: [IgxDropDownComponent, IgxDropDownItemComponent, IgxDropDownItemNavigationDirective],
+    exports: [IgxDropDownComponent, IgxDropDownItemComponent, IgxDropDownItemNavigationDirective],
     imports: [CommonModule, IgxToggleModule],
     providers: [IgxSelectionAPIService]
 })

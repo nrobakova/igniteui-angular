@@ -93,50 +93,7 @@ export class IgxDropDownItemBase {
             return;
         }
 
-        this.markItemSelected();
-    }
-
-    @HostListener("keydown.Escape", ["$event"])
-    onEscapeKeyDown(event) {
-        this.parentElement.close();
-    }
-
-    @HostListener("keydown.Space", ["$event"])
-    onSpaceKeyDown(event) {
-        this.markItemSelected();
-    }
-
-    @HostListener("keydown.Enter", ["$event"])
-    onEnterKeyDown(event) {
-        this.markItemSelected();
-    }
-
-    @HostListener("keydown.ArrowDown", ["$event"])
-    onArrowDownKeyDown(event) {
-        this.parentElement.focusNext();
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
-    @HostListener("keydown.ArrowUp", ["$event"])
-    onArrowUpKeyDown(event) {
-        this.parentElement.focusPrev();
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
-    @HostListener("keydown.End", ["$event"])
-    onEndKeyDown(event) {
-        this.parentElement.focusLast();
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
-    @HostListener("keydown.Home", ["$event"])
-    onHomeKeyDown(event) {
-        this.parentElement.focusFirst();
-        event.stopPropagation();
-        event.preventDefault();
+        this.parentElement.selectItem();
     }
 
     @HostBinding("class.igx-drop-down__item")
