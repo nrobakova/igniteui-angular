@@ -173,6 +173,11 @@ export class ComboSampleComponent implements OnInit {
                 console.log(this.items);
         }
     }
+
     onSelection(ev) {
+    }
+
+    handleAddition(evt) {
+        console.log(evt);
     }
 }

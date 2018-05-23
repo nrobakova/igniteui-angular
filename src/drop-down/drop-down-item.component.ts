@@ -93,7 +93,7 @@ export class IgxDropDownItemBase {
             return;
         }
 
-        this.parentElement.selectItem(this);
+        this.parentElement.selectItem();
     }
 
     @HostBinding("class.igx-drop-down__item")
