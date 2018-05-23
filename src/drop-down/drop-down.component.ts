@@ -390,7 +390,7 @@ export class IgxDropDownItemNavigationDirective {
 
     private _target;
 
-    constructor(private element: ElementRef, @Optional() @Self() public dropdown: IgxDropDownBase) { }
+    constructor(private element: ElementRef, @Self() @Optional() public dropdown: IgxDropDownComponent) { }
 
     get target() {
         return this._target;
