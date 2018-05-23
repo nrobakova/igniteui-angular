@@ -9,8 +9,10 @@ import { IgxComboComponent, IgxComboModule } from "./combo.component";
 
 const CSS_CLASS_DROPDOWNLIST = "igx-drop-down__list";
 const CSS_CLASS_DROPDOWNLISTITEM = "igx-drop-down__item";
+const CSS_CLASS_DROPDOWNBUTTON = "dropdownToggleButton";
+const CSS_CLASS_CHECKBOX = "igx-checkbox";
 const CSS_CLASS_TOGGLE = "igx-toggle";
-const CSS_CLASS_SELECTED = ".igx-combo__item--selected";
+const CSS_CLASS_SELECTED = "igx-combo__item--selected";
 
 const employeeData = [
     { ID: 1, Name: "Casey Houston", JobTitle: "Vice President", HireDate: "2017-06-19T11:43:07.714Z" },
@@ -330,7 +332,7 @@ fdescribe("Combo", () => {
         const fixture = TestBed.createComponent(IgxComboTestComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
-        const comboButton = fixture.debugElement.query(By.css(".dropdownToggleButton")).nativeElement;
+        const comboButton = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNBUTTON)).nativeElement;
         comboButton.click();
         fixture.whenStable().then(() => {
             fixture.detectChanges();
@@ -354,8 +356,21 @@ fdescribe("Combo", () => {
         });
     });
 
-    it("Dropdown list open/close - textbox", () => {
-        // TO DO
+    it("Search input should be focused when dropdown is opened", () => {
+        let isFocused = false;
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const comboButton = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNBUTTON)).nativeElement;
+        comboButton.click();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            const searchInputElement: HTMLElement = fixture.debugElement.query(By.css("input[name=\"searchInput\"]")).nativeElement;
+            isFocused = (document.activeElement === searchInputElement);
+            return fixture.whenStable();
+        }).then(() => {
+            expect(isFocused).toEqual(true);
+        });
     });
 
     it("Dropdown list open/close - key navigation", () => {
@@ -374,7 +389,7 @@ fdescribe("Combo", () => {
         dropdown.onOpened.subscribe(() => onOpenedEventFired = true);
         dropdown.onClosing.subscribe(() => onClosingEventFired = true);
         dropdown.onClosed.subscribe(() => onClosedEventFired = true);
-        const comboButton = fixture.debugElement.query(By.css(".dropdownToggleButton")).nativeElement;
+        const comboButton = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNBUTTON)).nativeElement;
         comboButton.click();
         fixture.whenStable().then(() => {
             expect(onOpeningEventFired).toEqual(true);
@@ -406,8 +421,55 @@ fdescribe("Combo", () => {
     });
 
     // Selection
-    it("Selected items should be appended to the input separated by comma", () => {
-        // TO DO
+    fit("Selected items should be appended to the input separated by comma", () => {
+        let dropdownList: HTMLElement;
+        let dropdownItems: NodeListOf<HTMLElement>;
+        let selectedItem: HTMLElement;
+        let itemCheckbox: HTMLElement;
+        let expectedOutput: string;
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const input = fixture.debugElement.query(By.css("input[name=\"comboInput\"]"));
+        const inputElement = input.nativeElement;
+        const comboButton = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNBUTTON)).nativeElement;
+        comboButton.click();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            dropdownList = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNLIST)).nativeElement;
+            dropdownItems = dropdownList.querySelectorAll("." + CSS_CLASS_DROPDOWNLISTITEM);
+            selectedItem = dropdownItems[3];
+            itemCheckbox = selectedItem.querySelector("." + CSS_CLASS_CHECKBOX);
+            itemCheckbox.click();
+            fixture.detectChanges();
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            expectedOutput = "Paris";
+            expect(inputElement.value).toEqual(expectedOutput);
+            dropdownList = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNLIST)).nativeElement;
+            dropdownItems = dropdownList.querySelectorAll("." + CSS_CLASS_DROPDOWNLISTITEM);
+            selectedItem = dropdownItems[7];
+            itemCheckbox = selectedItem.querySelector("." + CSS_CLASS_CHECKBOX);
+            itemCheckbox.click();
+            fixture.detectChanges();
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            expectedOutput += ", Oslo";
+            expect(inputElement.value).toEqual(expectedOutput);
+            dropdownList = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNLIST)).nativeElement;
+            dropdownItems = dropdownList.querySelectorAll("." + CSS_CLASS_DROPDOWNLISTITEM);
+            selectedItem = dropdownItems[1];
+            itemCheckbox = selectedItem.querySelector("." + CSS_CLASS_CHECKBOX);
+            itemCheckbox.click();
+            fixture.detectChanges();
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            expectedOutput += ", Sofia";
+            expect(inputElement.value).toEqual(expectedOutput);
+        });
     });
 
     it("Selected items should be appended to the input in the order they are selected", () => {
