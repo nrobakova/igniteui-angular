@@ -70,17 +70,17 @@ fdescribe("Combo", () => {
         const comboButton = fixture.debugElement.query(By.css("button"));
         expect(fixture.componentInstance).toBeDefined();
         expect(combo).toBeDefined();
-        expect(combo.collapsed).toBeDefined();
+        expect(combo.dropdown.collapsed).toBeDefined();
         expect(combo.data).toBeDefined();
-        expect(combo.collapsed).toBeTruthy();
+        expect(combo.dropdown.collapsed).toBeTruthy();
         expect(combo.searchInput).toBeUndefined();
         expect(comboButton).toBeDefined();
         expect(combo.placeholder).toBeDefined();
-        combo.toggle();
+        combo.dropdown.toggle();
         fixture.whenStable().then(() => {
             return wrapPromise(() => {
                 fixture.detectChanges();
-                expect(combo.collapsed).toEqual(false);
+                expect(combo.dropdown.collapsed).toEqual(false);
                 expect(combo.searchInput).toBeDefined();
                 // expect(combo.searchInput).toEqual(comboButton);
             }, fixture.whenStable(), 1000);
@@ -148,35 +148,35 @@ fdescribe("Combo", () => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
-        spyOn(combo, "open").and.callThrough();
-        spyOn(combo, "close").and.callThrough();
-        spyOn(combo, "onToggleOpening").and.callThrough();
-        spyOn(combo, "onToggleOpened").and.callThrough();
-        spyOn(combo, "onToggleClosing").and.callThrough();
-        spyOn(combo, "onToggleClosed").and.callThrough();
+        spyOn(combo.dropdown, "open").and.callThrough();
+        spyOn(combo.dropdown, "close").and.callThrough();
+        spyOn(combo.dropdown, "onToggleOpening").and.callThrough();
+        spyOn(combo.dropdown, "onToggleOpened").and.callThrough();
+        spyOn(combo.dropdown, "onToggleClosing").and.callThrough();
+        spyOn(combo.dropdown, "onToggleClosed").and.callThrough();
         spyOn<any>(combo, "cdr").and.callThrough();
-        expect(combo.collapsed).toEqual(true);
-        combo.toggle();
+        expect(combo.dropdown.collapsed).toEqual(true);
+        combo.dropdown.toggle();
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            expect(combo.open).toHaveBeenCalledTimes(1);
-            expect(combo.onToggleOpening).toHaveBeenCalledTimes(1);
-            expect(combo.onToggleOpened).toHaveBeenCalledTimes(1);
-            expect(combo.collapsed).toEqual(false);
+            expect(combo.dropdown.open).toHaveBeenCalledTimes(1);
+            expect(combo.dropdown.onToggleOpening).toHaveBeenCalledTimes(1);
+            expect(combo.dropdown.onToggleOpened).toHaveBeenCalledTimes(1);
+            expect(combo.dropdown.collapsed).toEqual(false);
             return fixture.whenStable();
         }).then(() => {
             fixture.detectChanges();
             // spyOnProperty(combo, "collapsed", "get").and.returnValue(false);
-            combo.toggle();
+            combo.dropdown.toggle();
             return fixture.whenStable();
         }).then(() => {
             wrapPromise(() => {
                 fixture.detectChanges();
-                expect(combo.close).toHaveBeenCalledTimes(1);
-                expect(combo.onToggleClosed).toHaveBeenCalledTimes(1);
-                expect(combo.onToggleClosing).toHaveBeenCalledTimes(1);
-                expect(combo.collapsed).toEqual(true);
+                expect(combo.dropdown.close).toHaveBeenCalledTimes(1);
+                expect(combo.dropdown.onToggleClosed).toHaveBeenCalledTimes(1);
+                expect(combo.dropdown.onToggleClosing).toHaveBeenCalledTimes(1);
+                expect(combo.dropdown.collapsed).toEqual(true);
             }, fixture.whenStable(), 1000);
         });
     }));
@@ -185,31 +185,31 @@ fdescribe("Combo", () => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
         fix.detectChanges();
         const combo = fix.componentInstance.combo;
-        expect(combo.items).toBeDefined();
-        expect(combo.items.length).toEqual(0);
+        expect(combo.dropdown.items).toBeDefined();
+        expect(combo.dropdown.items.length).toEqual(0);
         // items are only accessible when the combo dropdown is opened;
         let targetItem: IgxComboItemComponent;
-        spyOn(combo, "setSelectedItem").and.callThrough();
+        spyOn(combo.dropdown, "setSelectedItem").and.callThrough();
         spyOn(combo, "changeSelectedItem").and.callThrough();
-        spyOn(combo, "changeFocusedItem").and.callThrough();
+        spyOn(combo.dropdown, "changeFocusedItem").and.callThrough();
         spyOn(combo, "triggerSelectionChange").and.callThrough();
         spyOn(combo, "isHeaderChecked").and.callThrough();
-        spyOn(combo, "selectedItem").and.callThrough();
+        spyOn(combo.dropdown, "selectedItem").and.callThrough();
         spyOn(combo.onSelection, "emit");
-        combo.toggle();
+        combo.dropdown.toggle();
         fix.whenStable().then(() => {
             fix.detectChanges();
-            expect(combo.collapsed).toEqual(false);
-            expect(combo.items.length).toEqual(9); // Virtualization
-            targetItem = combo.items[5] as IgxComboItemComponent;
+            expect(combo.dropdown.collapsed).toEqual(false);
+            expect(combo.dropdown.items.length).toEqual(9); // Virtualization
+            targetItem = combo.dropdown.items[5] as IgxComboItemComponent;
             expect(targetItem).toBeDefined();
             expect(targetItem.index).toEqual(5);
             targetItem.markItemSelected();
 
             fix.detectChanges();
-            expect(combo.selectedItem).toEqual([targetItem.itemID]);
-            expect(combo.setSelectedItem).toHaveBeenCalledTimes(1);
-            expect(combo.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
+            expect(combo.dropdown.selectedItem).toEqual([targetItem.itemID]);
+            expect(combo.dropdown.setSelectedItem).toHaveBeenCalledTimes(1);
+            expect(combo.dropdown.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
             expect(combo.changeSelectedItem).toHaveBeenCalledTimes(1);
             expect(combo.changeSelectedItem).toHaveBeenCalledWith(targetItem.itemID, true);
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(1);
@@ -219,9 +219,9 @@ fdescribe("Combo", () => {
             expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [], newSelection: [targetItem.itemID]});
 
             targetItem.markItemSelected();
-            expect(combo.selectedItem).toEqual([]);
-            expect(combo.setSelectedItem).toHaveBeenCalledTimes(2);
-            expect(combo.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
+            expect(combo.dropdown.selectedItem).toEqual([]);
+            expect(combo.dropdown.setSelectedItem).toHaveBeenCalledTimes(2);
+            expect(combo.dropdown.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
             expect(combo.changeSelectedItem).toHaveBeenCalledTimes(2);
             expect(combo.changeSelectedItem).toHaveBeenCalledWith(targetItem.itemID, false);
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(2);
@@ -236,8 +236,8 @@ fdescribe("Combo", () => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
         fix.detectChanges();
         const combo = fix.componentInstance.combo;
-        expect(combo.items).toBeDefined();
-        expect(combo.items.length).toEqual(0);
+        expect(combo.dropdown.items).toBeDefined();
+        expect(combo.dropdown.items.length).toEqual(0);
         // items are only accessible when the combo dropdown is opened;
         spyOn(combo, "selectAllItems").and.callThrough();
         spyOn(combo, "deselectAllItems").and.callThrough();
@@ -246,11 +246,11 @@ fdescribe("Combo", () => {
         spyOn(combo, "isHeaderChecked").and.callThrough();
         spyOn(combo.onSelection, "emit");
         const selectionService = new IgxSelectionAPIService();
-        combo.toggle();
+        combo.dropdown.toggle();
         fix.whenStable().then(() => {
             fix.detectChanges();
-            expect(combo.collapsed).toEqual(false);
-            expect(combo.items.length).toEqual(9); // Virtualization
+            expect(combo.dropdown.collapsed).toEqual(false);
+            expect(combo.dropdown.items.length).toEqual(9); // Virtualization
             combo.handleSelectAll({ checked: true});
 
             fix.detectChanges();

@@ -10,7 +10,7 @@ import {
 import { IgxCheckboxComponent } from "../checkbox/checkbox.component";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxDropDownItemBase } from "../drop-down/drop-down-item.component";
-import { IgxComboComponent } from "./combo.component";
+import { IgxComboDropDownComponent } from "./combo.component";
 
 @Component({
     selector: "igx-combo-item",
@@ -28,12 +28,12 @@ export class IgxComboItemComponent extends IgxDropDownItemBase {
         // A row in the grid is identified either by:
         // primaryKey data value,
         // or if the primaryKey is omitted, then the whole rowData is used instead.
-        const valueKey = this.parentElement.valueKey;
+        const valueKey = this.parentElement.parentElement.valueKey;
         return valueKey ? this.itemData[valueKey] : this.itemData;
     }
 
     constructor(
-        @Inject(forwardRef(() => IgxComboComponent)) public parentElement: IgxComboComponent,
+        @Inject(forwardRef(() => IgxComboDropDownComponent)) public parentElement: IgxComboDropDownComponent,
         protected elementRef: ElementRef,
         protected selectionAPI: IgxSelectionAPIService
     ) {
@@ -45,7 +45,6 @@ export class IgxComboItemComponent extends IgxDropDownItemBase {
     }
 
     markItemSelected() {
-        this.parentElement.changeFocusedItem(this, this.parentElement.lastFocused);
         this.parentElement.setSelectedItem(this.itemID);
     }
 }

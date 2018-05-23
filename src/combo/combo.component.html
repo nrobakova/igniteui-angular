@@ -28,11 +28,11 @@
         background-color: #a3a3a3; border: transparent; border-radius: 50%; color: #3f3f3f" (click)="deselectAllItems()">
             x
         </span>
-        <button (click)="toggle()" igxRipple style="width: 10%;">{{collapsed ? "V" : "^"}}</button>
+        <button (click)="dropdown.toggle()" igxRipple style="width: 10%;">{{dropdown.collapsed ? "V" : "^"}}</button>
     </div>
-    <ng-container *ngIf="!collapsed">
+    <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group>
-            <input igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)" placeholder="Enter a search term"
+            <input igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue" (keyup)="handleKeyDown($event)" placeholder="Enter a search term"
             />
         </igx-input-group>
         <div>
@@ -40,12 +40,12 @@
             <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
         </div>
     </ng-container>
-    <div class="igx-drop-down__list" igxToggle (onOpening)="onToggleOpening()" (onOpened)="onToggleOpened()" (onClosing)="onToggleClosing()" (onClosed)="onToggleClosed()">
-        <ng-container *ngIf="!collapsed">
+    <igx-combo-drop-down #igxComboDropDown>
+        <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
         </ng-container>
-        <ng-container *ngIf="!collapsed">
+        <ng-container *ngIf="!dropdown.collapsed">
 
             <div style="position: relative;">
                 <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
@@ -70,8 +70,8 @@
                 </ng-container>
             </div>
         </ng-container>
-        <ng-container *ngIf="!collapsed">
+        <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}"></ng-container>
         </ng-container>
-    </div>
+    </igx-combo-drop-down>
 </div>

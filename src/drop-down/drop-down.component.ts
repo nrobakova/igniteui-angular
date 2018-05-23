@@ -13,6 +13,7 @@ import {
     Input,
     NgModule,
     OnInit,
+    Optional,
     Output,
     QueryList,
     Self,
@@ -22,7 +23,7 @@ import { IgxComboItemComponent } from "../combo/combo-item.component";
 import { IToggleView } from "../core/navigation";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxToggleDirective, IgxToggleModule } from "../directives/toggle/toggle.directive";
-import { IgxDropDownItemComponent } from "./drop-down-item.component";
+import { IgxDropDownItemBase, IgxDropDownItemComponent } from "./drop-down-item.component";
 
 export interface ISelectionEventArgs {
     oldSelection: IgxDropDownItemComponent;
@@ -57,7 +58,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
     protected _height;
     protected _id = "DropDown_0";
     @ContentChildren(forwardRef(() => IgxDropDownItemComponent))
-    protected children: QueryList<IgxDropDownItemComponent>;
+    protected children: QueryList<IgxDropDownItemBase>;
 
     @ViewChild(IgxToggleDirective)
     protected toggleDirective: IgxToggleDirective;
@@ -398,7 +399,7 @@ export class IgxDropDownItemNavigationDirective {
 
     private _target;
 
-    constructor(private element: ElementRef, @Self() public dropdown?: IgxDropDownComponent) { }
+    constructor(private element: ElementRef, @Optional() @Self() public dropdown: IgxDropDownBase) { }
 
     get target() {
         return this._target;
