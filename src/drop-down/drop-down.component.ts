@@ -253,45 +253,29 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
     }
 
-    focusFirst() {
+    protected navigate(direction: MoveDirection, currentIndex?: number) {
+        let index = -1;
         if (this._focusedItem) {
-            const focusedItemIndex = - 1;
-            const firstItemIndex = this.getNearestSiblingFocusableItemIndex(focusedItemIndex, MoveDirection.Down);
-            if (firstItemIndex !== -1) {
-                this.changeFocusedItem(this.items[firstItemIndex], this._focusedItem);
-            }
+            index = currentIndex ? currentIndex : this._focusedItem.index;
         }
+        const newIndex = this.getNearestSiblingFocusableItemIndex(index, direction);
+        this.changeFocusedItem(newIndex);
     }
 
-    focusLast() {
-        if (this._focusedItem) {
-            const focusedItemIndex = (this.items.length);
-            const lastItemIndex = this.getNearestSiblingFocusableItemIndex(focusedItemIndex, MoveDirection.Up);
-            if (lastItemIndex !== -1) {
-                this.changeFocusedItem(this.items[lastItemIndex], this._focusedItem);
-            }
-        }
+    navigateFirst() {
+        this.navigate(MoveDirection.Down, -1);
     }
 
-    focusNext() {
-        let focusedItemIndex = -1;
-        if (this._focusedItem) {
-            focusedItemIndex = this._focusedItem.index;
-        }
-        const nextItemIndex = this.getNearestSiblingFocusableItemIndex(focusedItemIndex, MoveDirection.Down);
-        if (nextItemIndex !== -1) {
-            this.changeFocusedItem(this.items[nextItemIndex], this._focusedItem);
-        }
+    navigateLast() {
+        this.navigate(MoveDirection.Up, this.items.length);
     }
 
-    focusPrev() {
-        if (this._focusedItem) {
-            const focusedItemIndex = this._focusedItem.index;
-            const prevItemIndex = this.getNearestSiblingFocusableItemIndex(focusedItemIndex, MoveDirection.Up);
-            if (prevItemIndex !== -1) {
-                this.changeFocusedItem(this.items[prevItemIndex], this._focusedItem);
-            }
-        }
+    navigateNext() {
+        this.navigate(MoveDirection.Down);
+    }
+
+    navigatePrev() {
+        this.navigate(MoveDirection.Up);
     }
 
     ngOnInit() {
@@ -313,7 +297,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         } else if (this.allowItemsFocus) {
             const firstItemIndex = this.getNearestSiblingFocusableItemIndex(-1, MoveDirection.Down);
             if (firstItemIndex !== -1) {
-                this.changeFocusedItem(this.items[firstItemIndex]);
+                this.changeFocusedItem(firstItemIndex);
             }
         }
         this.onOpened.emit();
@@ -336,7 +320,10 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         this.toggleDirective.element.scrollTop = (itemPosition);
     }
 
-    public selectItem() {
+    public selectItem(item?) {
+        if (!item) {
+            item = this._focusedItem;
+        }
         this.setSelectedItem(this._focusedItem.index);
         this.toggleDirective.close(true);
     }
@@ -372,23 +359,27 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
     }
 
-    public changeFocusedItem(newItem: any, oldItem?: any) {
-        if (oldItem) {
-            oldItem.isFocused = false;
-        }
+    public changeFocusedItem(newIndex: number) {
+        if (newIndex !== -1) {
+            const oldItem = this._focusedItem;
+            const newItem = this.items[newIndex];
+            if (oldItem) {
+                oldItem.isFocused = false;
+            }
 
-        this._focusedItem = newItem;
-        const elementRect = this._focusedItem.element.nativeElement.getBoundingClientRect();
-        const parentRect = this.toggleDirective.element.getBoundingClientRect();
-        if (parentRect.top > elementRect.top) {
-            this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
-        }
+            this._focusedItem = newItem;
+            const elementRect = this._focusedItem.element.nativeElement.getBoundingClientRect();
+            const parentRect = this.toggleDirective.element.getBoundingClientRect();
+            if (parentRect.top > elementRect.top) {
+                this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
+            }
 
-        if (parentRect.bottom < elementRect.bottom) {
-            this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
-        }
+            if (parentRect.bottom < elementRect.bottom) {
+                this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
+            }
 
-        this._focusedItem.isFocused = true;
+            this._focusedItem.isFocused = true;
+        }
     }
 }
 
@@ -429,25 +420,25 @@ export class IgxDropDownItemNavigationDirective {
 
     @HostListener("keydown.ArrowDown", ["$event"])
     onArrowDownKeyDown(event) {
-        this.target.focusNext();
+        this.target.navigateNext();
         event.preventDefault();
     }
 
     @HostListener("keydown.ArrowUp", ["$event"])
     onArrowUpKeyDown(event) {
-        this.target.focusPrev();
+        this.target.navigatePrev();
         event.preventDefault();
     }
 
     @HostListener("keydown.End", ["$event"])
     onEndKeyDown(event) {
-        this.target.focusLast();
+        this.target.navigateLast();
         event.preventDefault();
     }
 
     @HostListener("keydown.Home", ["$event"])
     onHomeKeyDown(event) {
-        this.target.focusFirst();
+        this.target.navigateFirst();
         event.preventDefault();
     }
 }

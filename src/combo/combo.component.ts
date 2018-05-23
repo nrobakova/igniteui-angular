@@ -84,6 +84,15 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         }
     }
 
+    selectItem(item?: IgxComboItemComponent) {
+        this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
+    }
+
+    changeFocusedItem(newIndex: number) {
+        // To implement for combo virtual items
+        super.changeFocusedItem(newIndex);
+    }
+
     onToggleOpening() {
         this.parentElement.searchValue = "";
         this.onOpening.emit();
@@ -93,10 +102,6 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.cdr.markForCheck();
         this.parentElement.searchInput.nativeElement.focus();
         this.onOpened.emit();
-    }
-
-    selectItem(item?: IgxComboItemComponent) {
-        this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
     }
 }
 @Component({
