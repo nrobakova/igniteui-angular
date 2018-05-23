@@ -17,6 +17,7 @@ import { IgxRippleModule } from "../directives/ripple/ripple.directive";
 import { IgxToggleModule } from "../directives/toggle/toggle.directive";
 import { IgxDropDownItemBase } from "../drop-down/drop-down-item.component";
 import { IgxDropDownBase, IgxDropDownComponent, IgxDropDownModule, MoveDirection } from "../drop-down/drop-down.component";
+import { IgxIconModule } from "../icon/index";
 import { IgxInputGroupModule } from "../input-group/input-group.component";
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
@@ -40,6 +41,12 @@ export interface IComboSelectionChangeEventArgs {
     oldSelection: any[];
     newSelection: any[];
     event?: Event;
+}
+
+export interface IComboItemAdditionEvent {
+    oldCollection: any[];
+    addedItem: any;
+    newCollection: any[];
 }
 let currentItem = 0;
 
@@ -90,7 +97,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     onToggleOpened() {
-        this.cdr.markForCheck();
+        this.parentElement.triggerCheck();
         this.parentElement.searchInput.nativeElement.focus();
         this.onOpened.emit();
     }
@@ -109,6 +116,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _filteringExpressions = [];
     private _dataType = "";
     private _filteredData = [];
+    protected _textKey = "";
     protected _id = "ComboItem_";
     private _searchInput: ElementRef;
     public dropdownVisible = false;
@@ -164,6 +172,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     @ContentChild("headerItemTemplate", { read: TemplateRef })
     public headerItemTemplate: TemplateRef<any>;
 
+    @Output()
+    public onAddition = new EventEmitter();
+
     @HostBinding("style.width")
     @Input()
     public width;
@@ -191,6 +202,15 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
 
     @Input()
     public filteringLogic = FilteringLogic.Or;
+
+    get textKey() {
+        return this._textKey ? this._textKey : this.valueKey;
+    }
+
+    @Input()
+    set textKey(val) {
+        this._textKey = val;
+    }
 
     @Input()
     get filteringExpressions() {
@@ -244,7 +264,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
-                true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.valueKey);
+                true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
             this.isHeaderChecked();
         }
     }
@@ -267,16 +287,13 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public isItemSelected(item) {
-        const checkValue = this.valueKey ? item[this.valueKey] : item;
-        return this.selectionAPI.is_item_selected(this.id, checkValue);
+        return this.selectionAPI.is_item_selected(this.id, item);
     }
 
     public isHeaderChecked() {
         const selectedItems = this.dropdown.selectedItem;
         if (this.filteredData.length > 0 && selectedItems.length > 0) {
-            const compareData = this.valueKey ?
-                this.filteredData.map((e) => e[this.valueKey]) :
-                this.filteredData;
+            const compareData = this.filteredData;
             if (selectedItems.length >= this.filteredData.length) {
                 let areAllSelected = true;
                 let indeterminateFlag = false;
@@ -313,7 +330,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public selectAllItems() {
-        const allVisible = this.selectionAPI.get_all_ids(this.filteredData, this.valueKey);
+        const allVisible = this.selectionAPI.get_all_ids(this.filteredData);
         const newSelection = this.selectionAPI.select_items(this.id, allVisible);
         this.triggerSelectionChange(newSelection);
     }
@@ -321,19 +338,27 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public deselectAllItems() {
         const newSelection = this.filteredData.length === this.data.length ?
             [] :
-            this.selectionAPI.deselect_items(this.id, this.selectionAPI.get_all_ids(this.filteredData, this.valueKey));
+            this.selectionAPI.deselect_items(this.id, this.selectionAPI.get_all_ids(this.filteredData));
         this.triggerSelectionChange(newSelection);
     }
 
     public triggerSelectionChange(newSelection) {
         const oldSelection = this.dropdown.selectedItem;
         if (oldSelection !== newSelection) {
-            this.selectionAPI.set_selection(this.id, newSelection);
-            this.value = newSelection.join(", ");
             const args: IComboSelectionChangeEventArgs = { oldSelection, newSelection };
             this.onSelection.emit(args);
-            this.isHeaderChecked();
+            this.selectionAPI.set_selection(this.id, newSelection);
+            this.value = this._dataType !== DataTypes.PRIMITIVE ?
+                newSelection.map((e) => e[this.textKey]).join(", ") :
+                newSelection.join(", ");
+            if (this.selectAllCheckbox) {
+                this.isHeaderChecked();
+            }
         }
+    }
+
+    public triggerCheck() {
+        this.cdr.detectChanges();
     }
 
     public handleSelectAll(evt) {
@@ -349,8 +374,16 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             return false;
         }
         const addedItem = {
-            [this.valueKey]: this.searchValue
+            [this.valueKey]: this.searchValue,
+            [this.textKey]: this.searchValue
         };
+        const oldCollection = this.data;
+        const newCollection = [...this.data];
+        newCollection.push(addedItem);
+        const args: IComboItemAdditionEvent = {
+            oldCollection, addedItem, newCollection
+        };
+        this.onAddition.emit(args);
         this.data.push(addedItem);
         this.filteredData.push(addedItem);
     }
@@ -436,7 +469,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe, IgxComboDropDownComponent],
     exports: [IgxComboComponent, IgxComboItemComponent, IgxComboDropDownComponent],
     imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule,
-        IgxCheckboxModule, IgxDropDownModule],
+        IgxCheckboxModule, IgxDropDownModule, IgxIconModule],
     providers: [IgxSelectionAPIService]
 })
 export class IgxComboModule { }
