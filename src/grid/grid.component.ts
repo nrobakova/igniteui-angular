@@ -1497,12 +1497,14 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
     public onKeydownPageDown(event) {
         event.preventDefault();
         this.verticalScrollContainer.scrollNextPage();
+        this.nativeElement.focus();
     }
     
     @HostListener("keydown.pageup", ["$event"])
     public onKeydownPageUp(event) {
         event.preventDefault();
         this.verticalScrollContainer.scrollPrevPage();
+        this.nativeElement.focus();
     }
     
     @HostListener("keydown.arrowdown", ["$event"])
@@ -1520,13 +1522,16 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
     @HostListener("keydown.arrowleft", ["$event"])
     public onKeydownArrowLeft(event) {
         event.preventDefault();
-        this.parentVirtDir.igxForScrollOrientation = "horizontal"
-        this.parentVirtDir.scrollPrev();
+        let horVirtScroll = this.parentVirtDir.getHorizontalScroll();
+        horVirtScroll.scrollLeft -= MINIMUM_COLUMN_WIDTH;
     }
     
     @HostListener("keydown.arrowright", ["$event"])
     public onKeydownArrowRight(event) {
         event.preventDefault();
-        this.parentVirtDir.scrollNext();
+        let horVirtScroll = this.parentVirtDir.getHorizontalScroll();
+        horVirtScroll.scrollLeft += MINIMUM_COLUMN_WIDTH;
+
     }
+
 }
