@@ -28,8 +28,7 @@ export class IgxComboItemComponent extends IgxDropDownItemBase {
         // A row in the grid is identified either by:
         // primaryKey data value,
         // or if the primaryKey is omitted, then the whole rowData is used instead.
-        const valueKey = this.parentElement.parentElement.valueKey;
-        return valueKey ? this.itemData[valueKey] : this.itemData;
+        return this.itemData;
     }
 
     constructor(
@@ -44,7 +43,14 @@ export class IgxComboItemComponent extends IgxDropDownItemBase {
         return this.parentElement.selectedItem.indexOf(this.itemID) > -1;
     }
 
-    markItemSelected() {
-        this.parentElement.setSelectedItem(this.itemID);
+    @HostListener("click", ["$event"])
+    clicked(event) {
+        if (this.isDisabled || this.isHeader) {
+            const focusedItem = this.parentElement.items.find((item) => item.isFocused);
+            focusedItem.elementRef.nativeElement.focus({ preventScroll: true });
+            return;
+        }
+        this.parentElement.parentElement.searchInput.nativeElement.focus();
+        this.parentElement.selectItem(this);
     }
 }

@@ -5,7 +5,11 @@
         <button class="igx-button" igxRipple (click)="changeData('primitive')">Primitve</button>
         <button class="igx-button" igxRipple (click)="changeData('complex')">Complex</button>
         <button class="igx-button" igxRipple (click)="changeData()">Initial</button>
-        <igx-combo [placeholder]="'Location'" [data]="items" [filterable]="true" [valueKey]="'field'" [groupKey]="'region'" [width]="'400px'">
+        <igx-combo [placeholder]="'Location'" 
+        (onAddition)="handleAddition($event)"
+        [data]="items" 
+        [filterable]="true" [textKey]="'field'" [valueKey]="'field'"
+         [groupKey]="'region'" [width]="'400px'">
             <ng-template #dropdownItemTemplate let-display let-key="valueKey">
                 <div class="state-card--simple">
                     <span class="small-red-circle"></span>

@@ -7,21 +7,11 @@ import { IgxToggleActionDirective, IgxToggleDirective, IgxToggleModule } from ".
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboComponent, IgxComboModule } from "./combo.component";
 
-const selectedItemClass = ".igx-combo__item--selected";
-const citiesData = [
-    "New York",
-    "Sofia",
-    "Istanbul",
-    "Paris",
-    "Hamburg",
-    "Berlin",
-    "London",
-    "Oslo",
-    "Los Angeles",
-    "Rome",
-    "Madrid",
-    "Ottawa",
-    "Prague"];
+const CSS_CLASS_DROPDOWNLIST = "igx-drop-down__list";
+const CSS_CLASS_DROPDOWNLISTITEM = "igx-drop-down__item";
+const CSS_CLASS_TOGGLE = "igx-toggle";
+const CSS_CLASS_SELECTED = ".igx-combo__item--selected";
+
 const employeeData = [
     { ID: 1, Name: "Casey Houston", JobTitle: "Vice President", HireDate: "2017-06-19T11:43:07.714Z" },
     { ID: 2, Name: "Gilberto Todd", JobTitle: "Director", HireDate: "2015-12-18T11:23:17.714Z" },
@@ -62,8 +52,7 @@ fdescribe("Combo", () => {
     }));
 
     // General
-
-    xit("Should initialize the combo component properly", async(() => {
+    it("Should initialize the combo component properly", async(() => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
@@ -88,7 +77,7 @@ fdescribe("Combo", () => {
     }));
 
     // Unit tests
-    fit("Should properly initialize templates", () => {
+    it("Should properly initialize templates", () => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
@@ -101,7 +90,7 @@ fdescribe("Combo", () => {
         expect(combo.headerItemTemplate).toBeUndefined();
     });
 
-    fit("Should properly accept input properties", () => {
+    it("Should properly accept input properties", () => {
         const fixture = TestBed.createComponent(IgxComboInputTestComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
@@ -143,8 +132,7 @@ fdescribe("Combo", () => {
         expect(combo.data).toBeDefined();
         expect(combo.data.length).toEqual(3);
     });
-
-    fit("Should call toggle properly", async(() => {
+    it("Should call toggle properly", async(() => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
         fixture.detectChanges();
         const combo = fixture.componentInstance.combo;
@@ -181,7 +169,7 @@ fdescribe("Combo", () => {
         });
     }));
 
-    fit("Should properly select/deselect items", async(() => {
+    it("Should properly select/deselect items", async(() => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
         fix.detectChanges();
         const combo = fix.componentInstance.combo;
@@ -204,7 +192,7 @@ fdescribe("Combo", () => {
             targetItem = combo.dropdown.items[5] as IgxComboItemComponent;
             expect(targetItem).toBeDefined();
             expect(targetItem.index).toEqual(5);
-            targetItem.markItemSelected();
+            combo.dropdown.selectItem(targetItem);
 
             fix.detectChanges();
             expect(combo.dropdown.selectedItem).toEqual([targetItem.itemID]);
@@ -216,9 +204,9 @@ fdescribe("Combo", () => {
             expect(combo.triggerSelectionChange).toHaveBeenCalledWith([targetItem.itemID]);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(1);
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(1);
-            expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [], newSelection: [targetItem.itemID]});
+            expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [], newSelection: [targetItem.itemID] });
 
-            targetItem.markItemSelected();
+            combo.dropdown.selectItem(targetItem);
             expect(combo.dropdown.selectedItem).toEqual([]);
             expect(combo.dropdown.setSelectedItem).toHaveBeenCalledTimes(2);
             expect(combo.dropdown.setSelectedItem).toHaveBeenCalledWith(targetItem.itemID);
@@ -228,11 +216,11 @@ fdescribe("Combo", () => {
             expect(combo.triggerSelectionChange).toHaveBeenCalledWith([]);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(2);
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(2);
-            expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [targetItem.itemID], newSelection: []});
+            expect(combo.onSelection.emit).toHaveBeenCalledWith({ oldSelection: [targetItem.itemID], newSelection: [] });
         });
     }));
 
-    fit("Should properly select/deselect ALL items", async(() => {
+    it("Should properly select/deselect ALL items", async(() => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
         fix.detectChanges();
         const combo = fix.componentInstance.combo;
@@ -251,19 +239,19 @@ fdescribe("Combo", () => {
             fix.detectChanges();
             expect(combo.dropdown.collapsed).toEqual(false);
             expect(combo.dropdown.items.length).toEqual(9); // Virtualization
-            combo.handleSelectAll({ checked: true});
+            combo.handleSelectAll({ checked: true });
 
             fix.detectChanges();
             expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
             expect(combo.deselectAllItems).toHaveBeenCalledTimes(0);
-            expect(combo.triggerSelectionChange).toHaveBeenCalledWith(selectionService.get_all_ids(combo.filteredData, combo.valueKey));
+            expect(combo.triggerSelectionChange).toHaveBeenCalledWith(selectionService.get_all_ids(combo.filteredData));
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(1);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(1);
             expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
             expect(combo.selectAllCheckbox.checked).toEqual(true);
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(1);
 
-            combo.handleSelectAll({ checked: false});
+            combo.handleSelectAll({ checked: false });
 
             fix.detectChanges();
             expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
@@ -276,6 +264,21 @@ fdescribe("Combo", () => {
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(2);
         });
     }));
+
+    it("Combo's input textbox should be read-only", () => {
+        const inputText = "text";
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const comboElement = fixture.debugElement.query(By.css("input[name=\"comboInput\"]"));
+        const inputElement = comboElement.nativeElement;
+        expect(comboElement.attributes["readonly"]).toBeDefined();
+        inputElement.value = inputText;
+        inputElement.dispatchEvent(new Event("input"));
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(inputElement.value).toEqual("");
+        });
+    });
 
     xit("Should properly accept width", () => {
         const fixture = TestBed.createComponent(IgxComboSampleComponent);
@@ -323,8 +326,32 @@ fdescribe("Combo", () => {
     });
 
     // Dropdown
-    it("Dropdown list open/close - dropdown button", () => {
-        // TO DO
+    it("Dropdown button should open/close dropdown list", () => {
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const comboButton = fixture.debugElement.query(By.css(".dropdownToggleButton")).nativeElement;
+        comboButton.click();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            expect(combo.dropdown.collapsed).toEqual(false);
+            const searchInputElement = fixture.debugElement.query(By.css("input[name=\"searchInput\"]")).nativeElement;
+            expect(searchInputElement).toBeDefined();
+            // const selectAllCheckboxElement = fixture.debugElement.query(By.css("#igx-checkbox")).nativeElement;
+            // expect(selectAllCheckboxElement).toBeDefined();
+            const dropdownList = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNLIST)).nativeElement;
+            expect(dropdownList.classList.contains(CSS_CLASS_TOGGLE)).toBeTruthy();
+            const dropdownItems = dropdownList.querySelectorAll("." + CSS_CLASS_DROPDOWNLISTITEM);
+            expect(dropdownItems.length).toEqual(11);
+            comboButton.click();
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            expect(combo.dropdown.collapsed).toEqual(true);
+            const dropdownList = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNLIST)).nativeElement;
+            expect(dropdownList.classList.contains(CSS_CLASS_TOGGLE + "--hidden")).toBeTruthy();
+            expect(dropdownList.children.length).toEqual(0);
+        });
     });
 
     it("Dropdown list open/close - textbox", () => {
@@ -334,8 +361,31 @@ fdescribe("Combo", () => {
     it("Dropdown list open/close - key navigation", () => {
         // TO DO
     });
-    it("Dropdown list open/close events", () => {
-        // TO DO
+    it("Dropdown button should fire dropdown opening/closing events", () => {
+        let onOpeningEventFired = false;
+        let onOpenedEventFired = false;
+        let onClosingEventFired = false;
+        let onClosedEventFired = false;
+        const fixture = TestBed.createComponent(IgxComboTestComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const dropdown = combo.dropdown;
+        dropdown.onOpening.subscribe(() => onOpeningEventFired = true);
+        dropdown.onOpened.subscribe(() => onOpenedEventFired = true);
+        dropdown.onClosing.subscribe(() => onClosingEventFired = true);
+        dropdown.onClosed.subscribe(() => onClosedEventFired = true);
+        const comboButton = fixture.debugElement.query(By.css(".dropdownToggleButton")).nativeElement;
+        comboButton.click();
+        fixture.whenStable().then(() => {
+            expect(onOpeningEventFired).toEqual(true);
+            expect(onOpenedEventFired).toEqual(true);
+            comboButton.click();
+            return fixture.whenStable();
+        }).then(() => {
+            fixture.detectChanges();
+            expect(onClosingEventFired).toEqual(true);
+            expect(onClosedEventFired).toEqual(true);
+        });
     });
     it("Home key should scroll up to the first item in the dropdown list", () => {
         // TO DO
@@ -469,18 +519,30 @@ fdescribe("Combo", () => {
     template: `
     <igx-combo #combo
     [data]="citiesData"
-    [width]="'800px'"
-    [height]="'600px'"
 >
-</igx-combo>
-`
+</igx-combo>`
 })
 class IgxComboTestComponent {
-
     @ViewChild("combo", { read: IgxComboComponent })
-    public dropdown: IgxComboComponent;
+    public combo: IgxComboComponent;
+
+    public citiesData: string[] = [
+        "New York",
+        "Sofia",
+        "Istanbul",
+        "Paris",
+        "Hamburg",
+        "Berlin",
+        "London",
+        "Oslo",
+        "Los Angeles",
+        "Rome",
+        "Madrid",
+        "Ottawa",
+        "Prague"];
 
 }
+
 @Component({
     template: `
         <p>Change data to:</p>
