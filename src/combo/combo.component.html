@@ -27,7 +27,7 @@
         <span igxButton="icon" igxRipple igxRippleCentered="true" (click)="triggerSelectionChange([])">
             <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
         </span>
-        <span igxButton="icon" igxRipple igxRippleCentered="true" (click)="dropdown.toggle()">
+        <span igxButton="icon" class="dropdownToggleButton" igxRipple igxRippleCentered="true" (click)="dropdown.toggle()">
             <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
             <ng-template #toggleUp>
                 <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
