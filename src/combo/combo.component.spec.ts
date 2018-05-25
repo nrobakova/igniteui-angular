@@ -1,11 +1,13 @@
-import { Component, ContentChildren, DebugElement, ViewChild } from "@angular/core";
-import { async, TestBed } from "@angular/core/testing";
+import { Component, ContentChildren, DebugElement, ElementRef, ViewChild, Directive } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { BrowserAnimationsModule, NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxToggleActionDirective, IgxToggleDirective, IgxToggleModule } from "../directives/toggle/toggle.directive";
+import { IgxDropDownComponent, IgxDropDownItemNavigationDirective, IgxDropDownModule, IgxDropDownBase } from "../drop-down/drop-down.component";
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboComponent, IgxComboModule } from "./combo.component";
+import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
 
 const CSS_CLASS_DROPDOWNLIST = "igx-drop-down__list";
 const CSS_CLASS_DROPDOWNLISTITEM = "igx-drop-down__item";
@@ -14,6 +16,15 @@ const CSS_CLASS_CHECKBOX = "igx-checkbox";
 const CSS_CLASS_TOGGLE = "igx-toggle";
 const CSS_CLASS_SELECTED = "igx-combo__item--selected";
 
+@Directive({
+    selector: "[igxDropDownItemNavigation]"
+})
+class MockDirective extends IgxDropDownItemNavigationDirective {
+    constructor() {
+        console.log("MOCKED");
+        super({ nativeElement: null}, null);
+    }
+}
 const employeeData = [
     { ID: 1, Name: "Casey Houston", JobTitle: "Vice President", HireDate: "2017-06-19T11:43:07.714Z" },
     { ID: 2, Name: "Gilberto Todd", JobTitle: "Director", HireDate: "2015-12-18T11:23:17.714Z" },
@@ -39,6 +50,10 @@ function wrapPromise(callback, resolve, time) {
 fdescribe("Combo", () => {
     beforeEach(async(() => {
         TestBed.resetTestingModule();
+        TestBed.overrideModule(IgxDropDownModule, {set: {
+            declarations: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective],
+            exports: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective]
+        }});
         TestBed.configureTestingModule({
             declarations: [
                 IgxComboTestComponent,
@@ -421,7 +436,7 @@ fdescribe("Combo", () => {
     });
 
     // Selection
-    fit("Selected items should be appended to the input separated by comma", () => {
+    it("Selected items should be appended to the input separated by comma", () => {
         let dropdownList: HTMLElement;
         let dropdownItems: NodeListOf<HTMLElement>;
         let selectedItem: HTMLElement;
