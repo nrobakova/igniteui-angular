@@ -534,6 +534,19 @@ fdescribe("Combo", () => {
     it("Escape key should clear the textbox input and close the dropdown list", () => {
         // TO DO
     });
+    it("When no results are filtered, the 'Select All' checkbox should not be visible", () => {
+        // TO DO
+    });
+    it("After adding a custom value, the 'Select All' checkbox should appear checked", () => {
+        // TO DO
+    });
+    it("When no results are filtered for a group, the group header should not be visible", () => {
+        // TO DO
+    });
+
+    it("The SPACE key is not allowed inside the filtering box", () => {
+        // TO DO
+    });
 
     // Templates
     it("Combo header template", () => {
