@@ -122,8 +122,8 @@ export class IgxGridHeaderComponent implements IGridBus, OnInit, DoCheck, AfterV
 
     ngAfterViewInit() {
         this.zone.runOutsideAngular(() => {
-            this.resizeArea.nativeElement.addEventListener("mouseover", this.onResizeAreaMouseOver.bind(this));
-            this.resizeArea.nativeElement.addEventListener("mousedown", this.onResizeAreaMouseDown.bind(this));
+            this.resizeArea.nativeElement.addEventListener("pointerover", this.onResizeAreaMouseOver.bind(this));
+            this.resizeArea.nativeElement.addEventListener("pointerdown", this.onResizeAreaMouseDown.bind(this));
         });
     }
 

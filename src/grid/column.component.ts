@@ -84,6 +84,9 @@ export class IgxColumnComponent implements AfterContentInit {
     public minWidth = this.defaultMinWidth;
 
     @Input()
+    public fixed = false;
+
+    @Input()
     public headerClasses = "";
 
     @Input()

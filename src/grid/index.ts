@@ -25,7 +25,9 @@ import {
     IgxColumnMovingDirective,
     IgxCellTemplateDirective,
     IgxColumnResizerDirective,
-    IgxDroppableDirective
+    IgxDroppableDirective,
+    IgxDragDirective,
+    IgxDropDirective
 } from "./grid.common";
 import { IgxGridComponent } from "./grid.component";
 import { IgxGridFilterConditionPipe, IgxGridFilteringPipe, IgxGridPagingPipe, IgxGridSortingPipe } from "./grid.pipes";
@@ -46,6 +48,8 @@ import { IgxColumnMovingService } from "./column-moving.service";
     IgxCellTemplateDirective,
     IgxColumnMovingDirective,
     IgxColumnResizerDirective,
+    IgxDragDirective,
+    IgxDropDirective,
     IgxDroppableDirective,
     IgxGridFilterComponent,
     IgxGridSortingPipe,
@@ -70,6 +74,8 @@ import { IgxColumnMovingService } from "./column-moving.service";
     IgxCellTemplateDirective,
     IgxColumnMovingDirective,
     IgxColumnResizerDirective,
+    IgxDragDirective,
+    IgxDropDirective,
     IgxDroppableDirective
   ],
   imports: [

@@ -89,6 +89,10 @@ export interface IRowSelectionEventArgs {
     event?: Event;
 }
 
+export interface IColumnMovingEventArgs {
+    column: IgxColumnComponent;
+}
+
 /**
  * **Ignite UI for Angular Grid** -
  * [Documentation](https://www.infragistics.com/products/ignite-ui-angular/angular/components/grid.html)

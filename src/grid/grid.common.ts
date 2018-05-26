@@ -20,6 +20,7 @@ import { IgxColumnMovingService } from "./column-moving.service";
 import { IgxGridAPIService } from "./api.service";
 import { IgxColumnComponent } from "./column.component";
 import { IgxForOfDirective } from "../main";
+import { url } from "inspector";
 
 export interface IColumnMovingInfo {
     column: IgxColumnComponent;
@@ -77,17 +78,29 @@ export class IgxColumnResizerDirective implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.zone.runOutsideAngular(() => {
-            fromEvent(this.document.defaultView, "mousedown").pipe(takeUntil(this._destroy))
+            fromEvent(this.document.defaultView, "pointerdown").pipe(takeUntil(this._destroy))
                 .subscribe((res) => this.onMousedown(res));
 
-            fromEvent(this.document.defaultView, "mousemove").pipe(
+            fromEvent(this.document.defaultView, "pointermove").pipe(
                 takeUntil(this._destroy),
                 throttle(() => interval(0, animationFrameScheduler))
             ).subscribe((res) => this.onMousemove(res));
 
-            fromEvent(this.document.defaultView, "mouseup").pipe(takeUntil(this._destroy))
+            fromEvent(this.document.defaultView, "pointerup").pipe(takeUntil(this._destroy))
                 .subscribe((res) => this.onMouseup(res));
         });
+        // this.zone.runOutsideAngular(() => {
+        //     fromEvent(this.document.defaultView, "mousedown").pipe(takeUntil(this._destroy))
+        //         .subscribe((res) => this.onMousedown(res));
+
+        //     fromEvent(this.document.defaultView, "mousemove").pipe(
+        //         takeUntil(this._destroy),
+        //         throttle(() => interval(0, animationFrameScheduler))
+        //     ).subscribe((res) => this.onMousemove(res));
+
+        //     fromEvent(this.document.defaultView, "mouseup").pipe(takeUntil(this._destroy))
+        //         .subscribe((res) => this.onMouseup(res));
+        // });
     }
 
     ngOnDestroy() {
@@ -141,12 +154,24 @@ export class IgxColumnMovingDirective {
 
     private _column: IgxColumnComponent;
     private _effect = "move";
+    private _ghostImg;
     private _ghostImageClass = "igx-grid__col-moving-image";
 
-    constructor(private cms: IgxColumnMovingService, private renderer: Renderer2) { }
+    constructor(private cms: IgxColumnMovingService, private renderer: Renderer2, private elementRef: ElementRef) {
+        // this.elementRef.nativeElement.addEventListener("pointerdown", this.dispatchDragStart.bind(this));
+        // this.elementRef.nativeElement.addEventListener("pointerup", this.dispatchDragEnd.bind(this));
+    }
+
+    // public dispatchDragStart() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("dragstart"));
+    // }
+
+    // public dispatchDragEnd() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("dragend"));
+    // }
 
     @HostListener("dragstart", ["$event"])
-    public onDragStart(event) {
+    public onDragStart(event, cb: any = null) {
         this.cms.columMovingInfo = {
             column: this.column,
             clientX: event.clientX
@@ -155,13 +180,20 @@ export class IgxColumnMovingDirective {
         event.dataTransfer.effectAllowed = this._effect;
 
         this.column.grid.isColumnMoving = true;
-        this.renderer.addClass(event.currentTarget, this._ghostImageClass);
+
+        this.renderer.addClass(this.elementRef.nativeElement, this._ghostImageClass);
+        setImmediate(() => {
+            this.renderer.removeClass(this.elementRef.nativeElement, this._ghostImageClass);
+        });
+
+        // dragging will not work in FF unless we set the data
+        event.dataTransfer.setData("Text", "");
     }
 
     @HostListener("dragend", ["$event"])
     public onDragEnd(event) {
         this.column.grid.isColumnMoving = false;
-        this.renderer.removeClass(event.currentTarget, this._ghostImageClass);
+        this.renderer.removeClass(this.elementRef.nativeElement, this._ghostImageClass);
     }
 }
 
@@ -189,7 +221,7 @@ export class IgxDroppableDirective implements OnDestroy {
     }
 
     get isDropTarget(): boolean {
-        return this._column && this._column.grid.hasMovableColumns;
+        return this._column && this._column.grid.hasMovableColumns && !this._column.fixed;
     }
 
     get horizontalScroll(): any {
@@ -207,12 +239,34 @@ export class IgxDroppableDirective implements OnDestroy {
     private _ghostImageClass = "igx-grid__col-moving-image";
     private _dropIndicatorClass = "igx-grid__drop-indicator-active";
 
-    constructor(private elementRef: ElementRef, private cms: IgxColumnMovingService, private renderer: Renderer2) {}
+    constructor(private elementRef: ElementRef, private cms: IgxColumnMovingService, private renderer: Renderer2) {
+        // this.elementRef.nativeElement.addEventListener("pointerenter", this.dispatchDragEnter.bind(this));
+        // this.elementRef.nativeElement.addEventListener("pointerover", this.dispatchDragOver.bind(this));
+        // this.elementRef.nativeElement.addEventListener("pointerleave", this.dispatchDragLeave.bind(this));
+        // this.elementRef.nativeElement.addEventListener("pointerup", this.dispatchDrop.bind(this));
+    }
 
     public ngOnDestroy() {
         this._dragLeave.next(true);
         this._dragLeave.unsubscribe();
     }
+
+    // public dispatchDragEnter() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("dragenter"));
+    // }
+
+    // public dispatchDragOver() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("dragover"));
+    // }
+
+    // public dispatchDragLeave() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("dragleave"));
+    // }
+
+    // public dispatchDrop() {
+    //     this.elementRef.nativeElement.dispatchEvent(new DragEvent("drop"));
+    // }
+
 
     @HostListener("dragenter", ["$event"])
     public onDragEnter(event) {
@@ -228,16 +282,10 @@ export class IgxDroppableDirective implements OnDestroy {
             }
         }
 
-        if (this.column && this.cms.columMovingInfo.column === this.column) {
-            this.renderer.removeClass(event.currentTarget, this._ghostImageClass);
-        }
-
         if (this.horizontalScroll) {
-            this._scrollStep = this.horizontalScroll.getHorizontalScroll().scrollLeft;
-
             interval(100).pipe(takeUntil(this._dragLeave)).subscribe((val) => {
-                this._scrollStep += this.direction === "right" ? 20 : -20;
-                this.horizontalScroll.getHorizontalScroll().scrollTo(this._scrollStep, 0);
+                this.direction === "right" ? this.horizontalScroll.getHorizontalScroll().scrollLeft += 15 :
+                    this.horizontalScroll.getHorizontalScroll().scrollLeft -= 15;
             });
         }
     }
@@ -349,4 +397,246 @@ export function autoWire(markForCheck = false) {
 
         return descriptor;
     };
+}
+
+
+@Directive({
+    selector: "[igxDrag]"
+})
+export class IgxDragDirective {
+
+    @Input("igxDrag")
+    set data(val: IgxColumnComponent) {
+        this._column = val;
+    }
+
+    @Output()
+    public dragEnd = new Subject<any>();
+
+    @Output()
+    public dragStart = new Subject<any>();
+
+    @Output()
+    public drag = new Subject<any>();
+
+    get draggable() {
+        return this.column.movable;
+    }
+
+    get column() : IgxColumnComponent {
+        return this._column;
+    }
+
+    private _column: IgxColumnComponent;
+
+    private _left;
+    private _top;
+    private _dragGhost;
+    private _destroy = new Subject<boolean>();
+
+    constructor(public element: ElementRef, @Inject(DOCUMENT) public document, public zone: NgZone, private cms: IgxColumnMovingService) {
+
+        this.dragStart.pipe(
+            map((event) => ({ left: event.pageX, top: event.pageY })),
+            takeUntil(this._destroy),
+            switchMap((offset) => this.drag.pipe(
+                map((event) => ({ left: event.pageX - offset.left, top: event.pageY - offset.top })),
+                takeUntil(this.dragEnd)
+            ))
+        ).subscribe((pos) => {
+            const left = this._left + pos.left;
+            const top = this._top + pos.top;
+
+            this.left = left + "px";
+            this.top = top + "px";
+        });
+
+    }
+
+    ngOnInit() {
+        this.zone.runOutsideAngular(() => {
+            fromEvent(this.element.nativeElement, "pointerdown").pipe(takeUntil(this._destroy))
+                .subscribe((res) => this.onMousedown(res));
+
+            fromEvent(this.document.defaultView, "pointermove").pipe(
+                takeUntil(this._destroy),
+                throttle(() => interval(0, animationFrameScheduler))
+            ).subscribe((res) => this.onMousemove(res));
+
+            fromEvent(this.document.defaultView, "pointerup").pipe(takeUntil(this._destroy))
+                .subscribe((res) => this.onMouseup(res));
+        });
+    }
+
+    ngOnDestroy() {
+        this._destroy.next(true);
+        this._destroy.unsubscribe();
+    }
+
+    public set left(val) {
+        requestAnimationFrame(() => this._dragGhost.style.left = val);
+    }
+
+    public set top(val) {
+        requestAnimationFrame(() => this._dragGhost.style.top = val);
+    }
+
+    onMousedown(event) {
+        this.dragStart.next(event);
+        event.preventDefault();
+
+        if (this.draggable) {
+            const elStyle = this.document.defaultView.getComputedStyle(this.element.nativeElement);
+
+            this._left = event.pageX - (event.pageX - this.element.nativeElement.getBoundingClientRect().left);
+            this._top = event.pageY - (event.pageY - this.element.nativeElement.getBoundingClientRect().top);
+
+            this._dragGhost = this.element.nativeElement.cloneNode(true);
+
+            this._dragGhost.style.background = "lightgray";
+            this._dragGhost.style.border = "0.2px solid red";
+            this._dragGhost.style.width = elStyle.width;
+            this._dragGhost.style.height = elStyle.height;
+            this._dragGhost.style.position = "absolute";
+            this._dragGhost.style.cursor = "not-allowed";
+            // this._dragGhost.style.zIndex  = "10000";
+            this.left = this._left + "px";
+            this.top = this._top + "px";
+
+            // document.body.appendChild(this._dragGhost);
+            //document.body.style.cursor = "url(this._dragGhost)";
+
+            this.cms.columMovingInfo = {
+                column: this.column,
+                clientX: event.pageX
+            };
+
+            this.column.grid.isColumnMoving = true;
+        }
+
+    }
+
+    onMousemove(event) {
+        this.drag.next(event);
+        event.preventDefault();
+    }
+
+    onMouseup(event) {
+        this.dragEnd.next(event);
+        this.column.grid.isColumnMoving = false;
+        setTimeout(() => {
+            this._dragGhost.parentNode.removeChild(this._dragGhost);
+        });
+    }
+}
+
+@Directive({
+    selector: "[igxDrop]"
+})
+export class IgxDropDirective implements OnDestroy {
+
+    @Input("igxDrop")
+    set droppable(val: any) {
+        if (val instanceof IgxColumnComponent) {
+            this._column = val;
+        }
+
+        if (val instanceof IgxForOfDirective) {
+            this._hVirtDir = val;
+        }
+    }
+
+    @Input()
+    public direction: string;
+
+    get column() : IgxColumnComponent {
+        return this._column;
+    }
+
+    get isDropTarget(): boolean {
+        return this._column && this._column.grid.hasMovableColumns && !this._column.fixed;
+    }
+
+    get horizontalScroll(): any {
+        if (this._hVirtDir) {
+            return this._hVirtDir;
+        }
+    }
+
+    private _dropIndicator: any = null;
+    private _column: IgxColumnComponent;
+    private _hVirtDir: IgxForOfDirective<any>;
+    private _dragLeave = new Subject<boolean>();
+    private _scrollStep: number;
+    private _effect = "move";
+    private _ghostImageClass = "igx-grid__col-moving-image";
+    private _dropIndicatorClass = "igx-grid__drop-indicator-active";
+
+    constructor(private elementRef: ElementRef, private cms: IgxColumnMovingService, private renderer: Renderer2) {
+
+    }
+
+    public ngOnDestroy() {
+        this._dragLeave.next(true);
+        this._dragLeave.unsubscribe();
+    }
+
+    @HostListener("pointerenter", ["$event"])
+    public onDragEnter(event) {
+        if (this.column && this.column.grid.isColumnMoving && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
+            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
+                event.preventDefault();
+
+                this._dropIndicator = this.cms.columMovingInfo.clientX < event.clientX ? this.elementRef.nativeElement.children[4] :
+                    this.elementRef.nativeElement.children[0];
+
+                this.renderer.addClass(this._dropIndicator, this._dropIndicatorClass);
+            }
+        }
+
+        if (this.horizontalScroll) {
+            event.preventDefault();
+            interval(100).pipe(takeUntil(this._dragLeave)).subscribe((val) => {
+                this.direction === "right" ? this.horizontalScroll.getHorizontalScroll().scrollLeft += 15 :
+                    this.horizontalScroll.getHorizontalScroll().scrollLeft -= 15;
+            });
+        }
+    }
+
+    @HostListener("pointerover", ["$event"])
+    public onDragOver(event) {
+        if (this.column && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
+            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
+                event.preventDefault();
+            }
+        }
+    }
+
+    @HostListener("pointerleave", ["$event"])
+    public onDragLeave(event) {
+        if (this._dropIndicator && this.cms.columMovingInfo.column !== this.column) {
+            this.renderer.removeClass(this._dropIndicator, this._dropIndicatorClass);
+        }
+
+        if (this.horizontalScroll) {
+            this._dragLeave.next(true);
+        }
+    }
+
+    @HostListener("pointerup", ["$event"])
+    public onDragDrop(event) {
+        event.stopPropagation();
+        this.column.grid.isColumnMoving = false;
+
+        if (this.horizontalScroll) {
+            this._dragLeave.next(true);
+        }
+
+        if (this.column && this.isDropTarget) {
+            this.renderer.removeClass(this._dropIndicator, this._dropIndicatorClass);
+
+            this.column.grid.isColumnMoving = false;
+            this.column.grid.moveColumn(this.cms.columMovingInfo.column, this.column);
+        }
+    }
 }

@@ -436,7 +436,12 @@
 
     %grid__col-moving-image {
         border: 0.2px solid #e41c77;
-        background-color: lightgray;
+        background-color: gainsboro;
+        z-index: 0;
+
+        &:last-of-type {
+            border-right: 0.2px solid #e41c77;
+        }
     }
 
     %grid__drop-indicator-active {

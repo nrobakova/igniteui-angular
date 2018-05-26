@@ -2,7 +2,7 @@
     {{ column.header || column.field }}
 </ng-template>
 
-<span *ngIf="grid.hasMovableColumns" class="igx-grid__th-drop-indicator-left">
+<span *ngIf="grid.hasMovableColumns && !column.fixed" class="igx-grid__th-drop-indicator-left">
 </span>
 
 <span class="igx-grid__th-title">
@@ -31,5 +31,5 @@
 
 </span>
 
-<span *ngIf="grid.hasMovableColumns" class="igx-grid__th-drop-indicator-right">
+<span *ngIf="grid.hasMovableColumns && !column.fixed" class="igx-grid__th-drop-indicator-right">
 </span>

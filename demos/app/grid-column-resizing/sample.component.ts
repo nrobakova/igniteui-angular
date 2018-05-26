@@ -18,16 +18,16 @@ export class GridColumnResizingSampleComponent {
 	public columns: Array<any>;
 	public ngOnInit(): void {
 		this.columns = [
-			{ field: "ID", width: 150, resizable: true, maxWidth: 200, minWidth: 70 },
-			{ field: "CompanyName", width: 150, resizable: true, summary: false },
-			{ field: "ContactName", width: 150, resizable: true, summary: false },
-			{ field: "ContactTitle", width: 150, resizable: true, summary: false},
-			{ field: "Address", width: 150, resizable: true, summary: true },
-			{ field: "City", width: 150, resizable: true, summary: false },
-			{ field: "Region", width: 150, resizable: true, summary: false },
-			{ field: "PostalCode", width: 150, resizable: true, summary: false },
-			{ field: "Phone", width: 150, resizable: true, summary: false },
-			{ field: "Fax", width: 150, resizable: true, summary: false }
+			{ field: "ID", width: 150, resizable: true, maxWidth: 200, minWidth: 70, hidden: false, fixed: false, movable: true },
+			{ field: "CompanyName", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "ContactName", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "ContactTitle", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "Address", width: 150, resizable: true, summary: true, hidden: false, fixed: false, movable: true },
+			{ field: "City", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "Region", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "PostalCode", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "Phone", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true },
+			{ field: "Fax", width: 150, resizable: true, summary: false, hidden: false, fixed: false, movable: true }
 		];
 		this.data = [
 			{ "ID": "ALFKI", "CompanyName": "Alfreds Futterkiste", "ContactName": "Maria Anders", "ContactTitle": "Sales Representative", "Address": "Obere Str. 57", "City": "Berlin", "Region": null, "PostalCode": "12209", "Country": "Germany", "Phone": "030-0074321", "Fax": "030-0076545" },
@@ -63,5 +63,23 @@ export class GridColumnResizingSampleComponent {
 	toggleColumn(name: string) {
 		var col = this.grid1.getColumnByName(name);
 		col.pinned ? col.unpin() : col.pin();
+	}
+
+	test() {
+		if (this.grid1.columnList.some((col) => col.hidden)) {
+			this.grid1.columns.forEach((col) => {
+				if (col.hidden) {
+					col.hidden = false;
+				}
+			});
+		} else {
+			this.grid1.columns.forEach(col => {
+				if (col.field === "ID" || col.field === "City") {
+					col.hidden = true;
+				}
+			});
+		}
+
+		this.grid1.markForCheck();
 	}
 }
