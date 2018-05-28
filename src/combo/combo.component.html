@@ -22,7 +22,7 @@
         <div style="width: 80%">
             <igx-input-group>
 
-                <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
+                <input igxInput #comboInput name="comboInput" (keydown)="onArrowDown($event)" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
                 
                 <igx-suffix igxButton="icon" igxRipple igxRippleCentered="true" (click)="triggerSelectionChange([])">
                     <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
