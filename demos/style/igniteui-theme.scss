@@ -59,3 +59,24 @@ $my-nav-theme: igx-navbar-theme(
 .tabs-demo {
     @include igx-navbar($my-nav-theme);
 }
+
+$my-dd-theme: igx-drop-down-theme(
+    $selected-item-background: igx-color($default-palette, 'primary', 100),
+    $header-text-color: #09f
+);
+
+$my-input-theme: igx-input-group-theme(
+    $idle-bottom-line-color: transparent,
+    $hover-bottom-line-color: #ddd,
+    $filled-bottom-line-color: #09f
+);
+
+
+.combo-sample {
+    @include igx-drop-down($my-dd-theme);
+}
+
+.igx-combo__search {
+    @include igx-input-group($my-input-theme);
+}
+
