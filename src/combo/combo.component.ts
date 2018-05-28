@@ -91,6 +91,14 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         return this.selectionAPI.get_selection(this.parentElement.id) || [];
     }
 
+    navigatePrev() {
+        if (this._focusedItem.index === 0) {
+            this.parentElement.searchInput.nativeElement.focus();
+        } else {
+            this.navigate(MoveDirection.Up);
+        }
+    }
+
     setSelectedItem(itemID: any) {
         if (itemID === undefined || itemID === null) {
             return;
@@ -282,6 +290,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             if (this.filteredData.length === 1) {
                 this.selectAllItems();
             }
+        } else if (evt.key === "ArrowDown") {
+            this.dropdown.element.focus();
         }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
