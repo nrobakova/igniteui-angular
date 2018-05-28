@@ -70,14 +70,18 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     onFocus() {
         this._isFocused = true;
         this._focusedItem = this._focusedItem ? this._focusedItem : this.items[0];
-        this._focusedItem.isFocused = true;
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = true;
+        }
     }
 
     @HostListener("blur")
     onBlur() {
         this._isFocused = false;
-        this._focusedItem.isFocused = false;
-        this._focusedItem = null;
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = false;
+            this._focusedItem = null;
+        }
     }
 
     @ContentChildren(forwardRef(() => IgxComboItemComponent))
@@ -125,8 +129,8 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     onToggleOpening() {
         this.parentElement.searchValue = "";
+        this.parentElement.handleKeyDown({ key: "" });
         this.onOpening.emit();
-        this.parentElement.filteredData = this.parentElement.data;
     }
 
     onToggleOpened() {
@@ -144,6 +148,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
     private _dataType = "";
+    private _displayedData = [];
     private _filteredData = [];
     protected _textKey = "";
     protected _id = "ComboItem_";
@@ -224,6 +229,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public placeholder;
 
     @Input()
+    public defaultFallbackGroup = "Other";
+
+    @Input()
     public valueKey;
 
     @Input()
@@ -270,6 +278,15 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     set searchValue(val: string) {
         this._searchValue = val;
     }
+
+    get displayedData() {
+        return this._displayedData;
+    }
+
+    set displayedData(data: any[]) {
+        this._displayedData = data;
+    }
+
     @Input()
     public filterable;
 
@@ -417,7 +434,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
-        this.filteredData.push(addedItem);
+        this.displayedData = [...this.data];
+        this.parseGroups();
+        this.handleKeyDown({ key: "" });
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
@@ -446,20 +465,33 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public ngAfterViewInit() {
-        this.filteredData = this.data;
+        this.filteredData = [...this.data];
         this.id += currentItem++;
+        this.parseGroups();
+    }
+
+    public parseGroups() {
         if (this.groupKey !== undefined) {
-            const dataWithHeaders = this.data.sort((a, b) => {
-                return a[this.groupKey] > b[this.groupKey] ?
-                    1 :
-                    a[this.groupKey] < b[this.groupKey] ? - 1 : 0;
-            });
+            const dataWithHeaders = [...this.data.sort((a, b) => {
+                return a[this.groupKey] === undefined ? 1 :
+                    b[this.groupKey] === undefined ? -1 :
+                        a[this.groupKey] > b[this.groupKey] ?
+                            1 :
+                            a[this.groupKey] < b[this.groupKey] ? - 1 : 0;
+            })];
             const crawl = [...dataWithHeaders];
             let inserts = 0;
             let currentHeader = null;
             for (let i = 0; i < crawl.length; i++) {
-                if (currentHeader !== crawl[i][this.groupKey]) {
+                let insertFlag = 0;
+                if (!crawl[i][this.groupKey] && currentHeader !== this.defaultFallbackGroup) {
+                    currentHeader = this.defaultFallbackGroup;
+                    insertFlag = 1;
+                } else if (currentHeader !== crawl[i][this.groupKey]) {
                     currentHeader = crawl[i][this.groupKey];
+                    insertFlag = 1;
+                }
+                if (insertFlag) {
                     dataWithHeaders.splice(i + inserts, 0, {
                         [this.valueKey]: currentHeader,
                         [this.groupKey]: currentHeader,
@@ -468,10 +500,11 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
                     inserts++;
                 }
             }
-            this.data = dataWithHeaders;
+            this.displayedData = dataWithHeaders;
+            console.log(this.displayedData);
+            // this.data = dataWithHeaders;
         }
     }
-
     ngOnDestroy() {
 
     }

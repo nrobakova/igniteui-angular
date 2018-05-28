@@ -54,7 +54,7 @@
         <ng-container *ngIf="!dropdown.collapsed">
 
             <div style="position: relative;">
-                <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
+                <ng-template igxFor let-item [igxForOf]="displayedData | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
                     [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>
                         <ng-container *ngIf="!item.isHeader">

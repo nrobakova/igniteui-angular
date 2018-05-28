@@ -179,5 +179,6 @@ export class ComboSampleComponent implements OnInit {
 
     handleAddition(evt) {
         console.log(evt);
+        evt.addedItem[this.igxCombo.groupKey] = "MyCustomGroup";
     }
 }
