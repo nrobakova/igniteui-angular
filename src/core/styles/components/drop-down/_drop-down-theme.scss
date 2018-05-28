@@ -228,6 +228,7 @@
 
         &:hover {
             background: --var($theme, 'selected-item-background');
+            color: --var($theme, 'selected-item-text-color');
         }
 
         &:focus {
