@@ -39,10 +39,10 @@
             <input igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue"
                 (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
-        <div>
+        <!-- <div>
             Select All:
             <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
-        </div>
+        </div> -->
     </ng-container>
     <igx-combo-drop-down #igxComboDropDown [width]="width">
         <ng-container *ngIf="!dropdown.collapsed">

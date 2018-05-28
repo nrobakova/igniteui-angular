@@ -406,11 +406,11 @@ export class IgxDropDownItemNavigationDirective {
         this.target.close();
     }
 
-    @HostListener("keydown.Space", ["$event"])
-    onSpaceKeyDown(event) {
-        this.target.selectItem();
-        event.preventDefault();
-    }
+    // @HostListener("keydown.Space", ["$event"])
+    // onSpaceKeyDown(event) {
+    //     this.target.selectItem();
+    //     event.preventDefault();
+    // }
 
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
@@ -454,6 +454,12 @@ export class IgxDropDownComponent extends IgxDropDownBase {
         protected cdr: ChangeDetectorRef,
         protected selectionAPI: IgxSelectionAPIService) {
         super(elementRef, cdr, selectionAPI);
+    }
+
+    @HostListener("keydown.Space", ["$event"])
+    onSpaceKeyDown(event) {
+        this.selectItem();
+        event.preventDefault();
     }
 }
 @NgModule({

@@ -262,11 +262,11 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        if (evt.key === "Enter") {
-            if (this.filteredData.length === 1) {
-                this.selectAllItems();
-            }
-        }
+        // if (evt.key === "Enter") {
+        //     if (this.filteredData.length === 1) {
+        //         this.selectAllItems();
+        //     }
+        // }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
@@ -296,6 +296,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public isHeaderChecked() {
+        if (!this.selectAllCheckbox) {
+            return;
+        }
         const selectedItems = this.dropdown.selectedItem;
         if (this.filteredData.length > 0 && selectedItems.length > 0) {
             const compareData = this.filteredData;
