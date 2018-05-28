@@ -110,6 +110,11 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.parentElement.searchInput.nativeElement.focus();
         this.onOpened.emit();
     }
+
+    onToggleClosed() {
+        this.parentElement.comboInput.nativeElement.focus();
+        this.onClosed.emit();
+    }
 }
 @Component({
     selector: "igx-combo",
@@ -124,6 +129,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _textKey = "";
     protected _id = "ComboItem_";
     private _searchInput: ElementRef;
+    private _comboInput: ElementRef;
     public dropdownVisible = false;
     public id = "";
 
@@ -151,6 +157,15 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     @ViewChild("searchInput")
     set searchInput(content: ElementRef) {
         this._searchInput = content;
+    }
+
+    get comboInput() {
+        return this._comboInput;
+    }
+
+    @ViewChild("comboInput")
+    set comboInput(content: ElementRef) {
+        this._comboInput = content;
     }
 
     @ViewChild("primitive", { read: TemplateRef })
@@ -271,6 +286,20 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
             this.isHeaderChecked();
+        }
+    }
+
+    @HostListener("keydown.Alt.ArrowDown", ["$event"])
+    onArrowDown(evt) {
+        if (evt.altKey && evt.key === "ArrowDown" && this.dropdown.collapsed) {
+            this.dropdown.toggle();
+        }
+    }
+
+    @HostListener("keydown.Alt.ArrowUp", ["$event"])
+    onArrowUp(evt) {
+        if (evt.altKey && evt.key === "ArrowUp" && !this.dropdown.collapsed) {
+            this.dropdown.toggle();
         }
     }
 

@@ -264,8 +264,8 @@ fdescribe("Combo", () => {
             expect(combo.triggerSelectionChange).toHaveBeenCalledWith(selectionService.get_all_ids(combo.filteredData));
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(1);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(1);
-            expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
-            expect(combo.selectAllCheckbox.checked).toEqual(true);
+            // expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
+            // expect(combo.selectAllCheckbox.checked).toEqual(true);
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(1);
 
             combo.handleSelectAll({ checked: false });
@@ -276,8 +276,8 @@ fdescribe("Combo", () => {
             expect(combo.triggerSelectionChange).toHaveBeenCalledWith([]);
             expect(combo.triggerSelectionChange).toHaveBeenCalledTimes(2);
             expect(combo.isHeaderChecked).toHaveBeenCalledTimes(2);
-            expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
-            expect(combo.selectAllCheckbox.checked).toEqual(false);
+            // expect(combo.selectAllCheckbox.indeterminate).toEqual(false);
+            // expect(combo.selectAllCheckbox.checked).toEqual(false);
             expect(combo.onSelection.emit).toHaveBeenCalledTimes(2);
         });
     }));
