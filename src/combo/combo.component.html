@@ -21,7 +21,9 @@
     <div style="display: flex; flex-direction: row; align-items: flex-end; align-content: space-between;">
         <div style="width: 80%">
             <igx-input-group>
-                <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" readonly/>
+
+                <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
+                
                 <igx-suffix igxButton="icon" igxRipple igxRippleCentered="true" (click)="triggerSelectionChange([])">
                     <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
                 </igx-suffix>
@@ -36,15 +38,15 @@
     </div>
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group>
-            <input igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue"
+            <input igxInput #searchInput name="searchInput" type="text" tabindex="1" [(ngModel)]="searchValue"
                 (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
-        <div>
+        <!-- <div>
             Select All:
             <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
-        </div>
+        </div> -->
     </ng-container>
-    <igx-combo-drop-down #igxComboDropDown [width]="width">
+    <igx-combo-drop-down #igxComboDropDown [igxDropDownItemNavigation]="dropdown" [width]="width" tabindex="2">
         <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>

@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
     AfterViewInit, ChangeDetectorRef, Component, ContentChild,
     ContentChildren, ElementRef, EventEmitter, forwardRef,
-    HostBinding, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
+    HostBinding, HostListener, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
@@ -55,6 +55,7 @@ let currentItem = 0;
     templateUrl: "../drop-down/drop-down.component.html"
 })
 export class IgxComboDropDownComponent extends IgxDropDownBase {
+    private _isFocused = false;
     constructor(
         protected elementRef: ElementRef,
         protected cdr: ChangeDetectorRef,
@@ -63,6 +64,20 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         public parentElement: IgxComboComponent) {
         super(elementRef, cdr, selectionAPI);
         this.allowItemsFocus = false;
+    }
+
+    @HostListener("focus")
+    onFocus() {
+        this._isFocused = true;
+        this._focusedItem = this._focusedItem ? this._focusedItem : this.items[0];
+        this._focusedItem.isFocused = true;
+    }
+
+    @HostListener("blur")
+    onBlur() {
+        this._isFocused = false;
+        this._focusedItem.isFocused = false;
+        this._focusedItem = null;
     }
 
     @ContentChildren(forwardRef(() => IgxComboItemComponent))
@@ -103,6 +118,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     onToggleOpening() {
         this.parentElement.searchValue = "";
         this.onOpening.emit();
+        this.parentElement.filteredData = this.parentElement.data;
     }
 
     onToggleOpened() {
@@ -296,6 +312,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public isHeaderChecked() {
+        if (!this.selectAllCheckbox) {
+            return false;
+        }
         const selectedItems = this.dropdown.selectedItem;
         if (this.filteredData.length > 0 && selectedItems.length > 0) {
             const compareData = this.filteredData;
@@ -356,9 +375,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             this.value = this._dataType !== DataTypes.PRIMITIVE ?
                 newSelection.map((e) => e[this.textKey]).join(", ") :
                 newSelection.join(", ");
-            if (this.selectAllCheckbox) {
-                this.isHeaderChecked();
-            }
+            this.isHeaderChecked();
         }
     }
 
