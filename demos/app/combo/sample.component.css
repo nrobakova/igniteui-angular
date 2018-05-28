@@ -1,15 +1,5 @@
-.small-red-circle {
-    background-color: #ff2344;
-    margin: 2% 5px 2% 0;
-    width: 2.5%;
-    height: 0.5rem;
-    border-radius: 50%;
-    vertical-align: middle;
-    display: inline-block;
-    /* float: left; */
-}
-
-.footer-class, .header-class {
+.footer-class,
+.header-class {
     color: #131313;
     background-color: #d3d3d3;
     cursor: not-allowed;
@@ -17,21 +7,30 @@
     font-weight: 400;
 }
 
-.state-card--simple > div {
-    width: 50%;
-    height: 100%;
-    display: inline-block;
-}
-
 .state-card--simple {
-    float: left;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
 }
+
+.state-card--simple > * {
+    flex: 1 1 auto;
+}
+
 
 .display-value--main {
     font-weight: 600;
 }
+
 .display-value--sub {
     font-weight: 400;
-    color: #272727;
+    align-self: flex-end;
+    font-size: 14px;
+    text-align: right;
+    padding-right: 20px;
+}
+
+.igx-drop-down__item .igx-checkbox {
+    margin-right: 8px;
 }
