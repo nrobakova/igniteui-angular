@@ -19,7 +19,7 @@
 
 <div class="igx-grid__thead" role="rowgroup" [style.width.px]='calcWidth' #theadRow>
     <div class="igx-grid__tr" role="row">
-        <span *ngIf="hasMovableColumns" [igxDroppable]="parentVirtDir" [direction]="'left'" class="igx-grid__scroll-on-drag-left"></span>
+        <span *ngIf="hasMovableColumns && isColumnMoving" [igxDroppable]="parentVirtDir" id="left" class="igx-grid__scroll-on-drag-left"></span>
         <ng-container *ngIf="rowSelectable">
             <div class="igx-grid__cbx-selection" #headerCheckboxContainer>
                 <igx-checkbox [checked]="allRowsSelected" (change)="onHeaderCheckboxClick($event)" disableRipple="true" [aria-label]="headerCheckboxAriaLabel" #headerCheckbox></igx-checkbox>
@@ -32,12 +32,12 @@
             [igxForContainerSize]='unpinnedWidth' #headerContainer>
             <igx-grid-header [igxMovable]="col" [igxDroppable]="col" [gridID]="id" [column]="col" [style.min-width.px]="col.width" [style.flex-basis.px]='col.width'></igx-grid-header>
         </ng-template>
-        <span *ngIf="hasMovableColumns" [igxDroppable]="parentVirtDir" [direction]="'right'" class="igx-grid__scroll-on-drag-right"></span>
+        <span *ngIf="hasMovableColumns && isColumnMoving" [igxDroppable]="parentVirtDir" id="right" class="igx-grid__scroll-on-drag-right"></span>
     </div>
 </div>
 
 <div class="igx-grid__tbody" role="rowgroup" [style.height.px]='calcHeight' [style.width.px]='calcWidth' #tbody>
-    <span *ngIf="hasMovableColumns" [igxDroppable]="parentVirtDir" [direction]="'left'" class="igx-grid__scroll-on-drag-left"></span>
+    <span *ngIf="hasMovableColumns && isColumnMoving" [igxDroppable]="parentVirtDir" id="left" class="igx-grid__scroll-on-drag-left"></span>
     <ng-template igxFor let-rowData [igxForOf]="data | gridFiltering:filteringExpressions:filteringLogic:id:pipeTrigger
         | gridSort:sortingExpressions:id:pipeTrigger
         | gridPaging:page:perPage:id:pipeTrigger" let-rowIndex="index" [igxForScrollOrientation]="'vertical'"
@@ -49,7 +49,7 @@
         <ng-container *ngTemplateOutlet="template">
         </ng-container>
     </ng-container>
-    <span *ngIf="hasMovableColumns" [igxDroppable]="parentVirtDir" [direction]="'right'" class="igx-grid__scroll-on-drag-right"></span>
+    <span *ngIf="hasMovableColumns && isColumnMoving" [igxDroppable]="parentVirtDir" id="right" class="igx-grid__scroll-on-drag-right"></span>
 </div>
 
 

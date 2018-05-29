@@ -12,22 +12,22 @@ import { IgxGridComponent } from "../../lib/grid/grid.component";
 	templateUrl: "sample.component.html"
 })
 
-export class GridColumnResizingSampleComponent {
+export class GridColumnMovingSampleComponent {
 	@ViewChild("grid1") public grid1: IgxGridComponent;
 	public data: Array<any>;
 	public columns: Array<any>;
 	public ngOnInit(): void {
 		this.columns = [
-			{ field: "ID", width: 100, resizable: true, maxWidth: 200, minWidth: 70 },
-			{ field: "CompanyName", width: 300, resizable: true },
-			{ field: "ContactName", width: 200, resizable: true },
-			{ field: "ContactTitle", width: 200, resizable: true},
-			{ field: "Address", width: 300, resizable: true },
-			{ field: "City", width: 100, resizable: true },
-			{ field: "Region", width: 100, resizable: true },
-			{ field: "PostalCode", width: 100, resizable: true },
-			{ field: "Phone", width: 150, resizable: true },
-			{ field: "Fax", width: 150, resizable: true }
+			{ field: "ID", width: 150, resizable: true, maxWidth: 200, minWidth: 70, hidden: false, movable: false },
+			{ field: "CompanyName", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "ContactName", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "ContactTitle", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "Address", width: 150, resizable: true, summary: true, hidden: false, movable: true },
+			{ field: "City", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "Region", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "PostalCode", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "Phone", width: 150, resizable: true, summary: false, hidden: false, movable: true },
+			{ field: "Fax", width: 150, resizable: true, summary: false, hidden: false, movable: true }
 		];
 		this.data = [
 			{ "ID": "ALFKI", "CompanyName": "Alfreds Futterkiste", "ContactName": "Maria Anders", "ContactTitle": "Sales Representative", "Address": "Obere Str. 57", "City": "Berlin", "Region": null, "PostalCode": "12209", "Country": "Germany", "Phone": "030-0074321", "Fax": "030-0076545" },
@@ -63,5 +63,21 @@ export class GridColumnResizingSampleComponent {
 	toggleColumn(name: string) {
 		var col = this.grid1.getColumnByName(name);
 		col.pinned ? col.unpin() : col.pin();
+	}
+
+	onColumnMovingStart(event) {
+
+	}
+
+	onColumnMoving(event) {
+		if (event.target.field === "ID") {
+			event.cancel = true;
+		}
+	}
+
+	onColumnMovingEnd(event) {
+		if (event.target.field === "Fax") {
+			event.cancel = true;
+		}
 	}
 }

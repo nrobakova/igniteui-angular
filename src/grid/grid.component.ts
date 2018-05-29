@@ -43,7 +43,6 @@ import { IgxColumnComponent } from "./column.component";
 import { ISummaryExpression } from "./grid-summary";
 import { IgxGridRowComponent } from "./row.component";
 import { IgxGridHeaderComponent } from "./grid-header.component";
-import { IgxColumnMovingService } from "./column-moving.service";
 
 let NEXT_ID = 0;
 const DEBOUNCE_TIME = 16;
@@ -89,8 +88,20 @@ export interface IRowSelectionEventArgs {
     event?: Event;
 }
 
+export interface IColumnMovingStartEventArgs {
+    source: IgxColumnComponent;
+}
+
 export interface IColumnMovingEventArgs {
-    column: IgxColumnComponent;
+    source: IgxColumnComponent;
+    target: IgxColumnComponent;
+    cancel: boolean;
+}
+
+export interface IColumnMovingEndEventArgs {
+    source: IgxColumnComponent;
+    target: IgxColumnComponent;
+    cancel: boolean;
 }
 
 /**
@@ -305,6 +316,15 @@ export class IgxGridComponent implements OnInit, OnDestroy, AfterContentInit, Af
 
     @Output()
     public onContextMenu = new EventEmitter<IGridCellEventArgs>();
+
+    @Output()
+    public onColumnMovingStart = new EventEmitter<IColumnMovingStartEventArgs>();
+
+    @Output()
+    public onColumnMoving = new EventEmitter<IColumnMovingEventArgs>();
+
+    @Output()
+    public onColumnMovingEnd = new EventEmitter<IColumnMovingEndEventArgs>();
 
     @ContentChildren(IgxColumnComponent, { read: IgxColumnComponent })
     public columnList: QueryList<IgxColumnComponent>;

@@ -21,6 +21,7 @@ import { DialogSampleModule } from "./dialog/sample.module";
 import { MaskSampleModule } from "./directives/mask/sample.module";
 import { GridColumnPinningSampleModule } from "./grid-column-pinning/sample.module";
 import { GridColumnResizingSampleModule } from "./grid-column-resizing/sample.module";
+import { GridColumnMovingSampleModule } from "./grid-column-moving/sample.module";
 import { GridPerformanceSampleModule } from "./grid-performance/sample.module";
 import { GridSummarySampleModule } from "./grid-summaries/sample.module";
 import { GridSelectionModule } from "./grid-selection/sample.module";
@@ -82,6 +83,7 @@ import { VirtualForSampleModule } from "./virtual-for-directive/sample.module";
         GridSampleModule,
         GridColumnPinningSampleModule,
         GridColumnResizingSampleModule,
+        GridColumnMovingSampleModule,
         GridPerformanceSampleModule,
         GridSummarySampleModule,
         GridVirtualizationSampleModule,

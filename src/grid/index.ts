@@ -23,6 +23,7 @@ import {
     IgxCellFooterTemplateDirective,
     IgxCellHeaderTemplateDirective,
     IgxColumnMovingDirective,
+    IgxColumnMovingService,
     IgxCellTemplateDirective,
     IgxColumnResizerDirective,
     IgxDroppableDirective,
@@ -32,7 +33,6 @@ import {
 import { IgxGridComponent } from "./grid.component";
 import { IgxGridFilterConditionPipe, IgxGridFilteringPipe, IgxGridPagingPipe, IgxGridSortingPipe } from "./grid.pipes";
 import { IgxGridRowComponent } from "./row.component";
-import { IgxColumnMovingService } from "./column-moving.service";
 
 @NgModule({
   declarations: [
