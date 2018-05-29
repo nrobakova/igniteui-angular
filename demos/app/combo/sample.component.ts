@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { IgxComboComponent } from "../../lib/main";
 
 const primitive = ["1", "2", "3", "4", "5", "6"];
@@ -23,6 +23,7 @@ const complex = [{
 }];
 @Component({
     // tslint:disable-next-line:component-selector
+    encapsulation: ViewEncapsulation.None,
     selector: "combo-sample",
     templateUrl: "./sample.component.html",
     styleUrls: ["sample.component.css"]
@@ -179,5 +180,6 @@ export class ComboSampleComponent implements OnInit {
 
     handleAddition(evt) {
         console.log(evt);
+        evt.addedItem[this.igxCombo.groupKey] = "MyCustomGroup";
     }
 }

@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
     AfterViewInit, ChangeDetectorRef, Component, ContentChild,
     ContentChildren, ElementRef, EventEmitter, forwardRef,
-    HostBinding, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
+    HostBinding, HostListener, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { take } from "rxjs/operators";
@@ -12,6 +12,7 @@ import { IgxSelectionAPIService } from "../core/selection";
 import { cloneArray } from "../core/utils";
 import { BOOLEAN_FILTERS, STRING_FILTERS } from "../data-operations/filtering-condition";
 import { FilteringLogic, IFilteringExpression } from "../data-operations/filtering-expression.interface";
+import { ISortingExpression, SortingDirection } from "../data-operations/sorting-expression.interface";
 import { IgxForOfDirective, IgxForOfModule } from "../directives/for-of/for_of.directive";
 import { IForOfState } from "../directives/for-of/IForOfState";
 import { IgxRippleModule } from "../directives/ripple/ripple.directive";
@@ -21,7 +22,7 @@ import { IgxDropDownBase, IgxDropDownComponent, IgxDropDownModule, MoveDirection
 import { IgxIconModule } from "../icon/index";
 import { IgxInputGroupModule } from "../input-group/input-group.component";
 import { IgxComboItemComponent } from "./combo-item.component";
-import { IgxComboFilterConditionPipe, IgxComboFilteringPipe } from "./combo.pipes";
+import { IgxComboFilterConditionPipe, IgxComboFilteringPipe, IgxComboGroupingPipe, IgxComboSortingPipe } from "./combo.pipes";
 
 export enum DataTypes {
     EMPTY = "empty",
@@ -56,6 +57,7 @@ let currentItem = 0;
     templateUrl: "../drop-down/drop-down.component.html"
 })
 export class IgxComboDropDownComponent extends IgxDropDownBase {
+    private _isFocused = false;
     constructor(
         protected elementRef: ElementRef,
         protected cdr: ChangeDetectorRef,
@@ -76,8 +78,34 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         return this._focusedItem;
     }
 
+    @HostListener("focus")
+    onFocus() {
+        this._isFocused = true;
+        this._focusedItem = this._focusedItem ? this._focusedItem : this.items[0];
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = true;
+        }
+    }
+
+    @HostListener("blur")
+    onBlur() {
+        this._isFocused = false;
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = false;
+            this._focusedItem = null;
+        }
+    }
+
     public get selectedItem(): any[] {
         return this.selectionAPI.get_selection(this.parentElement.id) || [];
+    }
+
+    navigatePrev() {
+        if (this._focusedItem.index === 0) {
+            this.parentElement.searchInput.nativeElement.focus();
+        } else {
+            this.navigate(MoveDirection.Up);
+        }
     }
 
     setSelectedItem(itemID: any) {
@@ -139,6 +167,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     onToggleOpening() {
         this.parentElement.searchValue = "";
+        this.parentElement.handleKeyDown({ key: "" });
         this.onOpening.emit();
     }
 
@@ -154,14 +183,13 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 })
 export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _filteringLogic = FilteringLogic.Or;
-    protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
+    protected _sortingExpressions = [];
+    protected _groupKey: string | number;
     private _dataType = "";
     private _filteredData = [];
     protected _textKey = "";
-    protected _id = "ComboItem_";
     private _searchInput: ElementRef;
-    public dropdownVisible = false;
     public id = "";
 
     get caller() {
@@ -231,10 +259,21 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public listItemHeight = 30;
 
     @Input()
-    public groupKey;
+    public set groupKey(val: string | number) {
+        this.clearSorting(this._groupKey);
+        this._groupKey = val;
+        this.sort(this._groupKey);
+    }
+
+    public get groupKey(): string | number {
+        return this._groupKey;
+    }
 
     @Input()
     public placeholder;
+
+    @Input()
+    public defaultFallbackGroup = "Other";
 
     @Input()
     public valueKey;
@@ -255,17 +294,40 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     @Input()
-    get filteringExpressions() {
+    public filterable;
+
+    @Output()
+    public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
+
+    public get filteringExpressions() {
         return this._filteringExpressions;
     }
 
-    set filteringExpressions(value) {
+    public set filteringExpressions(value) {
         this._filteringExpressions = cloneArray(value);
         this.cdr.markForCheck();
     }
 
-    get pipeTrigger(): number {
-        return this._pipeTrigger;
+    public get sortingExpressions() {
+        return this._sortingExpressions;
+    }
+
+    public set sortingExpressions(value) {
+        this._sortingExpressions = cloneArray(value);
+        this.cdr.markForCheck();
+    }
+
+    protected clearSorting(field?: string | number) {
+        if (field === undefined || field === null) {
+            this.sortingExpressions = [];
+            return;
+        }
+        const currentState = cloneArray(this.sortingExpressions);
+        const index = currentState.findIndex((expr) => expr.fieldName === field);
+        if (index > -1) {
+            currentState.splice(index, 1);
+            this.sortingExpressions = currentState;
+        }
     }
 
     get value(): string {
@@ -283,11 +345,6 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     set searchValue(val: string) {
         this._searchValue = val;
     }
-    @Input()
-    public filterable;
-
-    @Output()
-    public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
     /* */
 
     public get filteredData(): any[] {
@@ -303,11 +360,39 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             if (this.filteredData.length === 1) {
                 this.selectAllItems();
             }
+        } else if (evt.key === "ArrowDown") {
+            this.dropdown.element.focus();
         }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
             this.isHeaderChecked();
+        }
+    }
+
+    public sort(fieldName: string | number, dir: SortingDirection = SortingDirection.Asc, ignoreCase: boolean = true): void {
+        if (!fieldName && fieldName !== 0) {
+            return;
+        }
+        const sortingState = cloneArray(this.sortingExpressions, true);
+
+        this.prepare_sorting_expression(sortingState, fieldName, dir, ignoreCase);
+        this.sortingExpressions = sortingState;
+    }
+
+    protected prepare_sorting_expression(state, fieldName, dir, ignoreCase) {
+
+        if (dir === SortingDirection.None) {
+            state.splice(state.findIndex((expr) => expr.fieldName === fieldName), 1);
+            return;
+        }
+
+        const expression = state.find((expr) => expr.fieldName === fieldName);
+
+        if (!expression) {
+            state.push({ fieldName, dir, ignoreCase });
+        } else {
+            Object.assign(expression, { fieldName, dir, ignoreCase });
         }
     }
 
@@ -333,6 +418,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public isHeaderChecked() {
+        if (!this.selectAllCheckbox) {
+            return false;
+        }
         const selectedItems = this.dropdown.selectedItem;
         if (this.filteredData.length > 0 && selectedItems.length > 0) {
             const compareData = this.filteredData;
@@ -393,9 +481,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             this.value = this._dataType !== DataTypes.PRIMITIVE ?
                 newSelection.map((e) => e[this.textKey]).join(", ") :
                 newSelection.join(", ");
-            if (this.selectAllCheckbox) {
-                this.isHeaderChecked();
-            }
+            this.isHeaderChecked();
         }
     }
 
@@ -427,7 +513,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
-        this.filteredData.push(addedItem);
+        this.handleKeyDown({ key: "" });
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
@@ -456,30 +542,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public ngAfterViewInit() {
-        this.filteredData = this.data;
+        this.filteredData = [...this.data];
         this.id += currentItem++;
-        if (this.groupKey !== undefined) {
-            const dataWithHeaders = this.data.sort((a, b) => {
-                return a[this.groupKey] > b[this.groupKey] ?
-                    1 :
-                    a[this.groupKey] < b[this.groupKey] ? - 1 : 0;
-            });
-            const crawl = [...dataWithHeaders];
-            let inserts = 0;
-            let currentHeader = null;
-            for (let i = 0; i < crawl.length; i++) {
-                if (currentHeader !== crawl[i][this.groupKey]) {
-                    currentHeader = crawl[i][this.groupKey];
-                    dataWithHeaders.splice(i + inserts, 0, {
-                        [this.valueKey]: currentHeader,
-                        [this.groupKey]: currentHeader,
-                        isHeader: true
-                    });
-                    inserts++;
-                }
-            }
-            this.data = dataWithHeaders;
-        }
     }
 
     ngOnDestroy() {
@@ -508,7 +572,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
 }
 
 @NgModule({
-    declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboFilteringPipe, IgxComboDropDownComponent],
+    declarations: [IgxComboComponent, IgxComboItemComponent, IgxComboFilterConditionPipe, IgxComboGroupingPipe,
+        IgxComboFilteringPipe, IgxComboSortingPipe, IgxComboDropDownComponent],
     exports: [IgxComboComponent, IgxComboItemComponent, IgxComboDropDownComponent],
     imports: [IgxRippleModule, CommonModule, IgxInputGroupModule, FormsModule, IgxForOfModule, IgxToggleModule,
         IgxCheckboxModule, IgxDropDownModule, IgxIconModule],
