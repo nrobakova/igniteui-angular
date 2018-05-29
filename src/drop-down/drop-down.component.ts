@@ -259,7 +259,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
             index = currentIndex ? currentIndex : this._focusedItem.index;
         }
         const newIndex = this.getNearestSiblingFocusableItemIndex(index, direction);
-        this.changeFocusedItem(newIndex);
+        this.focusItem(newIndex, index);
     }
 
     navigateFirst() {
@@ -297,7 +297,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         } else if (this.allowItemsFocus) {
             const firstItemIndex = this.getNearestSiblingFocusableItemIndex(-1, MoveDirection.Down);
             if (firstItemIndex !== -1) {
-                this.changeFocusedItem(firstItemIndex);
+                this.focusItem(firstItemIndex);
             }
         }
         this.onOpened.emit();
@@ -318,6 +318,18 @@ export class IgxDropDownBase implements IToggleView, OnInit {
     protected scrollToItem(item: IgxDropDownItemComponent | IgxComboItemComponent) {
         const itemPosition = this.calculateScrollPosition(item);
         this.toggleDirective.element.scrollTop = (itemPosition);
+    }
+
+    public scrollToHiddenItem(newItem: IgxDropDownItemComponent | IgxComboItemComponent) {
+        const elementRect = newItem.element.nativeElement.getBoundingClientRect();
+        const parentRect = this.toggleDirective.element.getBoundingClientRect();
+        if (parentRect.top > elementRect.top) {
+            this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
+        }
+
+        if (parentRect.bottom < elementRect.bottom) {
+            this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
+        }
     }
 
     public selectItem(item?) {
@@ -359,25 +371,15 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
     }
 
-    public changeFocusedItem(newIndex: number) {
+    public focusItem(newIndex: number, currentIndex?: number) {
         if (newIndex !== -1) {
             const oldItem = this._focusedItem;
             const newItem = this.items[newIndex];
             if (oldItem) {
                 oldItem.isFocused = false;
             }
-
             this._focusedItem = newItem;
-            const elementRect = this._focusedItem.element.nativeElement.getBoundingClientRect();
-            const parentRect = this.toggleDirective.element.getBoundingClientRect();
-            if (parentRect.top > elementRect.top) {
-                this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
-            }
-
-            if (parentRect.bottom < elementRect.bottom) {
-                this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
-            }
-
+            this.scrollToHiddenItem(newItem);
             this._focusedItem.isFocused = true;
         }
     }

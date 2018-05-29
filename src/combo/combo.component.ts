@@ -5,6 +5,7 @@ import {
     HostBinding, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { take } from "rxjs/operators";
 import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
 import { IToggleView } from "../core/navigation";
 import { IgxSelectionAPIService } from "../core/selection";
@@ -65,6 +66,9 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.allowItemsFocus = false;
     }
 
+    @ContentChild(forwardRef(() => IgxForOfDirective), { read: IgxForOfDirective })
+    public verticalScrollContainer: IgxForOfDirective<any>;
+
     @ContentChildren(forwardRef(() => IgxComboItemComponent))
     protected children: QueryList<IgxDropDownItemBase>;
 
@@ -93,11 +97,44 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     selectItem(item?: IgxComboItemComponent) {
         this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
+        if (item) {
+            this._focusedItem = item;
+        }
     }
 
-    changeFocusedItem(newIndex: number) {
-        // To implement for combo virtual items
-        super.changeFocusedItem(newIndex);
+    focusItem(newIndex: number, currentIndex?: number) {
+        if (newIndex !== -1) {
+            super.focusItem(newIndex);
+        } else {
+            this.focusVirtualItem(currentIndex);
+        }
+    }
+
+    private focusVirtualItem(index: number) {
+        const vContainer = this.verticalScrollContainer;
+        let scrollDelta = this.parentElement.listItemHeight;
+        if (index === 0) {
+            scrollDelta = scrollDelta * -1;
+        }
+        vContainer.addScrollTop(scrollDelta);
+        this.subscribeNext(vContainer, () => {
+            const oldItem = this._focusedItem;
+            index = index === this.items.length ? index - 1 : index;
+            const newItem = this.items[index];
+            if (oldItem) {
+                oldItem.isFocused = false;
+            }
+            newItem.isFocused = true;
+            this._focusedItem = newItem;
+        });
+    }
+
+    private subscribeNext(virtualContainer: any, callback: (elem?) => void) {
+        virtualContainer.onChunkLoad.pipe(take(1)).subscribe({
+            next: (e: any) => {
+                callback(e);
+            }
+        });
     }
 
     onToggleOpening() {
