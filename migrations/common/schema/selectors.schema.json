@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "definitions": {
-        "ChangeType": {
+        "ElementType": {
             "enum": [
                 "component",
                 "directive"
@@ -23,7 +23,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/ChangeType",
+                    "$ref": "#/definitions/ElementType",
                     "description": "Type of selector the change applies to - either component or directive"
                 }
             },

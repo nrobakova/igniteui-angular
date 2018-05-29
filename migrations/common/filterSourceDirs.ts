@@ -29,8 +29,9 @@ function getProjectPaths(config /*: CliConfig*/): string[] {
     return sourceDirs;
 }
 
-// tslint:disable:arrow-parens
+/** Filter tree to project source dirs */
 export function filterSourceDirs(host: Tree, context: SchematicContext): Rule {
+    // tslint:disable:arrow-parens
     let config /*: CliConfig*/; // requires @schematics/angular
     const configPath = configPaths.find(x => host.exists(x));
     let sourcePaths: string[];

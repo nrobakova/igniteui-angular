@@ -11,7 +11,7 @@ import {
   SchematicsException,
   Tree
 } from "@angular-devkit/schematics";
-import { filterSourceDirs } from "../common/FilterSourceDirs";
+import { filterSourceDirs } from "../common/filterSourceDirs";
 import { UpdateChanges } from "../common/UpdateChanges";
 
 export default function(): Rule {

@@ -3,11 +3,13 @@ import { FileEntry, SchematicContext, Tree } from "@angular-devkit/schematics";
 
 import * as fs from "fs";
 import * as path from "path";
-import { SelectorChange, SelectorChanges } from "./selectors-schema";
+import { ClassChanges, OutputChanges, SelectorChange, SelectorChanges } from "./schema";
 
 // tslint:disable:arrow-parens
 export class UpdateChanges {
-    private selectorChanges: SelectorChanges;
+    protected classChanges: ClassChanges;
+    protected outputChanges: OutputChanges;
+    protected selectorChanges: SelectorChanges;
 
     private _templateFiles: FileEntry[] = [];
     public get templateFiles(): FileEntry[] {
@@ -22,21 +24,54 @@ export class UpdateChanges {
         return this._templateFiles;
     }
 
+    private _tsFiles: FileEntry[] = [];
+    public get tsFiles(): FileEntry[] {
+        if (!this._tsFiles.length) {
+            this.host.visit((fulPath, entry) => {
+                if (fulPath.endsWith(".ts")) {
+                    this._tsFiles.push(entry);
+                }
+            });
+        }
+        return this._tsFiles;
+    }
+
     /**
      * Create a new base schematic to apply changes
      * @param rootPath Root folder for the schematic to read configs, pass __dirname
      */
-    constructor(private rootPath: string, private host: Tree, private context: SchematicContext) {
-        this.selectorChanges = JSON.parse(
-            fs.readFileSync(path.join(this.rootPath, "changes", "selectors.json"), "utf-8")
-        );
+    constructor(private rootPath: string, private host: Tree, private context?: SchematicContext) {
+        const selectorJson = path.join(this.rootPath, "changes", "selectors.json");
+        if (fs.existsSync(selectorJson)) {
+            this.selectorChanges = JSON.parse(fs.readFileSync(selectorJson, "utf-8"));
+        }
+        const classJson = path.join(this.rootPath, "changes", "classes.json");
+        if (fs.existsSync(classJson)) {
+            this.classChanges = JSON.parse(fs.readFileSync(classJson, "utf-8"));
+        }
+        const outputsJson = path.join(this.rootPath, "changes", "outputs.json");
+        if (fs.existsSync(outputsJson)) {
+            this.outputChanges = JSON.parse(fs.readFileSync(outputsJson, "utf-8"));
+        }
     }
 
     /** Apply configured changes to the Host Tree */
     public applyChanges() {
-        if (this.selectorChanges.changes.length) {
+        if (this.selectorChanges && this.selectorChanges.changes.length) {
             for (const entry of this.templateFiles) {
                 this.updateSelectors(entry);
+            }
+        }
+        if (this.outputChanges && this.outputChanges.changes.length) {
+            for (const entry of this.templateFiles) {
+                this.updateOutputs(entry);
+            }
+        }
+
+        /** TS files */
+        if (this.classChanges && this.classChanges.changes.length) {
+            for (const entry of this.tsFiles) {
+                this.updateClasses(entry);
             }
         }
     }
@@ -63,7 +98,7 @@ export class UpdateChanges {
         switch (change.type) {
             case "component":
                 if (change.remove) {
-                    regSource = String.raw`\<${change.selector}[\s\S]*\<\/${change.selector}\>`;
+                    regSource = String.raw`\<${change.selector}[\s\S]*?\<\/${change.selector}\>`;
                     replace = "";
                 } else {
                     regSource = String.raw`\<(\/?)${change.selector}`;
@@ -72,7 +107,7 @@ export class UpdateChanges {
                 break;
             case "directive":
                 if (change.remove) {
-                    regSource = String.raw`\s*?\[?${change.selector}\]?=(["']).*?\1(?=\s|\>)`;
+                    regSource = String.raw`\s*?\[?${change.selector}\]?(=(["']).*?\2(?=\s|\>))?`;
                     replace = "";
                 } else {
                     regSource = change.selector;
@@ -84,5 +119,58 @@ export class UpdateChanges {
         }
         fileContent = fileContent.replace(new RegExp(regSource, "g"), replace);
         return fileContent;
+    }
+
+    /** Basic string replace for now */
+    protected updateClasses(entry: FileEntry) {
+        let fileContent = entry.content.toString();
+        let overwrite = false;
+        for (const change of this.classChanges.changes) {
+            if (fileContent.indexOf(change.name) !== -1) {
+                fileContent = fileContent.replace(change.name, change.replaceWith);
+                overwrite = true;
+            }
+        }
+        if (overwrite) {
+            this.host.overwrite(entry.path, fileContent);
+        }
+    }
+
+    protected updateOutputs(entry: FileEntry) {
+        let fileContent = entry.content.toString();
+        let overwrite = false;
+        for (const change of this.outputChanges.changes) {
+            if (fileContent.indexOf(change.owner.selector) !== -1 && fileContent.indexOf(change.name) !== -1) {
+                let reg = new RegExp(String.raw`\(${change.name}\)`, "g");
+                let replace = `(${change.replaceWith})`;
+                let searchPattern;
+
+                if (change.remove) {
+                    reg = new RegExp(String.raw`\s*\(${change.name}\)=(["']).*?\1(?=\s|\>)`, "g");
+                    replace = "";
+                }
+                switch (change.owner.type) {
+                case "component":
+                    searchPattern = String.raw`\<${change.owner.selector}[^\>]*\>`;
+                    break;
+                case "directive":
+                    searchPattern = String.raw`\<[^\>]*[\s\[]${change.owner.selector}[^\>]*\>`;
+                    break;
+                }
+
+                const matches = fileContent.match(new RegExp(searchPattern, "g"));
+
+                for (const match of matches) {
+                    fileContent = fileContent.replace(
+                        match,
+                        match.replace(reg, replace)
+                    );
+                }
+                overwrite = true;
+            }
+        }
+        if (overwrite) {
+            this.host.overwrite(entry.path, fileContent);
+        }
     }
 }
