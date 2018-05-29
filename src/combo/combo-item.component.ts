@@ -25,9 +25,6 @@ export class IgxComboItemComponent extends IgxDropDownItemBase {
     public itemData;
 
     public get itemID() {
-        // A row in the grid is identified either by:
-        // primaryKey data value,
-        // or if the primaryKey is omitted, then the whole rowData is used instead.
         return this.itemData;
     }
 

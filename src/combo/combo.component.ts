@@ -113,19 +113,8 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         }
     }
 
-    setSelectedItem(itemID: any) {
-        if (itemID === undefined || itemID === null) {
-            return;
-        }
-        const newItem = this.items.find((item) => item.itemID === itemID);
-        if (newItem.isDisabled || newItem.isHeader) {
-            return;
-        }
-        if (!newItem.isSelected) {
-            this.parentElement.changeSelectedItem(itemID, true);
-        } else {
-            this.parentElement.changeSelectedItem(itemID, false);
-        }
+    setSelectedItem(itemID: any, select = true) {
+        this.parentElement.setSelectedItem(itemID, select);
     }
 
     selectItem(item?: IgxComboItemComponent) {
@@ -181,6 +170,11 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.parentElement.searchInput.nativeElement.focus();
         this.onOpened.emit();
     }
+
+    onToggleClosed() {
+        this.parentElement.comboInput.nativeElement.focus();
+        this.onClosed.emit();
+    }
 }
 @Component({
     selector: "igx-combo",
@@ -196,6 +190,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _textKey = "";
     private _searchInput: ElementRef;
     public id = "";
+    private _comboInput: ElementRef;
 
     get caller() {
         return this;
@@ -221,6 +216,15 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     @ViewChild("searchInput")
     set searchInput(content: ElementRef) {
         this._searchInput = content;
+    }
+
+    get comboInput() {
+        return this._comboInput;
+    }
+
+    @ViewChild("comboInput")
+    set comboInput(content: ElementRef) {
+        this._comboInput = content;
     }
 
     @ViewChild("primitive", { read: TemplateRef })
@@ -304,6 +308,24 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     @Output()
     public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
 
+    @HostListener("keydown.Alt.ArrowDown", ["$event"])
+    onArrowDown(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        if (evt.altKey && this.dropdown.collapsed) {
+            this.dropdown.toggle();
+        }
+    }
+
+    @HostListener("keydown.Alt.ArrowUp", ["$event"])
+    onArrowUp(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        if (evt.altKey && !this.dropdown.collapsed) {
+            this.dropdown.toggle();
+        }
+    }
+
     public get filteringExpressions() {
         return this._filteringExpressions;
     }
@@ -385,6 +407,13 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         this.sortingExpressions = sortingState;
     }
 
+    public getItemDataByValueKey(val: any): any {
+        if (!val && val !== 0) {
+            return undefined;
+        }
+        return this.data.filter((e) => e[this.valueKey] === val)[0];
+    }
+
     protected prepare_sorting_expression(state, fieldName, dir, ignoreCase) {
 
         if (dir === SortingDirection.None) {
@@ -411,18 +440,43 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         return DataTypes.PRIMITIVE;
     }
 
-    public changeSelectedItem(newItem: any, select?: boolean) {
+    private changeSelectedItem(newItem: any, select?: boolean) {
+        if (!newItem && newItem !== 0) {
+            return;
+        }
         const newSelection = select ?
             this.selectionAPI.select_item(this.id, newItem) :
             this.selectionAPI.deselect_item(this.id, newItem);
         this.triggerSelectionChange(newSelection);
     }
 
+    public setSelectedItem(itemID: any, select = true) {
+        if (itemID === undefined || itemID === null) {
+            return;
+        }
+        const newItem = this.dropdown.items.find((item) => item.itemID === itemID);
+        if (newItem) {
+            if (newItem.isDisabled || newItem.isHeader) {
+                return;
+            }
+            if (!newItem.isSelected) {
+                this.changeSelectedItem(itemID, true);
+            } else {
+                this.changeSelectedItem(itemID, false);
+            }
+        } else {
+            const target = typeof itemID === "object" ? itemID : this.getItemDataByValueKey(itemID);
+            if (target) {
+                this.changeSelectedItem(target, select);
+            }
+        }
+    }
+
     public isItemSelected(item) {
         return this.selectionAPI.is_item_selected(this.id, item);
     }
 
-    public isHeaderChecked() {
+    private isHeaderChecked() {
         if (!this.selectAllCheckbox) {
             return false;
         }
@@ -477,7 +531,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         this.triggerSelectionChange(newSelection);
     }
 
-    public triggerSelectionChange(newSelection) {
+    protected triggerSelectionChange(newSelection) {
         const oldSelection = this.dropdown.selectedItem;
         if (oldSelection !== newSelection) {
             const args: IComboSelectionChangeEventArgs = { oldSelection, newSelection };
@@ -547,6 +601,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public ngAfterViewInit() {
+        this.selectionAPI.set_selection(this.id, []);
         this.filteredData = [...this.data];
         this.id += currentItem++;
     }

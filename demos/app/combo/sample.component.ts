@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
-import { IgxComboComponent } from "../../lib/main";
+import { IgxComboComponent } from "../../lib/combo/combo.component";
 
 const primitive = ["1", "2", "3", "4", "5", "6"];
 const complex = [{
@@ -31,7 +31,7 @@ const complex = [{
 export class ComboSampleComponent implements OnInit {
     private width = "160px";
     @ViewChild(IgxComboComponent) public igxCombo: IgxComboComponent;
-
+    public toggleItemState = false;
     private initData: any[] = [];
     public items: any[] = [];
     private currentDataType = "";
@@ -181,5 +181,10 @@ export class ComboSampleComponent implements OnInit {
     handleAddition(evt) {
         console.log(evt);
         evt.addedItem[this.igxCombo.groupKey] = "MyCustomGroup";
+    }
+
+    toggleItem(itemID) {
+        this.toggleItemState = !this.toggleItemState;
+        this.igxCombo.dropdown.setSelectedItem(itemID, this.toggleItemState);
     }
 }

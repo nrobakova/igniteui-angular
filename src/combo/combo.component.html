@@ -20,9 +20,9 @@
 <div class="igx-combo" [style.width]="width">
             <igx-input-group>
 
-                <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
+                <input igxInput #comboInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
                 
-        <igx-suffix igxButton="icon" igxRipple (click)="triggerSelectionChange([])">
+        <igx-suffix igxButton="icon" igxRipple (click)="deselectAllItems([])">
                     <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
                 </igx-suffix>
         <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple (click)="dropdown.toggle()">
