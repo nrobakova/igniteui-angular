@@ -49,4 +49,8 @@
         border-bottom: 1px dashed #ddd;
         box-shadow: $dd-shadow;
     }
+
+    .igx-combo__toggle-btn {
+        position: relative;
+    }
 }
