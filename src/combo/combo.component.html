@@ -51,7 +51,7 @@
 
             <div style="position: relative;">
                 <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic | comboSorting:sortingExpressions | comboGrouping:groupKey" [igxForScrollOrientation]="'vertical'"
-                    [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
+                    [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight" #virtualScrollContainer>
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>
                         <ng-container *ngIf="!item.isHeader">
                             <igx-checkbox [checked]="isItemSelected(item)" disableRipple="true" disabled="true"></igx-checkbox>
