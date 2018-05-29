@@ -18,29 +18,31 @@
 </ng-template>
 
 <div class="igx-combo" [style.width]="width">
-    <igx-input-group>
-        <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" readonly/>
+            <igx-input-group>
+
+                <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
+                
         <igx-suffix igxButton="icon" igxRipple (click)="triggerSelectionChange([])">
-            <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
-        </igx-suffix>
+                    <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
+                </igx-suffix>
         <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple (click)="dropdown.toggle()">
-            <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
-            <ng-template #toggleUp>
-                <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
-            </ng-template>
-        </igx-suffix>
-    </igx-input-group>
+                    <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
+                    <ng-template #toggleUp>
+                        <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
+                    </ng-template>
+                </igx-suffix>
+            </igx-input-group>
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group class="igx-combo__search">
-            <input class="igx-combo-input" igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue"
-                   (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
+            <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue"
+                (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
-        <!--<div>-->
-            <!--Select All:-->
-            <!--<igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>-->
-        <!--</div>-->
+        <!-- <div>
+            Select All:
+            <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
+        </div> -->
     </ng-container>
-    <igx-combo-drop-down #igxComboDropDown class="igx-combo__drop-down" [width]="width">
+    <igx-combo-drop-down #igxComboDropDown class="igx-combo__drop-down" [igxDropDownItemNavigation]="dropdown" [width]="width">
         <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
@@ -48,8 +50,8 @@
         <ng-container *ngIf="!dropdown.collapsed">
 
             <div style="position: relative;">
-                <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
-                             [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
+                <ng-template igxFor let-item [igxForOf]="displayedData | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
+                    [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>
                         <ng-container *ngIf="!item.isHeader">
                             <igx-checkbox [checked]="isItemSelected(item)" disableRipple="true" disabled="true"></igx-checkbox>
