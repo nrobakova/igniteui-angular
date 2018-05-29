@@ -10,7 +10,7 @@
 <ng-template #addItem>
 
     There are no items to be displayed.
-    <div style="border: 1px dashed #3f3f3f;" (click)="addItemToCollection()">Add Item</div>
+    <div (click)="addItemToCollection()">Add Item</div>
 
 </ng-template>
 <ng-template #headerItemBase let-item let-key="valueKey" let-groupKey="groupKey">
@@ -18,27 +18,23 @@
 </ng-template>
 
 <div class="igx-combo" [style.width]="width">
-    <div style="display: flex; flex-direction: row; align-items: flex-end; align-content: space-between;">
-        <div style="width: 80%">
             <igx-input-group>
 
                 <input igxInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
                 
-                <igx-suffix igxButton="icon" igxRipple igxRippleCentered="true" (click)="triggerSelectionChange([])">
+        <igx-suffix igxButton="icon" igxRipple (click)="triggerSelectionChange([])">
                     <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
                 </igx-suffix>
-                <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple igxRippleCentered="true" (click)="dropdown.toggle()">
+        <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple (click)="dropdown.toggle()">
                     <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
                     <ng-template #toggleUp>
                         <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
                     </ng-template>
                 </igx-suffix>
             </igx-input-group>
-        </div>
-    </div>
     <ng-container *ngIf="!dropdown.collapsed">
-        <igx-input-group>
-            <input igxInput #searchInput name="searchInput" type="text" tabindex="1" [(ngModel)]="searchValue"
+        <igx-input-group class="igx-combo__search">
+            <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue"
                 (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
         <!-- <div>
@@ -46,7 +42,7 @@
             <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
         </div> -->
     </ng-container>
-    <igx-combo-drop-down #igxComboDropDown [igxDropDownItemNavigation]="dropdown" [width]="width" tabindex="2">
+    <igx-combo-drop-down #igxComboDropDown class="igx-combo__drop-down" [igxDropDownItemNavigation]="dropdown" [width]="width">
         <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>

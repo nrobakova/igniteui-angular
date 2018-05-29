@@ -1,28 +1,29 @@
-<div class="sample-wrapper">
+<div class="sample-wrapper combo-sample">
     <page-header title="Combo" description="Combo lets you choose value from a list"></page-header>
     <section class="sample-content">
         <p>Change data to:</p>
-        <button class="igx-button" igxRipple (click)="changeData('primitive')">Primitve</button>
-        <button class="igx-button" igxRipple (click)="changeData('complex')">Complex</button>
-        <button class="igx-button" igxRipple (click)="changeData()">Initial</button>
-        <igx-combo [placeholder]="'Location'" 
+        <button class="igx-button--flat" igxRipple (click)="changeData()">Initial</button>
+        <button class="igx-button--flat" igxRipple (click)="changeData('primitive')">Primitve</button>
+        <button class="igx-button--flat" igxRipple (click)="changeData('complex')">Complex</button>
+
+        <igx-combo [placeholder]="'Location'"
         (onAddition)="handleAddition($event)"
-        [data]="items" 
+        [data]="items"
         [filterable]="true" [textKey]="'field'" [valueKey]="'field'"
          [groupKey]="'region'" [width]="'400px'">
             <ng-template #dropdownItemTemplate let-display let-key="valueKey">
                 <div class="state-card--simple">
-                    <span class="small-red-circle"></span>
+                    <!--<span class="small-red-circle"></span>-->
                     <div class="display-value--main">State: {{display[key]}}</div>
                     <div class="display-value--sub">Region: {{display.region}}</div>
                 </div>
             </ng-template>
-            <ng-template #dropdownHeader>
-                <div class="header-class">This is a header</div>
-            </ng-template>
-            <ng-template #dropdownFooter>
-                <div class="footer-class">This is a footer</div>
-            </ng-template>
+            <!--<ng-template #dropdownHeader>-->
+                <!--<div class="header-class">This is a header</div>-->
+            <!--</ng-template>-->
+            <!--<ng-template #dropdownFooter>-->
+                <!--<div class="footer-class">This is a footer</div>-->
+            <!--</ng-template>-->
         </igx-combo>
     </section>
 </div>
