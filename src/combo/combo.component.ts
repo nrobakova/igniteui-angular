@@ -74,34 +74,12 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         return this._focusedItem;
     }
 
-    @HostListener("focus")
-    onFocus() {
-        this._isFocused = true;
-        this._focusedItem = this._focusedItem ? this._focusedItem : this.items[0];
-        if (this._focusedItem) {
-            this._focusedItem.isFocused = true;
-        }
-    }
-
-    @HostListener("blur")
-    onBlur() {
-        this._isFocused = false;
-        if (this._focusedItem) {
-            this._focusedItem.isFocused = false;
-            this._focusedItem = null;
-        }
-    }
-
     public get selectedItem(): any[] {
         return this.selectionAPI.get_selection(this.parentElement.id) || [];
     }
 
     navigatePrev() {
-        if (this._focusedItem.index === 0) {
-            this.parentElement.searchInput.nativeElement.focus();
-        } else {
-            this.navigate(MoveDirection.Up);
-        }
+        this.navigate(MoveDirection.Up);
     }
 
     setSelectedItem(itemID: any) {
@@ -137,6 +115,8 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     onToggleOpened() {
         this.parentElement.triggerCheck();
         this.parentElement.searchInput.nativeElement.focus();
+        this._focusedItem = this._focusedItem || this.items[0];
+        this._focusedItem._isFocused = true;
         this.onOpened.emit();
     }
 
@@ -335,13 +315,6 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        if (evt.key === "Enter") {
-            if (this.filteredData.length === 1) {
-                this.selectAllItems();
-            }
-        } else if (evt.key === "ArrowDown") {
-            this.dropdown.element.focus();
-        }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
@@ -474,9 +447,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             this.value = this._dataType !== DataTypes.PRIMITIVE ?
                 newSelection.map((e) => e[this.textKey]).join(", ") :
                 newSelection.join(", ");
-                this.isHeaderChecked();
-            }
+            this.isHeaderChecked();
         }
+    }
 
     public triggerCheck() {
         this.cdr.detectChanges();
