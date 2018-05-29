@@ -34,15 +34,15 @@
             </igx-input-group>
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group class="igx-combo__search">
-            <input class="igx-combo-input" igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue"
+            <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue"
                 (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
-        <!--<div>-->
-            <!--Select All:-->
-            <!--<igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>-->
-        <!--</div>-->
+        <!-- <div>
+            Select All:
+            <igx-checkbox #selectAllCheckbox (change)="handleSelectAll($event)"></igx-checkbox>
+        </div> -->
     </ng-container>
-    <igx-combo-drop-down #igxComboDropDown class="igx-combo__drop-down" [width]="width">
+    <igx-combo-drop-down #igxComboDropDown class="igx-combo__drop-down" [igxDropDownItemNavigation]="dropdown" [width]="width">
         <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownHeader; context: {$impicit: this}">
             </ng-container>
@@ -50,7 +50,7 @@
         <ng-container *ngIf="!dropdown.collapsed">
 
             <div style="position: relative;">
-                <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
+                <ng-template igxFor let-item [igxForOf]="displayedData | comboFiltering:filteringExpressions:filteringLogic:caller:pipeTrigger" [igxForScrollOrientation]="'vertical'"
                     [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight">
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>
                         <ng-container *ngIf="!item.isHeader">

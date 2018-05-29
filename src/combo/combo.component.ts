@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
     AfterViewInit, ChangeDetectorRef, Component, ContentChild,
     ContentChildren, ElementRef, EventEmitter, forwardRef,
-    HostBinding, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren, HostListener
+    HostBinding, HostListener, Inject, Input, NgModule, OnDestroy, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { IgxCheckboxComponent, IgxCheckboxModule } from "../checkbox/checkbox.component";
@@ -55,6 +55,7 @@ let currentItem = 0;
     templateUrl: "../drop-down/drop-down.component.html"
 })
 export class IgxComboDropDownComponent extends IgxDropDownBase {
+    private _isFocused = false;
     constructor(
         protected elementRef: ElementRef,
         protected cdr: ChangeDetectorRef,
@@ -63,6 +64,24 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         public parentElement: IgxComboComponent) {
         super(elementRef, cdr, selectionAPI);
         this.allowItemsFocus = false;
+    }
+
+    @HostListener("focus")
+    onFocus() {
+        this._isFocused = true;
+        this._focusedItem = this._focusedItem ? this._focusedItem : this.items[0];
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = true;
+        }
+    }
+
+    @HostListener("blur")
+    onBlur() {
+        this._isFocused = false;
+        if (this._focusedItem) {
+            this._focusedItem.isFocused = false;
+            this._focusedItem = null;
+        }
     }
 
     @ContentChildren(forwardRef(() => IgxComboItemComponent))
@@ -74,6 +93,14 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     public get selectedItem(): any[] {
         return this.selectionAPI.get_selection(this.parentElement.id) || [];
+    }
+
+    navigatePrev() {
+        if (this._focusedItem.index === 0) {
+            this.parentElement.searchInput.nativeElement.focus();
+        } else {
+            this.navigate(MoveDirection.Up);
+        }
     }
 
     setSelectedItem(itemID: any) {
@@ -102,6 +129,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     onToggleOpening() {
         this.parentElement.searchValue = "";
+        this.parentElement.handleKeyDown({ key: "" });
         this.onOpening.emit();
     }
 
@@ -125,6 +153,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _pipeTrigger = 0;
     protected _filteringExpressions = [];
     private _dataType = "";
+    private _displayedData = [];
     private _filteredData = [];
     protected _textKey = "";
     protected _id = "ComboItem_";
@@ -215,6 +244,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public placeholder;
 
     @Input()
+    public defaultFallbackGroup = "Other";
+
+    @Input()
     public valueKey;
 
     @Input()
@@ -261,6 +293,15 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     set searchValue(val: string) {
         this._searchValue = val;
     }
+
+    get displayedData() {
+        return this._displayedData;
+    }
+
+    set displayedData(data: any[]) {
+        this._displayedData = data;
+    }
+
     @Input()
     public filterable;
 
@@ -277,11 +318,13 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        // if (evt.key === "Enter") {
-        //     if (this.filteredData.length === 1) {
-        //         this.selectAllItems();
-        //     }
-        // }
+        if (evt.key === "Enter") {
+            if (this.filteredData.length === 1) {
+                this.selectAllItems();
+            }
+        } else if (evt.key === "ArrowDown") {
+            this.dropdown.element.focus();
+        }
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
@@ -326,7 +369,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
 
     public isHeaderChecked() {
         if (!this.selectAllCheckbox) {
-            return;
+            return false;
         }
         const selectedItems = this.dropdown.selectedItem;
         if (this.filteredData.length > 0 && selectedItems.length > 0) {
@@ -388,11 +431,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             this.value = this._dataType !== DataTypes.PRIMITIVE ?
                 newSelection.map((e) => e[this.textKey]).join(", ") :
                 newSelection.join(", ");
-            if (this.selectAllCheckbox) {
                 this.isHeaderChecked();
             }
         }
-    }
 
     public triggerCheck() {
         this.cdr.detectChanges();
@@ -422,7 +463,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
-        this.filteredData.push(addedItem);
+        this.displayedData = [...this.data];
+        this.parseGroups();
+        this.handleKeyDown({ key: "" });
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {
@@ -451,20 +494,33 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public ngAfterViewInit() {
-        this.filteredData = this.data;
+        this.filteredData = [...this.data];
         this.id += currentItem++;
+        this.parseGroups();
+    }
+
+    public parseGroups() {
         if (this.groupKey !== undefined) {
-            const dataWithHeaders = this.data.sort((a, b) => {
-                return a[this.groupKey] > b[this.groupKey] ?
+            const dataWithHeaders = [...this.data.sort((a, b) => {
+                return a[this.groupKey] === undefined ? 1 :
+                    b[this.groupKey] === undefined ? -1 :
+                        a[this.groupKey] > b[this.groupKey] ?
                     1 :
                     a[this.groupKey] < b[this.groupKey] ? - 1 : 0;
-            });
+            })];
             const crawl = [...dataWithHeaders];
             let inserts = 0;
             let currentHeader = null;
             for (let i = 0; i < crawl.length; i++) {
-                if (currentHeader !== crawl[i][this.groupKey]) {
+                let insertFlag = 0;
+                if (!crawl[i][this.groupKey] && currentHeader !== this.defaultFallbackGroup) {
+                    currentHeader = this.defaultFallbackGroup;
+                    insertFlag = 1;
+                } else if (currentHeader !== crawl[i][this.groupKey]) {
                     currentHeader = crawl[i][this.groupKey];
+                    insertFlag = 1;
+                }
+                if (insertFlag) {
                     dataWithHeaders.splice(i + inserts, 0, {
                         [this.valueKey]: currentHeader,
                         [this.groupKey]: currentHeader,
@@ -473,10 +529,11 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
                     inserts++;
                 }
             }
-            this.data = dataWithHeaders;
+            this.displayedData = dataWithHeaders;
+            console.log(this.displayedData);
+            // this.data = dataWithHeaders;
         }
     }
-
     ngOnDestroy() {
 
     }
