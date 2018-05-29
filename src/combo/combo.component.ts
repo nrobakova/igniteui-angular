@@ -155,6 +155,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _textKey = "";
     private _searchInput: ElementRef;
     public id = "";
+    private _comboInput: any;
 
     get caller() {
         return this;
@@ -265,6 +266,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
 
     @Input()
     public filterable;
+
+    @Input()
+    public defaultFallbackGroup = "Other";
 
     @Output()
     public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
@@ -529,7 +533,6 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         this.filteredData = this.data;
         this.id += currentItem++;
     }
-
 
     ngOnDestroy() {
 
