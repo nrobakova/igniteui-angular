@@ -68,6 +68,11 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.allowItemsFocus = false;
     }
 
+    public get scrollContainer() {
+        return this.verticalScrollContainer.dc.instance._viewContainer
+            .element.nativeElement.parentNode.getElementsByTagName("igx-display-container")[0];
+    }
+
     @ContentChild(forwardRef(() => IgxForOfDirective), { read: IgxForOfDirective })
     public verticalScrollContainer: IgxForOfDirective<any>;
 
@@ -104,7 +109,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         if (this._focusedItem.index === 0 && this.verticalScrollContainer.state.startIndex === 0) {
             this.parentElement.searchInput.nativeElement.focus();
         } else {
-            this.navigate(MoveDirection.Up);
+            super.navigatePrev();
         }
     }
 
@@ -253,10 +258,10 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public height;
 
     @Input()
-    public listHeight = 300;
+    public listHeight = 320;
 
     @Input()
-    public listItemHeight = 30;
+    public listItemHeight = 32;
 
     @Input()
     public set groupKey(val: string | number) {

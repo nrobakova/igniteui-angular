@@ -49,7 +49,7 @@
         </ng-container>
         <ng-container *ngIf="!dropdown.collapsed">
 
-            <div style="position: relative;">
+            <div style="position: relative; overflow: hidden;"  [style.height.px]="listHeight">
                 <ng-template igxFor let-item [igxForOf]="data | comboFiltering:filteringExpressions:filteringLogic | comboSorting:sortingExpressions | comboGrouping:groupKey" [igxForScrollOrientation]="'vertical'"
                     [igxForContainerSize]="listHeight" [igxForItemSize]="listItemHeight" #virtualScrollContainer>
                     <igx-combo-item [itemData]="item" isHeader={{item.isHeader}}>

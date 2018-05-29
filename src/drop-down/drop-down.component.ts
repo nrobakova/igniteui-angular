@@ -147,6 +147,9 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         return this.elementRef.nativeElement;
     }
 
+    public get scrollContainer() {
+        return this.toggleDirective.element;
+    }
     /**
      * Gets if the dropdown is collapsed
      */
@@ -317,18 +320,18 @@ export class IgxDropDownBase implements IToggleView, OnInit {
 
     protected scrollToItem(item: IgxDropDownItemComponent | IgxComboItemComponent) {
         const itemPosition = this.calculateScrollPosition(item);
-        this.toggleDirective.element.scrollTop = (itemPosition);
+        this.scrollContainer.scrollTop = (itemPosition);
     }
 
     public scrollToHiddenItem(newItem: IgxDropDownItemComponent | IgxComboItemComponent) {
         const elementRect = newItem.element.nativeElement.getBoundingClientRect();
-        const parentRect = this.toggleDirective.element.getBoundingClientRect();
+        const parentRect = this.scrollContainer.getBoundingClientRect();
         if (parentRect.top > elementRect.top) {
-            this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
+            this.scrollContainer.scrollTop -= (parentRect.top - elementRect.top);
         }
 
         if (parentRect.bottom < elementRect.bottom) {
-            this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
+            this.scrollContainer.scrollTop += (elementRect.bottom - parentRect.bottom);
         }
     }
 
@@ -346,11 +349,11 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
 
         const elementRect = item.element.nativeElement.getBoundingClientRect();
-        const parentRect = this.toggleDirective.element.getBoundingClientRect();
+        const parentRect = this.scrollContainer.getBoundingClientRect();
         const scrollDelta = parentRect.top - elementRect.top;
-        let scrollPosition = this.toggleDirective.element.scrollTop - scrollDelta;
+        let scrollPosition = this.scrollContainer.scrollTop - scrollDelta;
 
-        const dropDownHeight = this.toggleDirective.element.clientHeight;
+        const dropDownHeight = this.scrollContainer.clientHeight;
         scrollPosition -= dropDownHeight / 2;
         scrollPosition += item.elementHeight / 2;
 
