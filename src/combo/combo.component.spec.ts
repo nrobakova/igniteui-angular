@@ -1,13 +1,17 @@
-import { Component, ContentChildren, DebugElement, ElementRef, ViewChild, Directive } from "@angular/core";
+import { Component, ContentChildren, DebugElement, Directive, ElementRef, ViewChild } from "@angular/core";
 import { async, inject, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { BrowserAnimationsModule, NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { IgxSelectionAPIService } from "../core/selection";
 import { IgxToggleActionDirective, IgxToggleDirective, IgxToggleModule } from "../directives/toggle/toggle.directive";
-import { IgxDropDownComponent, IgxDropDownItemNavigationDirective, IgxDropDownModule, IgxDropDownBase } from "../drop-down/drop-down.component";
+import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
+import {
+    IgxDropDownBase, IgxDropDownComponent, IgxDropDownItemNavigationDirective,
+    IgxDropDownModule
+} from "../drop-down/drop-down.component";
 import { IgxComboItemComponent } from "./combo-item.component";
 import { IgxComboComponent, IgxComboModule } from "./combo.component";
-import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component";
+import { SortingDirection } from "../data-operations/sorting-expression.interface";
 
 const CSS_CLASS_DROPDOWNLIST = "igx-drop-down__list";
 const CSS_CLASS_DROPDOWNLISTITEM = "igx-drop-down__item";
@@ -22,7 +26,7 @@ const CSS_CLASS_SELECTED = "igx-combo__item--selected";
 class MockDirective extends IgxDropDownItemNavigationDirective {
     constructor() {
         console.log("MOCKED");
-        super({ nativeElement: null}, null);
+        super({ nativeElement: null }, null);
     }
 }
 const employeeData = [
@@ -50,10 +54,12 @@ function wrapPromise(callback, resolve, time) {
 fdescribe("Combo", () => {
     beforeEach(async(() => {
         TestBed.resetTestingModule();
-        TestBed.overrideModule(IgxDropDownModule, {set: {
-            declarations: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective],
-            exports: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective]
-        }});
+        TestBed.overrideModule(IgxDropDownModule, {
+            set: {
+                declarations: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective],
+                exports: [IgxDropDownComponent, IgxDropDownItemComponent, MockDirective]
+            }
+        });
         TestBed.configureTestingModule({
             declarations: [
                 IgxComboTestComponent,
@@ -574,6 +580,34 @@ fdescribe("Combo", () => {
     // Grouping
     it("Combo should group items correctly", () => {
         // TO DO
+    });
+
+    fit("Should sort items correctly", () => {
+        const fix = TestBed.createComponent(IgxComboInputTestComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
+        combo.dropdown.toggle();
+        fix.whenStable().then(() => {
+            fix.detectChanges();
+            expect(combo.groupKey).toEqual("region");
+            expect(combo.dropdown.items[0].itemData.field === combo.data[0].field).toBeFalsy();
+            expect(combo.sortingExpressions.length).toEqual(1);
+            expect(combo.sortingExpressions[0]).toEqual({
+                fieldName: "region",
+                dir: SortingDirection.Asc,
+                ignoreCase: true
+            });
+            combo.groupKey = "";
+
+            fix.detectChanges();
+            expect(combo.groupKey).toEqual("");
+            expect(combo.sortingExpressions.length).toEqual(0);
+            expect(combo.sortingExpressions[0]).toBeUndefined();
+            return fix.whenStable();
+        }).then(() => {
+            fix.detectChanges();
+            expect(combo.dropdown.items[0].itemData).toEqual(combo.data[0]);
+        });
     });
 
     // Suggestions
