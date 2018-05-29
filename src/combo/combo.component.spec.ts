@@ -11,7 +11,7 @@ import { IgxDropDownItemComponent } from "../drop-down/drop-down-item.component"
 
 const CSS_CLASS_DROPDOWNLIST = "igx-drop-down__list";
 const CSS_CLASS_DROPDOWNLISTITEM = "igx-drop-down__item";
-const CSS_CLASS_DROPDOWNBUTTON = "dropdownToggleButton";
+const CSS_CLASS_DROPDOWNBUTTON = "igx-combo__toggle-btn";
 const CSS_CLASS_CHECKBOX = "igx-checkbox";
 const CSS_CLASS_TOGGLE = "igx-toggle";
 const CSS_CLASS_SELECTED = "igx-combo__item--selected";
