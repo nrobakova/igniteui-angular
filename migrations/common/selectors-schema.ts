@@ -1,5 +1,5 @@
 // generate schema:
-// npx typescript-json-schema migrations/common/selectors-schema.ts SelectorChanges -o migrations/common/selectors.schema.json
+// npx typescript-json-schema migrations/common/selectors-schema.ts SelectorChanges -o migrations/common/selectors.schema.json --required
 
 // tslint:disable:interface-name
 export interface SelectorChanges {

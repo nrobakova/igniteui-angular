@@ -1,7 +1,14 @@
 {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "definitions": {
-        "Change": {
+        "ChangeType": {
+            "enum": [
+                "component",
+                "directive"
+            ],
+            "type": "string"
+        },
+        "SelectorChange": {
             "properties": {
                 "remove": {
                     "description": "Remove directive/component",
@@ -25,20 +32,13 @@
                 "type"
             ],
             "type": "object"
-        },
-        "ChangeType": {
-            "enum": [
-                "component",
-                "directive"
-            ],
-            "type": "string"
         }
     },
     "properties": {
         "changes": {
             "description": "An array of changes to component/directive selectors",
             "items": {
-                "$ref": "#/definitions/Change"
+                "$ref": "#/definitions/SelectorChange"
             },
             "type": "array"
         }
