@@ -101,7 +101,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     navigatePrev() {
-        if (this._focusedItem.index === 0) {
+        if (this._focusedItem.index === 0 && this.verticalScrollContainer.state.startIndex === 0) {
             this.parentElement.searchInput.nativeElement.focus();
         } else {
             this.navigate(MoveDirection.Up);
