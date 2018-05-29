@@ -134,7 +134,7 @@
                 </igx-column>
                 <igx-column [field]="'Discontinued'">
                     <ng-template igxHeader let-column="column">
-                        <p style="color: crimson"></p>
+                        <p style="color: crimson">Discontinued</p>
                     </ng-template>
                     <ng-template igxCell let-item="item" let-ri="rowIndex" let-column="column">
                         <igx-checkbox [checked]="item" (change)="grid2.updateCell(ri, $event.target.checked)"></igx-checkbox>
@@ -162,12 +162,15 @@
             </div>
             <igx-grid #grid3 [data]="remote | async" [paging]="true" [perPage]="10" (onPagingDone)="process($event)" (onSortingDone)="process($event)"
                 (onBeforeProcess)="onProcess($event)" [primaryKey]="'ProductID'" [rowSelectable]="true">
+                <ng-template #remoteDataLoading>
+                    <div style="background-color: lightgrey; width: 100px; height: 20px"></div>
+                </ng-template>
                 <igx-column [sortable]="true" [field]="'ProductID'" ></igx-column>
                 <igx-column [editable]="true" [field]="'ProductName'" ></igx-column>
                 <igx-column [sortable]="true" [field]="'UnitsInStock'" [header]="'Units in Stock'"></igx-column>
-                <igx-column [field]="'Discontinued'" [sortable]="true" [hidden]="true">
+                <igx-column [field]="'Discontinued'" [sortable]="true" [hidden]="false">
                     <ng-template igxHeader let-column="column">
-                        <p style="color: crimson"></p>
+                        <p style="color: crimson">Discontinued</p>
                     </ng-template>
                     <ng-template igxCell let-item="item" let-ri="rowIndex" let-column="column">
                         <igx-checkbox [checked]="item" (change)="grid3.updateCell(ri, column?.field, $event.target.checked)"></igx-checkbox>
