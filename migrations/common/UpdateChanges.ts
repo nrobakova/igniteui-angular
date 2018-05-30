@@ -4,6 +4,7 @@ import { FileEntry, SchematicContext, Tree } from "@angular-devkit/schematics";
 import * as fs from "fs";
 import * as path from "path";
 import { ClassChanges, OutputChanges, SelectorChange, SelectorChanges } from "./schema";
+import { getIdentifierPositions } from "./tsUtils";
 
 // tslint:disable:arrow-parens
 export class UpdateChanges {
@@ -127,7 +128,13 @@ export class UpdateChanges {
         let overwrite = false;
         for (const change of this.classChanges.changes) {
             if (fileContent.indexOf(change.name) !== -1) {
-                fileContent = fileContent.replace(change.name, change.replaceWith);
+                const positions = getIdentifierPositions(fileContent, change.name);
+                // loop backwards to preserve positions
+                for (let i = positions.length; i--;) {
+                    const pos = positions[i];
+                    fileContent = fileContent.slice(0, pos.start) + change.replaceWith + fileContent.slice(pos.end);
+                }
+                // fileContent = fileContent.replace(new RegExp(change.name, "g"), change.replaceWith);
                 overwrite = true;
             }
         }
