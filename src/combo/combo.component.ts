@@ -79,7 +79,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     @ContentChildren(forwardRef(() => IgxComboItemComponent))
     protected children: QueryList<IgxDropDownItemBase>;
 
-    get lastFocused(): IgxComboItemComponent {
+    get focusedItem(): IgxComboItemComponent {
         return this._focusedItem;
     }
 
@@ -161,7 +161,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
 
     onToggleOpening() {
         this.parentElement.searchValue = "";
-        this.parentElement.handleKeyDown({ key: "" });
+        this.parentElement.handleInputChange();
         this.onOpening.emit();
     }
 
@@ -192,9 +192,6 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     public id = "";
     private _comboInput: ElementRef;
 
-    get caller() {
-        return this;
-    }
     private _value = "";
     private _searchValue = "";
 
@@ -344,6 +341,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
     }
 
+    public get selectedItems() {
+        return this.dropdown.selectedItem;
+    }
     protected clearSorting(field?: string | number) {
         if (field === undefined || field === null) {
             this.sortingExpressions = [];
@@ -387,9 +387,12 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             if (this.filteredData.length === 1) {
                 this.selectAllItems();
             }
-        } else if (evt.key === "ArrowDown") {
+        } else if (evt.key === "ArrowDown" || evt.key === "Down") {
             this.dropdown.element.focus();
         }
+    }
+
+    public handleInputChange() {
         if (this.filterable) {
             this.filter(this.searchValue, STRING_FILTERS.contains,
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
@@ -411,7 +414,9 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         if (!val && val !== 0) {
             return undefined;
         }
-        return this.data.filter((e) => e[this.valueKey] === val)[0];
+        return this.valueKey === 0 || this.valueKey ?
+            this.data.filter((e) => e[this.valueKey] === val)[0] :
+            this.data.filter((e) => e === val);
     }
 
     protected prepare_sorting_expression(state, fieldName, dir, ignoreCase) {
@@ -572,7 +577,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
-        this.handleKeyDown({ key: "" });
+        this.handleInputChange();
     }
 
     protected prepare_filtering_expression(searchVal, condition, ignoreCase, fieldName?) {

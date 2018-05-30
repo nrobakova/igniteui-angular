@@ -35,7 +35,7 @@
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group class="igx-combo__search">
             <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text"  tabindex="1" [(ngModel)]="searchValue"
-                (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
+                (input)="handleInputChange()" (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
         <!-- <div>
             Select All:

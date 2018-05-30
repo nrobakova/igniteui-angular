@@ -25,7 +25,6 @@ const CSS_CLASS_SELECTED = "igx-combo__item--selected";
 })
 class MockDirective extends IgxDropDownItemNavigationDirective {
     constructor() {
-        console.log("MOCKED");
         super({ nativeElement: null }, null);
     }
 }
@@ -154,6 +153,10 @@ fdescribe("Combo", () => {
         }];
         expect(combo.data).toBeDefined();
         expect(combo.data.length).toEqual(3);
+        combo.data = [];
+        fixture.detectChanges();
+        expect(combo.data).toBeDefined();
+        expect(combo.data.length).toEqual(0);
     });
 
     it("Should call toggle properly", async(() => {
@@ -202,7 +205,7 @@ fdescribe("Combo", () => {
         // items are only accessible when the combo dropdown is opened;
         let targetItem: IgxComboItemComponent;
         spyOn(combo, "setSelectedItem").and.callThrough();
-        spyOn(combo.dropdown, "changeFocusedItem").and.callThrough();
+        spyOn(combo.dropdown, "focusItem").and.callThrough();
         spyOn<any>(combo, "triggerSelectionChange").and.callThrough();
         spyOn(combo.dropdown, "selectedItem").and.callThrough();
         spyOn(combo.onSelection, "emit");
@@ -289,11 +292,11 @@ fdescribe("Combo", () => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
         fix.detectChanges();
         const combo = fix.componentInstance.combo;
-        expect(combo.getItemDataByValueKey("Connecticut")).toEqual({ field: "Connecticut", region: "New England"});
+        expect(combo.getItemDataByValueKey("Connecticut")).toEqual({ field: "Connecticut", region: "New England" });
         expect(combo.getItemDataByValueKey("")).toEqual(undefined);
         expect(combo.getItemDataByValueKey(null)).toEqual(undefined);
         expect(combo.getItemDataByValueKey(undefined)).toEqual(undefined);
-        expect(combo.getItemDataByValueKey({field: "Connecticut", region: "New England"})).toEqual(undefined);
+        expect(combo.getItemDataByValueKey({ field: "Connecticut", region: "New England" })).toEqual(undefined);
         expect(combo.getItemDataByValueKey(1)).toEqual(undefined);
     });
 
@@ -321,9 +324,8 @@ fdescribe("Combo", () => {
         //     addedItem: {
         //         field: "myItem"
         //     },
-        //     newCollection: combo.data
+        //     newCollection: [...initialData, {field: "myItem"}]
         // });
-        console.log(combo.data[combo.data.length - 1]);
         expect(combo.data[combo.data.length - 1]).toEqual({
             field: "myItem"
         });
@@ -358,7 +360,142 @@ fdescribe("Combo", () => {
         spyOn(dropdown, "setSelectedItem").and.callThrough();
         spyOn(combo, "getItemDataByValueKey").and.callThrough();
         spyOn(combo.onSelection, "emit").and.callThrough();
+        combo.setSelectedItem(null);
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem(null);
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem(undefined);
+        expect(combo.selectedItems).toEqual([]);
+        combo.setSelectedItem(undefined);
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem({ field: "Connecticut", region: "New England" });
+        expect(combo.selectedItems).toEqual([{ field: "Connecticut", region: "New England" }]);
+        combo.deselectAllItems();
+        expect(combo.selectedItems).toEqual([]);
+        combo.setSelectedItem({ field: "Connecticut", region: "New England" });
+        expect(combo.selectedItems).toEqual([{ field: "Connecticut", region: "New England" }]);
+        combo.deselectAllItems();
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem("Connecticut");
+        expect(combo.selectedItems).toEqual([{ field: "Connecticut", region: "New England" }]);
+        combo.deselectAllItems();
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem("Connecticut", false);
+        expect(combo.selectedItems).toEqual([]);
+        combo.deselectAllItems();
+        expect(combo.selectedItems).toEqual([]);
+        dropdown.setSelectedItem({ field: "Connecticut", region: "New England" }, true);
+        expect(combo.selectedItems).toEqual([{ field: "Connecticut", region: "New England" }]);
+        spyOn(combo, "setSelectedItem").and.callThrough();
+        const selectionSpy = spyOn<any>(combo, "triggerSelectionChange").and.callThrough();
+        dropdown.setSelectedItem(combo.selectedItems[0], false);
+        expect(combo.setSelectedItem).toHaveBeenCalledWith({ field: "Connecticut", region: "New England" }, false);
+        expect(selectionSpy.calls.mostRecent().args).toEqual([[]]);
+        expect(combo.selectedItems).toEqual([]);
+        combo.setSelectedItem("Connecticut", true);
+        expect(combo.selectedItems).toEqual([{ field: "Connecticut", region: "New England" }]);
+        expect(combo.selectedItems[0]).toEqual({ field: "Connecticut", region: "New England" });
+        combo.setSelectedItem("Connecticut", false);
+        expect(combo.selectedItems).toEqual([]);
+        combo.setSelectedItem("Connecticut", false);
+        expect(combo.selectedItems).toEqual([]);
+        expect(combo.getItemDataByValueKey).toHaveBeenCalledTimes(5);
+        expect(combo.onSelection.emit).toHaveBeenCalledTimes(13);
+    });
 
+    it("Should properly return the selected item(s)", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
+        const dropdown = combo.dropdown;
+        expect(combo.selectedItems).toEqual([]);
+        expect(combo.dropdown.selectedItem).toEqual([]);
+        combo.setSelectedItem("Connecticut");
+        fix.detectChanges();
+        expect(combo.dropdown.selectedItem).toEqual([{ field: "Connecticut", region: "New England" }]);
+        expect(combo.dropdown.selectedItem[0]).toEqual(combo.data[0]);
+    });
+
+    it("Should handle handleKeyDown calls", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
+        spyOn(combo, "selectAllItems");
+        const dropdownSpy = jasmine.createSpyObj("element", { focus: () => { } });
+        const dropdownElement = spyOnProperty(combo.dropdown, "element", "get").and.returnValues(dropdownSpy);
+        combo.handleKeyDown({ key: "A" });
+        combo.handleKeyDown({});
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(0);
+        expect(dropdownSpy.focus).toHaveBeenCalledTimes(0);
+        combo.handleKeyDown({ key: "Enter" });
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(0);
+        spyOnProperty(combo, "filteredData", "get").and.returnValue([1]);
+        combo.handleKeyDown({ key: "Enter" });
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
+        combo.handleKeyDown({ key: "ArrowDown" });
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
+        expect(dropdownSpy.focus).toHaveBeenCalledTimes(1);
+        // combo.handleKeyDown({key: "Down"});
+        // expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
+        // expect(dropdownSpy.focus).toHaveBeenCalledTimes(2);
+    });
+
+    it("Should properly return a reference to the VirtScrollContainer", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
+        expect(combo.dropdown.element).toBeDefined();
+        function mockFunc() {
+            return combo.dropdown.scrollContainer;
+        }
+        expect(mockFunc).toThrow();
+        combo.dropdown.toggle();
+        fix.detectChanges();
+        expect(combo.dropdown.element).toBeDefined();
+        expect(mockFunc).toBeDefined();
+    });
+
+    it("Should properly get/set textKey", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const combo = fix.componentInstance.combo;
+        expect(combo.textKey).toEqual(combo.valueKey);
+        combo.textKey = "region";
+        expect(combo.textKey).toEqual("region");
+        expect(combo.textKey === combo.valueKey).toBeFalsy();
+    });
+
+    it("IgxComboDropDown onFocus and onBlur event", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const dropdown = fix.componentInstance.combo.dropdown;
+        expect(dropdown.focusedItem).toEqual(null);
+        expect(dropdown.items.length).toBeFalsy();
+        dropdown.toggle();
+        fix.whenStable().then(() => {
+            fix.detectChanges();
+            expect(dropdown.items).toBeDefined();
+            expect(dropdown.items.length).toBeTruthy();
+            dropdown.onFocus();
+            expect(dropdown.focusedItem).toEqual(dropdown.items[0]);
+            expect(dropdown.focusedItem.isFocused).toEqual(true);
+            dropdown.onFocus();
+            dropdown.onBlur();
+            expect(dropdown.focusedItem).toEqual(null);
+            dropdown.onBlur();
+        });
+    });
+
+    it("IgxComboDropDown focusedItem getter/setter", () => {
+        const fix = TestBed.createComponent(IgxComboSampleComponent);
+        fix.detectChanges();
+        const dropdown = fix.componentInstance.combo.dropdown;
+        expect(dropdown.focusedItem).toEqual(null);
+        dropdown.toggle();
+        fix.detectChanges();
+        expect(dropdown.focusedItem).toEqual(null);
+        dropdown.onFocus();
+        expect(dropdown.focusedItem).toEqual(dropdown.items[0]);
     });
 
     xit("Should properly accept width", () => {

@@ -417,6 +417,12 @@ export class IgxDropDownItemNavigationDirective {
         event.preventDefault();
     }
 
+    @HostListener("keydown.Spacebar", ["$event"])
+    onSpaceKeyDownIE(event) {
+        this.target.selectItem();
+        event.preventDefault();
+    }
+
     @HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
         this.target.selectItem();
