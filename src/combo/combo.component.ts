@@ -68,7 +68,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         this.allowItemsFocus = false;
     }
 
-    public get scrollContainer() {
+    protected get scrollContainer() {
         return this.verticalScrollContainer.dc.instance._viewContainer
             .element.nativeElement.parentNode.getElementsByTagName("igx-display-container")[0];
     }
@@ -125,24 +125,27 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     focusItem(newIndex: number, currentIndex?: number) {
-        if (newIndex !== -1) {
-            super.focusItem(newIndex);
+        if (newIndex === -1 || newIndex === this.items.length - 1) {
+            this.focusVirtualItem(newIndex, currentIndex);
         } else {
-            this.focusVirtualItem(currentIndex);
+            super.focusItem(newIndex);
         }
     }
 
-    private focusVirtualItem(index: number) {
+    private focusVirtualItem(newIndex: number, currentIndex?: number) {
         const vContainer = this.verticalScrollContainer;
         let scrollDelta = this.parentElement.listItemHeight;
-        if (index === 0) {
+        if (currentIndex === 0) {
             scrollDelta = scrollDelta * -1;
+        }
+        if (newIndex === -1) {
+            scrollDelta = scrollDelta * 2;
         }
         vContainer.addScrollTop(scrollDelta);
         this.subscribeNext(vContainer, () => {
             const oldItem = this._focusedItem;
-            index = index === this.items.length ? index - 1 : index;
-            const newItem = this.items[index];
+            currentIndex = currentIndex === this.items.length ? currentIndex - 1 : currentIndex;
+            const newItem = this.items[currentIndex];
             if (oldItem) {
                 oldItem.isFocused = false;
             }
@@ -305,20 +308,22 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     @Output()
     public onSelection = new EventEmitter<IComboSelectionChangeEventArgs>();
 
+    @HostListener("keydown.ArrowDown", ["$event"])
     @HostListener("keydown.Alt.ArrowDown", ["$event"])
     onArrowDown(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        if (evt.altKey && this.dropdown.collapsed) {
+        if (this.dropdown.collapsed) {
             this.dropdown.toggle();
         }
     }
 
+    @HostListener("keydown.ArrowUp", ["$event"])
     @HostListener("keydown.Alt.ArrowUp", ["$event"])
     onArrowUp(evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        if (evt.altKey && !this.dropdown.collapsed) {
+        if (!this.dropdown.collapsed) {
             this.dropdown.toggle();
         }
     }

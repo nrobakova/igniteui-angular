@@ -440,20 +440,20 @@ fdescribe("Combo", () => {
         // expect(dropdownSpy.focus).toHaveBeenCalledTimes(2);
     });
 
-    it("Should properly return a reference to the VirtScrollContainer", () => {
-        const fix = TestBed.createComponent(IgxComboSampleComponent);
-        fix.detectChanges();
-        const combo = fix.componentInstance.combo;
-        expect(combo.dropdown.element).toBeDefined();
-        function mockFunc() {
-            return combo.dropdown.scrollContainer;
-        }
-        expect(mockFunc).toThrow();
-        combo.dropdown.toggle();
-        fix.detectChanges();
-        expect(combo.dropdown.element).toBeDefined();
-        expect(mockFunc).toBeDefined();
-    });
+    // it("Should properly return a reference to the VirtScrollContainer", () => {
+    //     const fix = TestBed.createComponent(IgxComboSampleComponent);
+    //     fix.detectChanges();
+    //     const combo = fix.componentInstance.combo;
+    //     expect(combo.dropdown.element).toBeDefined();
+    //     function mockFunc() {
+    //         return combo.dropdown.scrollContainer;
+    //     }
+    //     expect(mockFunc).toThrow();
+    //     combo.dropdown.toggle();
+    //     fix.detectChanges();
+    //     expect(combo.dropdown.element).toBeDefined();
+    //     expect(mockFunc).toBeDefined();
+    // });
 
     it("Should properly get/set textKey", () => {
         const fix = TestBed.createComponent(IgxComboSampleComponent);
@@ -662,15 +662,43 @@ fdescribe("Combo", () => {
             expect(onClosedEventFired).toEqual(true);
         });
     });
+    it("Item selection - key navigation", () => {
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const mockObj = jasmine.createSpyObj("mockEvt", ["stopPropagation", "preventDefault"]);
+        const combo = fixture.componentInstance.combo;
+        const dropdown = combo.dropdown;
+        const comboButton = fixture.debugElement.query(By.css("." + CSS_CLASS_DROPDOWNBUTTON)).nativeElement;
+        comboButton.click();
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            const items = fixture.debugElement.queryAll(By.css("." + CSS_CLASS_DROPDOWNLISTITEM));
+            const lastVisibleItem = items[items.length - 2];
+            lastVisibleItem.nativeElement.click();
+            fixture.detectChanges();
+            return fixture.whenStable();
+        }).then(() => {
+            const items = fixture.debugElement.queryAll(By.css("." + CSS_CLASS_DROPDOWNLISTITEM));
+            const lastVisibleItem = items[items.length - 1];
+            lastVisibleItem.triggerEventHandler("keydown.ArrowDown", mockObj);
+            fixture.detectChanges();
+        });
+    });
     it("Home key should scroll up to the first item in the dropdown list", () => {
-        // TO DO
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const dropdown = combo.dropdown;
     });
     it("End key should scroll down to the last item in the dropdown list", () => {
-        // TO DO
+        const fixture = TestBed.createComponent(IgxComboSampleComponent);
+        fixture.detectChanges();
+        const combo = fixture.componentInstance.combo;
+        const dropdown = combo.dropdown;
     });
 
     it("PageDown/PageUp key should scroll the list a single view down/up", () => {
-        // TO DO
+        // Combo will not provide such an implementation, PageDown/PageUp will scroll the container, without moving selection.
     });
 
     it("Vertical scrollbar should not be visible when the items fit inside the container", () => {
@@ -749,9 +777,6 @@ fdescribe("Combo", () => {
         // TO DO
     });
     it("Item selection - checkbox", () => {
-        // TO DO
-    });
-    it("Item selection - key navigation", () => {
         // TO DO
     });
     it("SelectAll option should select/deselect all list items", () => {
