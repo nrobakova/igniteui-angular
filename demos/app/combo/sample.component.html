@@ -5,25 +5,37 @@
         <button class="igx-button--flat" igxRipple (click)="changeData()">Initial</button>
         <button class="igx-button--flat" igxRipple (click)="changeData('primitive')">Primitve</button>
         <button class="igx-button--flat" igxRipple (click)="changeData('complex')">Complex</button>
-
-        <igx-combo [placeholder]="'Location'"
-        (onAddition)="handleAddition($event)"
-        [data]="items"
-        [filterable]="true" [textKey]="'field'" [valueKey]="'field'"
-         [groupKey]="'region'" [width]="'400px'">
-            <ng-template #dropdownItemTemplate let-display let-key="valueKey">
-                <div class="state-card--simple">
-                    <!--<span class="small-red-circle"></span>-->
-                    <div class="display-value--main">State: {{display[key]}}</div>
-                    <div class="display-value--sub">Region: {{display.region}}</div>
-                </div>
-            </ng-template>
-            <!--<ng-template #dropdownHeader>-->
-                <!--<div class="header-class">This is a header</div>-->
-            <!--</ng-template>-->
-            <!--<ng-template #dropdownFooter>-->
-                <!--<div class="footer-class">This is a footer</div>-->
-            <!--</ng-template>-->
-        </igx-combo>
+        <button class="igx-button--flat" igxRipple (click)="toggleItem('Connecticut')">Toggle "Connecticut"</button>
+        <div>
+            <igx-input-group type="box" class="input-container">
+                <input igxInput name="fristName" placeholder="First Name"/>
+            </igx-input-group>
+            <igx-input-group type="box" class="input-container">
+                <input igxInput name="lastName" placeholder="Last Name"/>
+            </igx-input-group>
+            <div style="clear: both;"></div>
+            <igx-combo class="input-container" [placeholder]="'Location'"
+                (onAddition)="handleAddition($event)"
+                [data]="items"
+                [filterable]="true" [textKey]="'field'" [valueKey]="'field'"
+                [groupKey]="'region'" [width]="'400px'">
+                    <ng-template #dropdownItemTemplate let-display let-key="valueKey">
+                        <div class="state-card--simple">
+                            <!--<span class="small-red-circle"></span>-->
+                            <div class="display-value--main">State: {{display[key]}}</div>
+                            <div class="display-value--sub">Region: {{display.region}}</div>
+                        </div>
+                    </ng-template>
+                    <!--<ng-template #dropdownHeader>-->
+                        <!--<div class="header-class">This is a header</div>-->
+                    <!--</ng-template>-->
+                    <!--<ng-template #dropdownFooter>-->
+                        <!--<div class="footer-class">This is a footer</div>-->
+                    <!--</ng-template>-->
+            </igx-combo>
+            <igx-input-group type="box" class="input-container">
+                <input igxInput name="age" placeholder="Age"/>
+            </igx-input-group>
+        </div>
     </section>
 </div>
