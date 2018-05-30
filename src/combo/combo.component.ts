@@ -394,6 +394,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
             }
         } else if (evt.key === "ArrowDown" || evt.key === "Down") {
             this.dropdown.element.focus();
+        } else if (evt.key === "Escape" || evt.key === "Esc") {
+            this.dropdown.toggle();
         }
     }
 
