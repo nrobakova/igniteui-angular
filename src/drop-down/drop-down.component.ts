@@ -147,6 +147,9 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         return this.elementRef.nativeElement;
     }
 
+    protected get scrollContainer() {
+        return this.toggleDirective.element;
+    }
     /**
      * Gets if the dropdown is collapsed
      */
@@ -259,7 +262,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
             index = currentIndex ? currentIndex : this._focusedItem.index;
         }
         const newIndex = this.getNearestSiblingFocusableItemIndex(index, direction);
-        this.changeFocusedItem(newIndex);
+        this.focusItem(newIndex, index);
     }
 
     navigateFirst() {
@@ -297,7 +300,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         } else if (this.allowItemsFocus) {
             const firstItemIndex = this.getNearestSiblingFocusableItemIndex(-1, MoveDirection.Down);
             if (firstItemIndex !== -1) {
-                this.changeFocusedItem(firstItemIndex);
+                this.focusItem(firstItemIndex);
             }
         }
         this.onOpened.emit();
@@ -317,7 +320,19 @@ export class IgxDropDownBase implements IToggleView, OnInit {
 
     protected scrollToItem(item: IgxDropDownItemComponent | IgxComboItemComponent) {
         const itemPosition = this.calculateScrollPosition(item);
-        this.toggleDirective.element.scrollTop = (itemPosition);
+        this.scrollContainer.scrollTop = (itemPosition);
+    }
+
+    public scrollToHiddenItem(newItem: IgxDropDownItemComponent | IgxComboItemComponent) {
+        const elementRect = newItem.element.nativeElement.getBoundingClientRect();
+        const parentRect = this.scrollContainer.getBoundingClientRect();
+        if (parentRect.top > elementRect.top) {
+            this.scrollContainer.scrollTop -= (parentRect.top - elementRect.top);
+        }
+
+        if (parentRect.bottom < elementRect.bottom) {
+            this.scrollContainer.scrollTop += (elementRect.bottom - parentRect.bottom);
+        }
     }
 
     public selectItem(item?) {
@@ -334,11 +349,11 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
 
         const elementRect = item.element.nativeElement.getBoundingClientRect();
-        const parentRect = this.toggleDirective.element.getBoundingClientRect();
+        const parentRect = this.scrollContainer.getBoundingClientRect();
         const scrollDelta = parentRect.top - elementRect.top;
-        let scrollPosition = this.toggleDirective.element.scrollTop - scrollDelta;
+        let scrollPosition = this.scrollContainer.scrollTop - scrollDelta;
 
-        const dropDownHeight = this.toggleDirective.element.clientHeight;
+        const dropDownHeight = this.scrollContainer.clientHeight;
         scrollPosition -= dropDownHeight / 2;
         scrollPosition += item.elementHeight / 2;
 
@@ -359,25 +374,15 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
     }
 
-    public changeFocusedItem(newIndex: number) {
+    public focusItem(newIndex: number, currentIndex?: number) {
         if (newIndex !== -1) {
             const oldItem = this._focusedItem;
             const newItem = this.items[newIndex];
             if (oldItem) {
                 oldItem.isFocused = false;
             }
-
             this._focusedItem = newItem;
-            const elementRect = this._focusedItem.element.nativeElement.getBoundingClientRect();
-            const parentRect = this.toggleDirective.element.getBoundingClientRect();
-            if (parentRect.top > elementRect.top) {
-                this.toggleDirective.element.scrollTop -= (parentRect.top - elementRect.top);
-            }
-
-            if (parentRect.bottom < elementRect.bottom) {
-                this.toggleDirective.element.scrollTop += (elementRect.bottom - parentRect.bottom);
-            }
-
+            this.scrollToHiddenItem(newItem);
             this._focusedItem.isFocused = true;
         }
     }
@@ -401,13 +406,22 @@ export class IgxDropDownItemNavigationDirective {
         this._target = target ? target : this.dropdown;
     }
 
+    @HostListener("keydown.Enter", ["$event"])
     @HostListener("keydown.Escape", ["$event"])
+    @HostListener("keydown.Tab", ["$event"])
     onEscapeKeyDown(event) {
         this.target.close();
+        event.preventDefault();
     }
 
     // @HostListener("keydown.Space", ["$event"])
     // onSpaceKeyDown(event) {
+    //     this.target.selectItem();
+    //     event.preventDefault();
+    // }
+
+    // @HostListener("keydown.Spacebar", ["$event"])
+    // onSpaceKeyDownIE(event) {
     //     this.target.selectItem();
     //     event.preventDefault();
     // }
@@ -422,12 +436,14 @@ export class IgxDropDownItemNavigationDirective {
     onArrowDownKeyDown(event) {
         this.target.navigateNext();
         event.preventDefault();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.ArrowUp", ["$event"])
     onArrowUpKeyDown(event) {
         this.target.navigatePrev();
         event.preventDefault();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.End", ["$event"])
