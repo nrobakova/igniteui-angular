@@ -18,24 +18,22 @@
 </ng-template>
 
 <div class="igx-combo" [style.width]="width">
-            <igx-input-group>
-
-                <input igxInput #comboInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly/>
-                
+    <igx-input-group (click)="dropdown.toggle()" type="box">
+        <input igxInput #comboInput name="comboInput" type="text" [(ngModel)]="value" width="90%" tabindex="0" readonly placeholder="Select..."/>
         <igx-suffix igxButton="icon" igxRipple (click)="deselectAllItems()">
-                    <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
-                </igx-suffix>
-        <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple (click)="dropdown.toggle()">
-                    <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
-                    <ng-template #toggleUp>
-                        <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
-                    </ng-template>
-                </igx-suffix>
-            </igx-input-group>
+            <igx-icon *ngIf="value.length" fontSet="material" name="clear"></igx-icon>
+        </igx-suffix>
+        <igx-suffix igxButton="icon" class="dropdownToggleButton" igxRipple>
+            <igx-icon *ngIf="dropdown.collapsed; else toggleUp" fontSet="material" name="arrow_drop_down"></igx-icon>
+            <ng-template #toggleUp>
+                <igx-icon fontSet="material" name="arrow_drop_up"></igx-icon>
+            </ng-template>
+        </igx-suffix>
+    </igx-input-group>
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group class="igx-combo__search">
             <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text"  tabindex="1" [(ngModel)]="searchValue"
-                (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
+                (keyup)="handleKeyDown($event)" placeholder="Search..." />
         </igx-input-group>
         <!-- <div>
             Select All:

@@ -34,3 +34,8 @@
 .igx-drop-down__item .igx-checkbox {
     margin-right: 8px;
 }
+
+.input-container {
+    float: left;
+    margin: 0 30px 20px 0;
+}

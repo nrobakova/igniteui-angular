@@ -147,7 +147,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         return this.elementRef.nativeElement;
     }
 
-    public get scrollContainer() {
+    protected get scrollContainer() {
         return this.toggleDirective.element;
     }
     /**
@@ -406,9 +406,12 @@ export class IgxDropDownItemNavigationDirective {
         this._target = target ? target : this.dropdown;
     }
 
+    @HostListener("keydown.Enter", ["$event"])
     @HostListener("keydown.Escape", ["$event"])
+    @HostListener("keydown.Tab", ["$event"])
     onEscapeKeyDown(event) {
         this.target.close();
+        event.preventDefault();
     }
 
     @HostListener("keydown.Space", ["$event"])
@@ -417,22 +420,24 @@ export class IgxDropDownItemNavigationDirective {
         event.preventDefault();
     }
 
-    @HostListener("keydown.Enter", ["$event"])
+    /*@HostListener("keydown.Enter", ["$event"])
     onEnterKeyDown(event) {
         this.target.selectItem();
         event.preventDefault();
-    }
+    }*/
 
     @HostListener("keydown.ArrowDown", ["$event"])
     onArrowDownKeyDown(event) {
         this.target.navigateNext();
         event.preventDefault();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.ArrowUp", ["$event"])
     onArrowUpKeyDown(event) {
         this.target.navigatePrev();
         event.preventDefault();
+        event.stopPropagation();
     }
 
     @HostListener("keydown.End", ["$event"])
