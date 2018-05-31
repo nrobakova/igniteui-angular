@@ -118,9 +118,13 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     selectItem(item?: IgxComboItemComponent) {
-        this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
-        if (item) {
-            this._focusedItem = item;
+        if (this.items.length === 0) {
+            this.parentElement.addItemToCollection();
+        } else {
+            this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
+            if (item) {
+                this._focusedItem = item;
+            }
         }
     }
 
@@ -395,10 +399,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        /* if (evt.key === "Enter") {
-            if (this.filteredData.length === 1) {
-                this.selectAllItems();
-            }
+        /* if (evt.key === "Enter" && this.dropdown.items.length === 0) {
+            this.addItemToCollection();
         } else */
         if (evt.key === "ArrowDown" || evt.key === "Down") {
             this.dropdown.element.focus();
@@ -592,6 +594,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
+        this.changeSelectedItem(addedItem, true);
         this.handleInputChange();
     }
 
