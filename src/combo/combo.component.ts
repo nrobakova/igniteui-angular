@@ -328,6 +328,14 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    onInputFocus(evt) {
+        if (this.dropdown.collapsed) {
+            return;
+        }
+        evt.preventDefault();
+        this.dropdown.toggle();
+    }
+
     public get filteringExpressions() {
         return this._filteringExpressions;
     }
@@ -377,7 +385,6 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     set searchValue(val: string) {
         this._searchValue = val;
     }
-    /* */
 
     public get filteredData(): any[] {
         return this._filteredData;
@@ -388,11 +395,12 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        if (evt.key === "Enter") {
+        /* if (evt.key === "Enter") {
             if (this.filteredData.length === 1) {
                 this.selectAllItems();
             }
-        } else if (evt.key === "ArrowDown" || evt.key === "Down") {
+        } else */
+        if (evt.key === "ArrowDown" || evt.key === "Down") {
             this.dropdown.element.focus();
         } else if (evt.key === "Escape" || evt.key === "Esc") {
             this.dropdown.toggle();
