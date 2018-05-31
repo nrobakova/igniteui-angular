@@ -465,7 +465,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         if (this.inEditMode) {
             return;
         }
-        
+
         event.stopPropagation();
         event.preventDefault();
         const visibleColumns = this.grid.visibleColumns;
@@ -573,7 +573,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         if (this.inEditMode) {
             return;
         }
-        
+
         event.stopPropagation();
         event.preventDefault();
         const lastCell = this._getLastSelectedCell();
@@ -610,7 +610,7 @@ export class IgxGridCellComponent implements IGridBus, OnInit, OnDestroy, AfterV
         if (this.inEditMode) {
             return;
         }
-        
+
         event.stopPropagation();
         event.preventDefault();
         const lastCell = this._getLastSelectedCell();
