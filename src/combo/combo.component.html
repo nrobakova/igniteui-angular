@@ -32,7 +32,7 @@
             </igx-input-group>
     <ng-container *ngIf="!dropdown.collapsed">
         <igx-input-group class="igx-combo__search">
-            <input class="igx-combo-input" igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text"  tabindex="1" [(ngModel)]="searchValue"
+            <input class="igx-combo-input" igxInput #searchInput [igxDropDownItemNavigation]="dropdown" name="searchInput" type="text" [(ngModel)]="searchValue"
                 (input)="handleInputChange()" (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
         </igx-input-group>
         <!-- <div>
