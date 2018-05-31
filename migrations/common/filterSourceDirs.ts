@@ -20,7 +20,7 @@ function getProjectPaths(config /*: CliConfig*/): string[] {
             // filter out e2e apps
             continue;
         }
-        let sourcePath = proj.sourceRoot;
+        let sourcePath = path.join("/", proj.sourceRoot);
         if (proj.prefix || globalPrefix) {
             sourcePath = path.join(sourcePath, proj.prefix || globalPrefix);
         }

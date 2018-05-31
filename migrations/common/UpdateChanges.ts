@@ -122,7 +122,6 @@ export class UpdateChanges {
         return fileContent;
     }
 
-    /** Basic string replace for now */
     protected updateClasses(entry: FileEntry) {
         let fileContent = entry.content.toString();
         let overwrite = false;

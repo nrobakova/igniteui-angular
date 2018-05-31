@@ -59,6 +59,8 @@ src/**/*.js.map
 src/**/*.css
 src/**/*.css.map
 
+migrations/**/*.js
+
 dist/
 
 # vs
