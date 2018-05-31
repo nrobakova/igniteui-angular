@@ -431,9 +431,9 @@ fdescribe("Combo", () => {
         expect(combo.selectAllItems).toHaveBeenCalledTimes(0);
         spyOnProperty(combo, "filteredData", "get").and.returnValue([1]);
         combo.handleKeyDown({ key: "Enter" });
-        expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(0);
         combo.handleKeyDown({ key: "ArrowDown" });
-        expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
+        expect(combo.selectAllItems).toHaveBeenCalledTimes(0);
         expect(dropdownSpy.focus).toHaveBeenCalledTimes(1);
         // combo.handleKeyDown({key: "Down"});
         // expect(combo.selectAllItems).toHaveBeenCalledTimes(1);
@@ -604,7 +604,8 @@ fdescribe("Combo", () => {
         fix.whenStable().then(() => {
             fix.detectChanges();
 
-            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(0);
+            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(1);
+            expect(combo.dropdown.open).toHaveBeenCalledTimes(1);
             combo.onArrowDown(new KeyboardEvent("keydown", { altKey: true, key: "ArrowDown" }));
 
             return fix.whenStable();
@@ -621,8 +622,8 @@ fdescribe("Combo", () => {
         }).then(() => {
             fix.detectChanges();
 
-            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(1);
-            expect(combo.dropdown.collapsed).toEqual(false);
+            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(2);
+            expect(combo.dropdown.close).toHaveBeenCalledTimes(1);
             // expect(document.activeElement).toEqual(combo.searchInput.nativeElement);
 
             combo.onArrowUp(new KeyboardEvent("keydown", { altKey: true, key: "ArrowUp" }));
@@ -630,7 +631,7 @@ fdescribe("Combo", () => {
         }).then(() => {
 
             fix.detectChanges();
-            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(2);
+            expect(combo.dropdown.toggle).toHaveBeenCalledTimes(3);
             expect(combo.dropdown.close).toHaveBeenCalledTimes(1);
             // expect(document.activeElement).toEqual(combo.comboInput.nativeElement);
         });
