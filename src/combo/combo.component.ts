@@ -117,9 +117,13 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     selectItem(item?: IgxComboItemComponent) {
-        this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
-        if (item) {
-            this._focusedItem = item;
+        if (this.items.length === 1 || (item && item.itemData === undefined)) {
+            this.parentElement.addItemToCollection();
+        } else {
+            this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
+            if (item) {
+                this._focusedItem = item;
+            }
         }
     }
 
@@ -210,6 +214,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     protected _filteringExpressions = [];
     protected _sortingExpressions = [];
     protected _groupKey: string | number;
+    public customValueFlag = true;
     private _dataType = "";
     private _filteredData = [];
     protected _textKey = "";
@@ -417,16 +422,19 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
     }
 
     public handleKeyDown(evt) {
-        /* if (evt.key === "Enter") {
-            if (this.filteredData.length === 1) {
-                this.selectAllItems();
-            }
+        /* if (evt.key === "Enter" && this.dropdown.items.length === 0) {
+            this.addItemToCollection();
         } else */
         if (evt.key === "ArrowDown" || evt.key === "Down") {
             this.dropdown.element.focus();
         } else if (evt.key === "Escape" || evt.key === "Esc") {
             this.dropdown.toggle();
         }
+        this.checkMatch();
+    }
+
+    private checkMatch() {
+        this.customValueFlag = !this.filteredData.some((e) => e[this.textKey].toLowerCase() === this.searchValue.toLowerCase());
     }
 
     public handleInputChange() {
@@ -614,6 +622,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         };
         this.onAddition.emit(args);
         this.data.push(addedItem);
+        this.changeSelectedItem(addedItem, true);
+        this.checkMatch();
         this.handleInputChange();
     }
 

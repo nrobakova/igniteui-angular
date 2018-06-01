@@ -50,8 +50,9 @@ export class IgxComboSortingPipe implements PipeTransform {
         if (!state.expressions.length) {
             return collection;
         }
-
-        return DataUtil.sort(cloneArray(collection), state);
+        const result = DataUtil.sort(cloneArray(collection), state);
+        this.combo.filteredData = result;
+        return result;
     }
 }
 @Pipe({
