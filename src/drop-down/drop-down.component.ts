@@ -262,7 +262,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
             index = currentIndex ? currentIndex : this._focusedItem.index;
         }
         const newIndex = this.getNearestSiblingFocusableItemIndex(index, direction);
-        this.focusItem(newIndex, index);
+        this.focusItem(newIndex, direction);
     }
 
     navigateFirst() {
@@ -374,7 +374,7 @@ export class IgxDropDownBase implements IToggleView, OnInit {
         }
     }
 
-    public focusItem(newIndex: number, currentIndex?: number) {
+    public focusItem(newIndex: number, direction?: MoveDirection) {
         if (newIndex !== -1) {
             const oldItem = this._focusedItem;
             const newItem = this.items[newIndex];

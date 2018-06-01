@@ -69,8 +69,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     protected get scrollContainer() {
-        return this.verticalScrollContainer.dc.instance._viewContainer
-            .element.nativeElement.parentNode.getElementsByTagName("igx-display-container")[0];
+        return this.verticalScrollContainer.dc.location.nativeElement;
     }
 
     @ContentChild(forwardRef(() => IgxForOfDirective), { read: IgxForOfDirective })
@@ -128,31 +127,54 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
         }
     }
 
-    focusItem(newIndex: number, currentIndex?: number) {
+    focusItem(newIndex: number, direction?: number) {
+        // Virtual scrolling holds one hidden loaded element at the bottom of the drop down list.
+        // At the top there isn't such a hidden element.
+        // That's why we hold the first or the one before the last list item as focused, during keyboard navigation.
+        // This means that if we want to focus next element, it's the last hidden element when scrolling down
+        // and when scrolling up it is not loaded at all.
+        // It's more special case when srcolling down and the hidden element is group header,
+        // which is not part of the this.items collection.
+        // In that case the real item is not hidden, but not loaded at all by the virtualization,
+        // and this is the same case as normal scroll up.
         if (newIndex === -1 || newIndex === this.items.length - 1) {
-            this.focusVirtualItem(newIndex, currentIndex);
+            this.focusVirtualItem(direction);
         } else {
             super.focusItem(newIndex);
         }
     }
 
-    private focusVirtualItem(newIndex: number, currentIndex?: number) {
+    private focusVirtualItem(direction: MoveDirection) {
         const vContainer = this.verticalScrollContainer;
-        let scrollDelta = this.parentElement.listItemHeight;
-        if (currentIndex === 0) {
-            scrollDelta = scrollDelta * -1;
+        let state = vContainer.state;
+        const isScrollUp = direction === MoveDirection.Up;
+        let newScrollStartIndex = isScrollUp ? state.startIndex - 1 : state.startIndex + 1;
+        let data = vContainer.igxForOf;
+
+        // Following the big comment above, when the new item is group header, then we need to load 2 elements at once.
+        if (data[newScrollStartIndex].isHeader && direction === MoveDirection.Up ||
+            data[newScrollStartIndex + state.chunkSize - 2].isHeader && direction === MoveDirection.Down) {
+            newScrollStartIndex = isScrollUp ? newScrollStartIndex - 1 : newScrollStartIndex + 1;
         }
-        if (newIndex === -1) {
-            scrollDelta = scrollDelta * 2;
-        }
-        vContainer.addScrollTop(scrollDelta);
+        vContainer.scrollTo(newScrollStartIndex);
         this.subscribeNext(vContainer, () => {
+            state = vContainer.state;
+            data = vContainer.igxForOf;
+
+            // Because we are sure that if we scroll up then the top element is not a header, then we focus the first one.
+            // When we scroll down, if the newly loaded element that is hidden is group header,
+            // then we focus the last item from the this.items array.
+            // This is because the this.items doens't contains the group headers, while there are rendered in the combo drop down.
+            // If the newly loaded element that is hidden isn't a header, this means that the first visible item, the one that needs focus,
+            // should be either the one that is before the last item (this.items).
+            const isBottomHiddenHeader = data[state.startIndex + state.chunkSize - 1].isHeader;
+            const index = isScrollUp ? 0 : isBottomHiddenHeader ? this.items.length - 1 : this.items.length - 2;
+
             const oldItem = this._focusedItem;
-            currentIndex = currentIndex === this.items.length ? currentIndex - 1 : currentIndex;
-            const newItem = this.items[currentIndex];
             if (oldItem) {
                 oldItem.isFocused = false;
             }
+            const newItem = this.items[index];
             newItem.isFocused = true;
             this._focusedItem = newItem;
         });
