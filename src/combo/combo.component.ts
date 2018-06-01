@@ -118,7 +118,7 @@ export class IgxComboDropDownComponent extends IgxDropDownBase {
     }
 
     selectItem(item?: IgxComboItemComponent) {
-        if (this.items.length === 1 || (item && item.itemData === undefined)) {
+        if (item && item.itemData === undefined) {
             this.parentElement.addItemToCollection();
         } else {
             this.setSelectedItem(item ? item.itemID : this._focusedItem.itemID);
@@ -397,6 +397,7 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
 
     public set filteredData(val: any[]) {
         this._filteredData = this.groupKey ? (val || []).filter((e) => e.isHeader !== true) : val;
+        // this.checkMatch();
     }
 
     public handleKeyDown(evt) {
@@ -408,11 +409,10 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
         } else if (evt.key === "Escape" || evt.key === "Esc") {
             this.dropdown.toggle();
         }
-        this.checkMatch();
     }
 
     private checkMatch() {
-        this.customValueFlag = !this.filteredData.some((e) => e[this.textKey].toLowerCase() === this.searchValue.toLowerCase());
+        this.customValueFlag = !this.filteredData.some((e) => e[this.textKey].toLowerCase() === this.searchValue.trim().toLowerCase());
     }
 
     public handleInputChange() {
@@ -421,6 +421,8 @@ export class IgxComboComponent implements AfterViewInit, OnDestroy {
                 true, this.getDataType() === DataTypes.PRIMITIVE ? undefined : this.textKey);
             this.isHeaderChecked();
         }
+        this.checkMatch();
+        this.cdr.detectChanges();
     }
 
     public sort(fieldName: string | number, dir: SortingDirection = SortingDirection.Asc, ignoreCase: boolean = true): void {

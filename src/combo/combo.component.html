@@ -35,6 +35,10 @@
         <igx-input-group class="igx-combo__search">
             <input class="igx-combo-input" igxInput #searchInput name="searchInput" type="text" [(ngModel)]="searchValue" (input)="handleInputChange()"
                 (keyup)="handleKeyDown($event)" placeholder="Enter a search term" />
+            <igx-suffix *ngIf="searchValue.length !== 0 && customValueFlag" [tabindex]="dropdown.collapsed ? -1 : customValueFlag ? 0 : -1"
+                igxButton="icon" class="" igxRipple (keypress)="addItemToCollection()">
+                <igx-icon fontSet="material" name="add_box" (click)="addItemToCollection()"></igx-icon>
+            </igx-suffix>
         </igx-input-group>
         <!-- <div>
             Select All:
@@ -64,14 +68,14 @@
                         </ng-container>
                     </igx-combo-item>
                 </ng-template>
+                <igx-combo-item *ngIf="filteredData.length === 0" style="text-align: center;">
+                    <ng-container *ngTemplateOutlet="empty; context: {$impicit: this}">
+                    </ng-container>
+                </igx-combo-item>
             </div>
         </ng-container>
         <ng-container *ngIf="!dropdown.collapsed">
             <ng-container *ngTemplateOutlet="dropdownFooter; context: {$impicit: this}"></ng-container>
         </ng-container>
-        <igx-combo-item *ngIf="searchValue.length !== 0 && customValueFlag" style="text-align: center;">
-            <ng-container *ngTemplateOutlet="addItemTemplate ? addItemTemplate : addItem; context: {$impicit: this}">
-            </ng-container>
-        </igx-combo-item>
     </igx-combo-drop-down>
 </div>
