@@ -410,11 +410,6 @@ export function autoWire(markForCheck = false) {
 })
 export class IgxDragDirective {
 
-    @Input("igxDrag")
-    set data(val: IgxColumnComponent) {
-        this._column = val;
-    }
-
     @Output()
     public dragEnd = new Subject<any>();
 
@@ -424,22 +419,19 @@ export class IgxDragDirective {
     @Output()
     public drag = new Subject<any>();
 
-    get draggable() {
-        return this.column.movable;
-    }
+    @HostBinding('style.touchAction')
+    public touch = "none";
 
-    get column() : IgxColumnComponent {
-        return this._column;
-    }
+    protected _left;
+    protected _top;
+    protected _dragGhost;
+    protected _dragStarted = false;
+    protected _lastDropArea = null;
+    protected _startX = 0;
+    protected _startY = 0;
+    protected _destroy = new Subject<boolean>();
 
-    private _column: IgxColumnComponent;
-
-    private _left;
-    private _top;
-    private _dragGhost;
-    private _destroy = new Subject<boolean>();
-
-    constructor(public element: ElementRef, @Inject(DOCUMENT) public document, public zone: NgZone, private cms: IgxColumnMovingService) {
+    constructor(public element: ElementRef, public zone: NgZone) {
 
         this.dragStart.pipe(
             map((event) => ({ left: event.pageX, top: event.pageY })),
@@ -461,15 +453,15 @@ export class IgxDragDirective {
     ngOnInit() {
         this.zone.runOutsideAngular(() => {
             fromEvent(this.element.nativeElement, "pointerdown").pipe(takeUntil(this._destroy))
-                .subscribe((res) => this.onMousedown(res));
+                .subscribe((res) => this.onPointerDown(res));
 
-            fromEvent(this.document.defaultView, "pointermove").pipe(
+            fromEvent(this.element.nativeElement, "pointermove").pipe(
                 takeUntil(this._destroy),
                 throttle(() => interval(0, animationFrameScheduler))
-            ).subscribe((res) => this.onMousemove(res));
+            ).subscribe((res) => this.onPointerMove(res));
 
-            fromEvent(this.document.defaultView, "pointerup").pipe(takeUntil(this._destroy))
-                .subscribe((res) => this.onMouseup(res));
+            fromEvent(this.element.nativeElement, "pointerup").pipe(takeUntil(this._destroy))
+                .subscribe((res) => this.onPointerUp(res));
         });
     }
 
@@ -486,61 +478,186 @@ export class IgxDragDirective {
         requestAnimationFrame(() => this._dragGhost.style.top = val);
     }
 
-    onMousedown(event) {
+    public onPointerDown(event) {
         this.dragStart.next(event);
         event.preventDefault();
 
-        if (this.draggable) {
-            const elStyle = this.document.defaultView.getComputedStyle(this.element.nativeElement);
+        this.element.nativeElement.setPointerCapture(event.pointerId);
+        this._dragStarted = true;
+        const elStyle = document.defaultView.getComputedStyle(this.element.nativeElement);
 
-            this._left = event.pageX - (event.pageX - this.element.nativeElement.getBoundingClientRect().left);
-            this._top = event.pageY - (event.pageY - this.element.nativeElement.getBoundingClientRect().top);
+        this._left = event.pageX - (event.pageX - this.element.nativeElement.getBoundingClientRect().left);
+        this._top = event.pageY - (event.pageY - this.element.nativeElement.getBoundingClientRect().top);
 
-            this._dragGhost = this.element.nativeElement.cloneNode(true);
+        this._dragGhost = this.element.nativeElement.cloneNode(true);
 
-            this._dragGhost.style.background = "lightgray";
-            this._dragGhost.style.border = "0.2px solid red";
-            this._dragGhost.style.width = elStyle.width;
-            this._dragGhost.style.height = elStyle.height;
-            this._dragGhost.style.position = "absolute";
-            this._dragGhost.style.cursor = "not-allowed";
-            // this._dragGhost.style.zIndex  = "10000";
-            this.left = this._left + "px";
-            this.top = this._top + "px";
+        this._dragGhost.style.background = "lightgray";
+        this._dragGhost.style.border = "0.2px solid red";
+        this._dragGhost.style.width = elStyle.width;
+        this._dragGhost.style.height = elStyle.height;
+        this._dragGhost.style.position = "absolute";
+        this._dragGhost.style.cursor = "not-allowed";
+        this._dragGhost.style.zIndex  = "20";
+        this.left = this._left + "px";
+        this.top = this._top + "px";
 
-            // document.body.appendChild(this._dragGhost);
-            //document.body.style.cursor = "url(this._dragGhost)";
+        document.body.appendChild(this._dragGhost);
+        document.body.style.cursor = "url(this._dragGhost)";
 
-            this.cms.columMovingInfo = {
-                column: this.column,
-                clientX: event.pageX
+        this._startX = event.pageX;
+        this._startY = event.pageY;
+    }
+
+    public onPointerMove(event) {
+        if(this._dragStarted) {
+            const eventArgs = {
+                detail: {
+                    startX: this._startX,
+                    startY: this._startY,
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    owner: this
+                }
             };
+            let topDropArea;
+            let elementsFromPoint;
+
+            if (document.msElementsFromPoint) {
+                // MS browsers that have different name for elementsFromPoint function like IE and Edge
+                elementsFromPoint= document.msElementsFromPoint(event.pageX, event.pageY);
+            } else {
+                // Other browsers like Chrome, Firefox, Opera
+                elementsFromPoint= document.elementsFromPoint(event.pageX, event.pageY);
+            }
+
+            for(let i = 0; i < elementsFromPoint.length; i++) {
+                if (elementsFromPoint[i].getAttribute("droppable") === "true" &&
+                    !elementsFromPoint[i].isEqualNode(this._dragGhost)) {
+                    topDropArea = elementsFromPoint[i];
+                    break;
+                }
+            }
+
+            if (topDropArea &&
+                 (!this._lastDropArea || (this._lastDropArea && !this._lastDropArea.isEqualNode(topDropArea)))) {
+                if (this._lastDropArea) {
+                    this._lastDropArea.dispatchEvent(new CustomEvent('igxDragLeave', eventArgs));
+                }
+                topDropArea.dispatchEvent(new CustomEvent('igxDragEnter', eventArgs));
+                this._lastDropArea = topDropArea;
+            } else if (!topDropArea && this._lastDropArea) {
+                this._lastDropArea.dispatchEvent(new CustomEvent('igxDragLeave', eventArgs));
+                this._lastDropArea = null;
+            }
+
+            this.drag.next(event);
+            event.preventDefault();
+        }
+    }
+
+    public onPointerUp(event) {
+        if(this._dragStarted) {
+            this._dragStarted = false;
+            this.dragEnd.next(event);
+            setTimeout(() => {
+                this._dragGhost.parentNode.removeChild(this._dragGhost);
+            });
+
+            let topDraggableElem;
+            let elementsFromPoint;
+            if (document.msElementsFromPoint) {
+                // MS browsers that have different name for elementsFromPoint function like IE and Edge
+                elementsFromPoint= document.msElementsFromPoint(event.pageX, event.pageY);
+            } else {
+                // Other browsers like Chrome, Firefox, Opera
+                elementsFromPoint= document.elementsFromPoint(event.pageX, event.pageY);
+            }
+
+            for(let i = 0; i < elementsFromPoint.length; i++) {
+                if (elementsFromPoint[i].getAttribute("droppable") === "true" &&
+                    !elementsFromPoint[i].isEqualNode(this._dragGhost)) {
+                    topDraggableElem = elementsFromPoint[i];
+                    break;
+                }
+            }
+
+            if (topDraggableElem) {
+                topDraggableElem.dispatchEvent(new CustomEvent('igxDrop', {
+                    detail: {
+                         owner: this
+                    }
+                }));
+            }
+        }
+    }
+}
+
+@Directive({
+    selector: "[igxColumnMovingDrag]"
+})
+export class IgxColumnMovingDragDirective extends IgxDragDirective {
+
+    public get draggable() {
+        return this.column.movable;
+    }
+
+    @Input("igxColumnMovingDrag")
+    set data(val: IgxColumnComponent) {
+        this._column = val;
+    }
+
+    get column() : IgxColumnComponent {
+        return this._column;
+    }
+
+    private _column: IgxColumnComponent;
+
+    constructor(_element: ElementRef, _zone: NgZone) {
+        super(_element, _zone);
+    }
+
+    public onPointerDown(event) {
+        if (this.draggable) {
+            super.onPointerDown(event);
 
             this.column.grid.isColumnMoving = true;
         }
-
     }
 
-    onMousemove(event) {
-        this.drag.next(event);
-        event.preventDefault();
-    }
+    public onPointerUp(event) {
+        super.onPointerUp(event);
 
-    onMouseup(event) {
-        this.dragEnd.next(event);
-        this.column.grid.isColumnMoving = false;
-        setTimeout(() => {
-            this._dragGhost.parentNode.removeChild(this._dragGhost);
-        });
+        if(this._dragStarted) {
+            this.column.grid.isColumnMoving = false;
+        }
     }
 }
 
 @Directive({
     selector: "[igxDrop]"
 })
-export class IgxDropDirective implements OnDestroy {
+export class IgxDropDirective {
 
-    @Input("igxDrop")
+    @HostListener("igxDragEnter", ["$event"])
+    public onDragEnter(event) {
+    }
+
+
+    @HostListener("igxDragLeave", ["$event"])
+    public onDragLeave(event) {
+    }
+
+    @HostListener("igxDrop", ["$event"])
+    public onDragDrop(event) {
+    }
+}
+
+@Directive({
+    selector: "[igxColumnMovingDrop]"
+})
+export class IgxColumnMovingDropDirective extends IgxDropDirective implements OnDestroy  {
+
+    @Input("igxColumnMovingDrop")
     set droppable(val: any) {
         if (val instanceof IgxColumnComponent) {
             this._column = val;
@@ -578,7 +695,7 @@ export class IgxDropDirective implements OnDestroy {
     private _dropIndicatorClass = "igx-grid__drop-indicator-active";
 
     constructor(private elementRef: ElementRef, private cms: IgxColumnMovingService, private renderer: Renderer2) {
-
+        super();
     }
 
     public ngOnDestroy() {
@@ -586,13 +703,12 @@ export class IgxDropDirective implements OnDestroy {
         this._dragLeave.unsubscribe();
     }
 
-    @HostListener("pointerenter", ["$event"])
     public onDragEnter(event) {
-        if (this.column && this.column.grid.isColumnMoving && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
-            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
+        if (this.column && this.column.grid.isColumnMoving && this.isDropTarget && event.detail.owner.column !== this.column) {
+            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(event.detail.owner.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
                 event.preventDefault();
 
-                this._dropIndicator = this.cms.columMovingInfo.clientX < event.clientX ? this.elementRef.nativeElement.children[4] :
+                this._dropIndicator = event.detail.startX < event.detail.clientX ? this.elementRef.nativeElement.children[4] :
                     this.elementRef.nativeElement.children[0];
 
                 this.renderer.addClass(this._dropIndicator, this._dropIndicatorClass);
@@ -608,18 +724,8 @@ export class IgxDropDirective implements OnDestroy {
         }
     }
 
-    @HostListener("pointerover", ["$event"])
-    public onDragOver(event) {
-        if (this.column && this.isDropTarget && this.cms.columMovingInfo.column !== this.column) {
-            if (!this.column.pinned || (this.column.pinned && this.column.grid.getPinnedWidth() + parseFloat(this.cms.columMovingInfo.column.width) <= this.column.grid.calcPinnedContainerMaxWidth)) {
-                event.preventDefault();
-            }
-        }
-    }
-
-    @HostListener("pointerleave", ["$event"])
     public onDragLeave(event) {
-        if (this._dropIndicator && this.cms.columMovingInfo.column !== this.column) {
+        if (this._dropIndicator && event.detail.owner.column !== this.column) {
             this.renderer.removeClass(this._dropIndicator, this._dropIndicatorClass);
         }
 
@@ -628,7 +734,6 @@ export class IgxDropDirective implements OnDestroy {
         }
     }
 
-    @HostListener("pointerup", ["$event"])
     public onDragDrop(event) {
         event.stopPropagation();
         this.column.grid.isColumnMoving = false;
@@ -638,10 +743,12 @@ export class IgxDropDirective implements OnDestroy {
         }
 
         if (this.column && this.isDropTarget) {
-            this.renderer.removeClass(this._dropIndicator, this._dropIndicatorClass);
+            if (this._dropIndicator) {
+                this.renderer.removeClass(this._dropIndicator, this._dropIndicatorClass);
+            }
 
             this.column.grid.isColumnMoving = false;
-            this.column.grid.moveColumn(this.cms.columMovingInfo.column, this.column);
+            this.column.grid.moveColumn(event.detail.owner.column, this.column);
         }
     }
 }
